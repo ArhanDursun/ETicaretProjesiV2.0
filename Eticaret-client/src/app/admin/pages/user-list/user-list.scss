@@ -1,0 +1,85 @@
+.user-list-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    &__titles {
+      h1 { font-size: 1.8rem; font-weight: 700; color: #212529; margin-bottom: 0.25rem; }
+      p { color: #6c757d; font-size: 0.95rem; margin: 0; }
+    }
+
+    .btn--primary {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      &:hover { background-color: #e68a00; }
+    }
+  }
+
+  .card-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .search-input, .filter-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.95rem;
+      &:focus { border-color: #ff9800; }
+    }
+    .search-input { flex: 1; max-width: 400px; }
+    .filter-select { min-width: 150px; }
+  }
+
+  .table-responsive { overflow-x: auto; }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #f8f9fa; }
+    th { color: #adb5bd; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+    td { color: #333; font-size: 0.95rem; vertical-align: middle; }
+    tbody tr { transition: background 0.2s; &:hover { background-color: #f8f9fa; } }
+    .text-right { text-align: right; }
+  }
+
+ 
+  .role-tag {
+    font-size: 0.85rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px;
+    &--admin { background: #343a40; color: white; }
+    &--seller { background: #e3f2fd; color: #1976d2; }
+    &--customer { background: #f8f9fa; color: #495057; border: 1px solid #dee2e6; }
+  }
+
+  
+  .badge {
+    padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: inline-block;
+    &--success { background-color: #e8f5e9; color: #2e7d32; }
+    &--warning { background-color: #fff8e1; color: #f57f17; }
+    &--danger { background-color: #ffebee; color: #c62828; }
+  }
+
+ 
+  .action-btn {
+    background: transparent; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s;
+    &--edit { color: #1976d2; &:hover { background: #e3f2fd; } }
+    &--delete { color: #c62828; &:hover { background: #ffebee; } }
+  }
+}

@@ -1,0 +1,58 @@
+<div class="product-add-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>{{ 'PRODUCT_ADD.TITLE' | translate }}</h2>
+      <p>{{ 'PRODUCT_ADD.SUBTITLE' | translate }}</p>
+    </div>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label>{{ 'PRODUCT_ADD.NAME_LABEL' | translate }}</label>
+        <input type="text" formControlName="name" [placeholder]="'PRODUCT_ADD.NAME_PLACEHOLDER' | translate"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PRODUCT_ADD.CATEGORY_LABEL' | translate }}</label>
+        <select formControlName="categoryId" class="form-control">
+          <option value="" disabled selected>{{ 'PRODUCT_ADD.CATEGORY_SELECT' | translate }}</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">
+            {{ cat.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>{{ 'PRODUCT_ADD.PRICE_LABEL' | translate }}</label>
+          <input type="number" formControlName="price" placeholder="0.00" class="form-control">
+        </div>
+
+        <div class="form-group half-width">
+          <label>{{ 'PRODUCT_ADD.STOCK_LABEL' | translate }}</label>
+          <input type="number" formControlName="stockQuantity" placeholder="1" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PRODUCT_ADD.DESC_LABEL' | translate }}</label>
+        <textarea formControlName="description" rows="4" class="form-control"
+          [placeholder]="'PRODUCT_ADD.DESC_PLACEHOLDER' | translate"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PRODUCT_ADD.IMAGE_LABEL' | translate }}</label>
+        <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="form-control">
+        <small class="text-danger" *ngIf="!selectedFiles && productForm.touched">
+          {{ 'PRODUCT_ADD.IMAGE_REQUIRED' | translate }}
+        </small>
+      </div>
+
+      <button type="submit" class="btn-primary full-width" [disabled]="productForm.invalid || isLoading">
+        {{ (isLoading ? 'PRODUCT_ADD.LOADING' : 'PRODUCT_ADD.SUBMIT_BTN') | translate }}
+      </button>
+
+    </form>
+  </div>
+</div>

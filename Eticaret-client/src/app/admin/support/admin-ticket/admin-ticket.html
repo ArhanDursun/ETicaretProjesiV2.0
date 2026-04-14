@@ -1,0 +1,71 @@
+<div class="admin-tickets-container">
+
+    <div class="header">
+        <h2>Yönetim Paneli - Destek Talepleri</h2>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Veriler yükleniyor...</div>
+
+    <ng-container *ngIf="!isLoading">
+
+        <div class="section-card">
+            <h3 class="text-warning">⏳ Havuzdaki Bekleyen Talepler</h3>
+            <table class="table" *ngIf="pendingTickets.length > 0">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>Konu</th>
+                        <th>Kategori</th>
+                        <th>Tarih</th>
+                        <th class="text-right">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ticket of pendingTickets">
+                        <td>{{ ticket.userName }}</td>
+                        <td class="fw-bold">{{ ticket.subject }}</td>
+                        <td>{{ ticket.categoryName }}</td>
+                        <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                        <td class="text-right">
+                            <button class="btn-assign" (click)="assignTicket(ticket.id)">Bileti Üstlen</button>
+                            <button class="btn-reject" (click)="rejectTicket(ticket.id)">Bileti Reddet</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="pendingTickets.length === 0" class="empty-state">
+                Şu an havuzda bekleyen yeni bir talep yok.
+            </div>
+        </div>
+
+        <div class="section-card mt-4">
+            <h3 class="text-success">✅ Benim İlgilendiğim Talepler</h3>
+            <table class="table" *ngIf="myActiveTickets.length > 0">
+                <thead>
+                    <tr>
+                        <th>Konu</th>
+                        <th>Durum</th>
+                        <th>Tarih</th>
+                        <th class="text-right">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ticket of myActiveTickets">
+                        <td class="fw-bold">{{ ticket.subject }}</td>
+                        <td><span class="badge badge-active">{{ ticket.statusName }}</span></td>
+                        <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                        <td class="text-right">
+                            <button class="btn-chat" [routerLink]="['/admin/support/chat', ticket.id]">Sohbete
+                                Git</button>
+                            <button class="btn-close-ticket" (click)="closeTicket(ticket.id)">Kapat</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="myActiveTickets.length === 0" class="empty-state">
+                Üzerinize aldığınız aktif bir talep bulunmuyor.
+            </div>
+        </div>
+
+    </ng-container>
+</div>

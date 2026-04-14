@@ -1,0 +1,56 @@
+<div class="admin-layout">
+
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">
+      <h2>{{ 'ADMIN.BRAND' | translate }} <span>{{ 'ADMIN.PANEL_SUFFIX' | translate }}</span></h2>
+    </div>
+    <nav class="admin-sidebar__nav">
+      <ul>
+        <li>
+          <a routerLink="/admin/dashboard" routerLinkActive="active">{{ 'ADMIN.NAV.DASHBOARD' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/admin/users" routerLinkActive="active">{{ 'ADMIN.NAV.USERS' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/admin/categories" routerLinkActive="active">{{ 'ADMIN.NAV.CATEGORIES' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/admin/products" routerLinkActive="active">{{ 'ADMIN.NAV.PRODUCTS' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/admin/support-tickets" routerLinkActive="active">
+            {{ 'ADMIN.NAV.SUPPORT_TICKETS' | translate }}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <div class="admin-lang-switcher">
+        <button (click)="switchLanguage('tr')" [class.active]="currentLang === 'tr'">
+          🇹🇷 TR
+        </button>
+        <button (click)="switchLanguage('en')" [class.active]="currentLang === 'en'">
+          🇺🇸 EN
+        </button>
+      </div>
+      <button class="logout-btn" (click)="logout()">{{ 'ADMIN.LOGOUT' | translate }}</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header__search">
+        <input type="text" [placeholder]="'ADMIN.SEARCH_PH' | translate">
+      </div>
+      <div class="admin-header__profile">
+        <span>{{ 'ADMIN.PROFILE_NAME' | translate }}</span>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

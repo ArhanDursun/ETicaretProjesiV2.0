@@ -1,0 +1,52 @@
+<div class="notifications-container">
+    <div class="header-section">
+        <h2>Bildirim Merkezi</h2>
+        <span class="badge" *ngIf="notification.length > 0">{{ notification.length }} Yeni</span>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+        Yükleniyor...
+    </div>
+
+    <div class="notification-list" *ngIf="!isLoading">
+        <div class="empty-state" *ngIf="notification.length === 0">
+            <i class="fa fa-bell-slash" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 15px;"></i>
+            <p>Şu an için yeni bir bildiriminiz bulunmuyor.</p>
+        </div>
+
+        <div class="notif-card" *ngFor="let notif of notification" [class.unread]="!notif.isRead">
+
+            <div class="icon-box" [ngSwitch]="notif.type">
+                <i *ngSwitchCase="'OfferAccepted'" class="fa fa-check-circle text-green"></i>
+                <i *ngSwitchCase="'OfferRejected'" class="fa fa-times-circle text-red"></i>
+                <i *ngSwitchCase="'CounterOffer'" class="fa fa-exchange-alt text-blue"></i>
+                <i *ngSwitchCase="'StockAlert'" class="fa fa-bell text-orange"></i>
+                <i *ngSwitchCase="'FavoriteAdded'" class="fa fa-heart" style="color: #ef4444;"></i> <i *ngSwitchDefault
+                    class="fa fa-info-circle text-gray"></i>
+            </div>
+
+            <div class="content-box" (click)="goToProduct(notif.relatedId)"
+                style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'"
+                onmouseout="this.style.opacity='1'">
+                <h4 *ngIf="notif.title" style="margin: 0 0 4px 0; font-size: 1rem; color: #1e293b;">{{ notif.title }}
+                </h4>
+                <p class="message" style="margin: 0 0 4px 0;">{{ notif.message }}</p>
+                <span class="time" style="font-size: 0.8rem; color: #94a3b8;">{{ notif.createdDate | date:'dd MMM yyyy,
+                    HH:mm' }}</span>
+            </div>
+
+            <div class="action-box">
+                <button *ngIf="notif.type === 'StockAlert'" class="btn-primary"
+                    (click)="goToProduct(notif.relatedId)">Ürüne Git</button>
+
+                <button *ngIf="notif.type.includes('Offer')" class="btn-primary"
+                    (click)="goToOffers()">Tekliflerim</button>
+
+                <button class="btn-icon" (click)="$event.stopPropagation(); markAsRead(notif.id)"
+                    title="Okundu İşaretle">
+                    <i class="fa fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

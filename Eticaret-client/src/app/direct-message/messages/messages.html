@@ -1,0 +1,114 @@
+<div class="messenger-container">
+
+    <div class="contacts-panel">
+        <div class="panel-header">
+            <h2>Sohbetler</h2>
+            <button class="btn-new-chat" (click)="openNewChatModal()" title="Yeni Sohbet Başlat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                    <path
+                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="contacts-list">
+            <div class="no-chats" *ngIf="recentChats.length === 0">
+                <p>Henüz bir mesajınız yok.</p>
+            </div>
+
+            <div class="contact-item" *ngFor="let chat of recentChats" [class.active]="activeUserId === chat.userId"
+                (click)="selectChat(chat.userId, chat.userName)">
+
+                <div class="avatar">{{ chat.userName.charAt(0) | uppercase }}</div>
+
+                <div class="contact-info">
+                    <div class="top-row">
+                        <span class="name">{{ chat.userName }}</span>
+                        <span class="time">{{ chat.lastMessageDate | date:'HH:mm' }}</span>
+                    </div>
+                    <div class="bottom-row">
+                        <span class="last-message" [class.unread]="chat.unreadCount > 0">
+                            {{ chat.lastMessage }}
+                        </span>
+                        <span class="badge" *ngIf="chat.unreadCount > 0">{{ chat.unreadCount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-panel">
+        <ng-container *ngIf="activeUserId; else noUserSelected">
+
+            <div class="chat-header">
+                <div class="avatar">{{ activeUserName.charAt(0) | uppercase }}</div>
+                <div class="user-details">
+                    <h3>{{ activeUserName }}</h3>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-scroll-area">
+                <div class="message-bubble" *ngFor="let msg of messageThread" [class.my-message]="msg.senderId === myId"
+                    [class.their-message]="msg.senderId !== myId">
+                    <div class="content">{{ msg.content }}</div>
+                    <div class="timestamp">{{ msg.sentDate | date:'HH:mm' }}</div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" [(ngModel)]="messageText" (keyup.enter)="sendMessage()"
+                    placeholder="Mesajınızı yazın...">
+                <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-send-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494z" />
+                    </svg>
+                </button>
+            </div>
+        </ng-container>
+
+        <ng-template #noUserSelected>
+            <div class="empty-state">
+                <div class="icon-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                        class="bi bi-chat-dots" viewBox="0 0 16 16">
+                        <path
+                            d="M5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                        <path
+                            d="m2.165 15.803.02-.004c1.83-.363 2.948-.842 3.468-1.105A9 9 0 1 0 8 15c.447 0 .882-.033 1.308-.098a12 12 0 0 1-2.108 2.108l-.001.001a1.5 1.5 0 0 1-2.403-1.211z" />
+                    </svg>
+                </div>
+                <h3>Mesajlarınıza Hoş Geldiniz</h3>
+                <p>Sohbete başlamak için sol taraftan bir kişi seçin.</p>
+            </div>
+        </ng-template>
+    </div>
+</div>
+
+<div class="new-chat-overlay" *ngIf="isNewChatModalOpen" (click)="closeNewChatModal()">
+    <div class="new-chat-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Kişiler</h3>
+            <button class="close-btn" (click)="closeNewChatModal()">✕</button>
+        </div>
+
+        <div class="modal-search">
+            <input type="text" [(ngModel)]="searchUserText" (input)="filterUsers()" placeholder="Kişi ara...">
+        </div>
+
+        <div class="user-list">
+            <div class="no-users" *ngIf="filteredUsers.length === 0">
+                Kullanıcı bulunamadı.
+            </div>
+            <div class="user-item" *ngFor="let user of filteredUsers"
+                (click)="startNewChatWith(user.id, user.fullName)">
+                <div class="avatar">{{ user.fullName.charAt(0) | uppercase }}</div>
+                <div class="user-info">
+                    <span class="name">{{ user.fullName }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

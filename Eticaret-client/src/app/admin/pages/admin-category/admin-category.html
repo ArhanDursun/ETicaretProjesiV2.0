@@ -1,0 +1,72 @@
+<div class="admin-panel-container">
+    <div class="panel-header">
+        <h2>{{ 'ADMIN_CAT.TITLE' | translate }}</h2>
+        <button class="btn-primary" (click)="openAddModal()">{{ 'ADMIN_CAT.ADD_NEW' | translate }}</button>
+    </div>
+
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>{{ 'ADMIN_CAT.TABLE.NAME' | translate }}</th>
+                    <th>{{ 'ADMIN_CAT.TABLE.DESC' | translate }}</th>
+                    <th>{{ 'ADMIN_CAT.TABLE.STATUS' | translate }}</th>
+                    <th>{{ 'ADMIN_CAT.TABLE.ACTIONS' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let cat of flatCategoryList">
+                    <td style="font-weight: 600;">{{ cat.name }}</td>
+                    <td>{{ cat.description || ('ADMIN_CAT.TABLE.DESC' | translate) }}</td>
+                    <td><span class="badge active">{{ 'ADMIN_CAT.TABLE.ACTIVE' | translate }}</span></td>
+                    <td class="action-btns">
+                        <button class="btn-icon edit" [title]="'ADMIN_CAT.TABLE.EDIT' | translate"
+                            (click)="openEditModal(cat)">
+                            {{ 'ADMIN_CAT.TABLE.EDIT' | translate }}
+                        </button>
+                        <button class="btn-icon delete" [title]="'ADMIN_CAT.TABLE.DELETE' | translate"
+                            (click)="deleteCategory(cat.id)">
+                            {{ 'ADMIN_CAT.TABLE.DELETE' | translate }}
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="empty-state" *ngIf="flatCategoryList.length === 0">
+            {{ 'ADMIN_CAT.EMPTY_STATE' | translate }}
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-card">
+        <h3>{{ (isEditMode ? 'ADMIN_CAT.MODAL.TITLE_EDIT' : 'ADMIN_CAT.MODAL.TITLE_NEW') | translate }}</h3>
+
+        <div class="input-group">
+            <label>{{ 'ADMIN_CAT.MODAL.NAME_LABEL' | translate }}</label>
+            <input type="text" [(ngModel)]="formData.name" [placeholder]="'ADMIN_CAT.MODAL.NAME_PH' | translate">
+        </div>
+
+        <div class="input-group">
+            <label>{{ 'ADMIN_CAT.MODAL.DESC_LABEL' | translate }}</label>
+            <input type="text" [(ngModel)]="formData.description" [placeholder]="'ADMIN_CAT.MODAL.DESC_PH' | translate">
+        </div>
+
+        <div class="input-group">
+            <label>{{ 'ADMIN_CAT.MODAL.PARENT_LABEL' | translate }}</label>
+            <select [(ngModel)]="formData.parentCategoryId">
+                <option [ngValue]="null">{{ 'ADMIN_CAT.MODAL.PARENT_NONE' | translate }}</option>
+                <ng-container *ngFor="let cat of flatCategoryList">
+                    <option *ngIf="cat.id !== formData.id" [ngValue]="cat.id">
+                        {{ cat.name }}
+                    </option>
+                </ng-container>
+            </select>
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn-cancel" (click)="showModal = false">{{ 'ADMIN_CAT.MODAL.CANCEL' | translate }}</button>
+            <button class="btn-save" (click)="saveCategory()">{{ 'ADMIN_CAT.MODAL.SAVE' | translate }}</button>
+        </div>
+    </div>
+</div>

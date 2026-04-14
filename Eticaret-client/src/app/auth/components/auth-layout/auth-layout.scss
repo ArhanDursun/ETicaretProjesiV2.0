@@ -1,0 +1,66 @@
+
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+.split-layout {
+  display: flex;
+  flex-direction: row !important; 
+  width: 100%;
+  height: 100%;
+}
+
+
+.split-left {
+  width: 50%;
+  background: linear-gradient(135deg, #1a1d20 0%, #343a40 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  color: white;
+
+  .brand-box {
+    text-align: center;
+    h1 { font-size: 3.5rem; margin-bottom: 0.5rem; font-weight: 800; }
+    p { font-size: 1.2rem; opacity: 0.8; }
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+
+.split-right {
+  width: 50%; 
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+
+.form-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+.logo-box{
+    display: flex;
+}
+.logo-item{
+    background-color: darkblue;
+}

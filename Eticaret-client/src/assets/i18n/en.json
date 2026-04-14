@@ -1,0 +1,481 @@
+{
+  "NAVBAR": {
+    "BRAND": "E-Commerce",
+    "SEARCH_PLACEHOLDER": "Search seller or store...",
+    "SEARCHING": "Searching...",
+    "USER_NOT_FOUND": "User not found."
+  },
+  "SIDEBAR": {
+    "MENU_TITLE": "Menu",
+    "HOME": "Home",
+    "PROFILE": "My Profile",
+    "MY_OFFERS": "My Offers",
+    "MY_BASKET": "My Basket",
+    "MY_ORDERS": "My Orders",
+    "SELLER_ORDERS": "Received Orders",
+    "MY_WALLET": "My Wallet",
+    "LOGIN": "Login",
+    "LOGOUT": "Logout",
+    "SUPPORT_TICKETS":"Support Tickets",
+    "MESSAGES":"Messages",
+    "NOTIFICATIONS":"Notifications"
+  },
+  "NOTIFICATIONS": {
+    "UNDERSTAND_BTN": "I Understand, Close"
+  },
+  "MESSAGES": {
+    "LOGOUT_SUCCESS": "Logged out successfully"
+  },
+  "HOME": {
+    "TITLE": "Showcase",
+    "SUBTITLE": "Discover the newest products or start selling your own!",
+    "ADD_PRODUCT_BTN": "Add New Product",
+    "SEARCH_PLACEHOLDER": "Search product (e.g. Laptop)...",
+    "ALL_CATEGORIES": "All Categories",
+    "MIN_PRICE": "Min ₺",
+    "MAX_PRICE": "Max ₺",
+    "SEARCH_BTN": "Search",
+    "CLEAR_BTN": "Clear",
+    "LOADING": "Loading products... Please wait",
+    "NO_PRODUCTS": "No products in the showcase yet. Be the first to add!",
+    "NO_IMAGE": "No Image",
+    "CATEGORY_PREFIX": "Category:",
+    "UNSPECIFIED": "Unspecified",
+    "NO_COMMENTS": "No comments yet",
+    "STOCK_PREFIX": "Stock:",
+    "SELLER_PREFIX": "Seller:"
+  },
+  "OFFERS": {
+    "TITLE": "Offer Management",
+    "TABS": {
+      "SENT": "Sent Offers",
+      "RECEIVED": "Received Offers"
+    },
+    "INFO": {
+      "NO_NAME": "No Product Name",
+      "QUANTITY": "Requested: {{value}} Pcs",
+      "RECEIVED_QUANTITY": "Requested: {{value}} Pcs",
+      "YOUR_OFFER": "Your Offer (Unit):",
+      "BUYER_FIRST_OFFER": "Buyer's First Offer (Unit):",
+      "TOTAL_AMOUNT": "Total Amount:",
+      "BUYER": "Buyer:",
+      "SELLER_NEW_PRICE": "Seller's New Price (Unit):",
+      "YOUR_NEW_PRICE": "Your Counter Price (Unit):",
+      "NEW_TOTAL": "New Total Amount:",
+      "DATE_LABEL": "Date:"
+    },
+    
+    "ACTIONS": {
+      "ACCEPT": "Accept",
+      "REJECT": "Reject",
+      "COUNTER": "Make Counter Offer",
+      "COUNTER_SHORT": "Counter Offer"
+    },
+    "MODAL": {
+      "TITLE": "Make Counter Offer",
+      "DESC": "Suggest a new UNIT PRICE to the buyer:",
+      "PLACEHOLDER": "E.g. 180",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Submit",
+      "SUBMITTING": "Sending..."
+    },
+    "EMPTY": {
+      "SENT": "You haven't made any offers yet.",
+      "RECEIVED": "You have no received offers."
+    },
+    "LOADING": "Loading..."
+  },
+  "PRODUCT_ADD": {
+    "TITLE": "📦 Upload New Product",
+    "SUBTITLE": "Enter product details to start selling on Brandcorner.",
+    "NAME_LABEL": "Product Name",
+    "NAME_PLACEHOLDER": "E.g. Razer DeathAdder V2",
+    "CATEGORY_LABEL": "Category",
+    "CATEGORY_SELECT": "Select Category",
+    "PRICE_LABEL": "Price (USD)",
+    "STOCK_LABEL": "Stock Quantity",
+    "DESC_LABEL": "Product Description",
+    "DESC_PLACEHOLDER": "Describe the product features in detail...",
+    "IMAGE_LABEL": "Product Image",
+    "IMAGE_REQUIRED": "Please select at least one product image.",
+    "SUBMIT_BTN": "Put on Sale",
+    "LOADING": "Uploading..."
+  },
+  "PRODUCT_DETAIL": {
+    "LOADING": "Preparing product...",
+    "SELLER": "Seller:",
+    "DESCRIPTION_TITLE": "Product Description",
+    "IN_STOCK": "{{value}} In Stock",
+    "OUT_OF_STOCK": "Out of Stock",
+    "QUANTITY_LABEL": "Qty:",
+    "OWN_PRODUCT": "Your Own Product",
+    "ADD_TO_CART": "Add to Cart",
+    "MAKE_OFFER": "Make Offer",
+    "BACK_BTN": "Go Back",
+    "TABS": {
+      "COMMENTS": "Product Reviews",
+      "QUESTIONS": "Q & A"
+    },
+    "RATING": {
+      "REVIEWS": "Reviews",
+      "ALL_FILTERS": "All",
+      "POINTS_SUFFIX": "Stars"
+    },
+    "COMMENT_SECTION": {
+      "ADD_TITLE": "Write a Review",
+      "YOUR_SCORE": "Your Score:",
+      "PLACEHOLDER": "What do you think about the product?",
+      "SUBMIT": "Submit Review",
+      "EMPTY": "No reviews for this product yet. Be the first to review!"
+    },
+    "QUESTION_SECTION": {
+      "ADD_TITLE": "Ask Seller a Question",
+      "PLACEHOLDER": "Is there anything you wonder about the product?",
+      "SUBMIT": "Submit Question",
+      "EMPTY": "No questions have been asked for this product yet.",
+      "ASKED": "asked:",
+      "SELLER_REPLY": "Seller's Response:",
+      "NO_REPLY": "Seller has not replied yet...",
+      "OWN_INFO": "This product belongs to you. Reply to your customer:",
+      "REPLY_PLACEHOLDER": "Write your reply here...",
+      "PUBLISH_REPLY": "Publish Reply"
+    },
+    "OFFER_MODAL": {
+      "TITLE": "Make an Offer to Seller",
+      "NORMAL_PRICE": "Normal Unit Price:",
+      "QTY_PROMPT": "How many items will you buy?",
+      "YOUR_PRICE": "Your Unit Price Offer",
+      "PRICE_PLACEHOLDER": "E.g. 120",
+      "TOTAL_CALC": "Total Amount if Seller Accepts:",
+      "SUBMIT": "Send Offer",
+      "SENDING": "Sending..."
+    }
+  },
+  "ORDERS": {
+    "TITLE": "My Orders",
+    "LOADING": "Loading your orders...",
+    "EMPTY": "You haven't placed any orders yet. Time to fill your cart!",
+    "DATE_LABEL": "Order Date:",
+    "TOTAL_PRICE": "Total Price:",
+    "ORDER_NO": "Order No:",
+    "VIEW_DETAILS": "View Details",
+    "CANCEL_ORDER": "CANCEL ORDER",
+    "CANNOT_CANCEL": "CANNOT CANCEL",
+    "MODAL": {
+      "TITLE": "Order Details",
+      "LOADING": "Preparing order details...",
+      "SUMMARY": "Order Summary",
+      "NO_NAME": "Product Name Not Found",
+      "UNIT_PRICE": "Unit Price:",
+      "QUANTITY": "Quantity:",
+      "QTY_UNIT": "Pcs",
+      "GRAND_TOTAL": "Grand Total"
+    },
+    "STATUS": {
+    "PENDING": "Pending",
+    "CONFIRMED": "Confirmed",
+    "PROCESSING": "Processing",
+    "SHIPPED": "Shipped",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled",
+    "REFUNDED": "Refunded",
+    "UNKNOWN": "Unknown"
+  }
+  },
+  "INCOMING_ORDERS": {
+    "TITLE": "Incoming Orders",
+    "LOADING": "Fetching Orders...",
+    "EMPTY_TITLE": "NO ORDERS YET",
+    "EMPTY_DESC": "No orders have reached your shop yet.",
+    "ORDER_NO": "ORDER NO:",
+    "DATE": "DATE:",
+    "NO_IMAGE": "NO IMAGE",
+    "NO_NAME": "Product Name Not Found",
+    "QUANTITY": "QTY:",
+    "UNIT_PRICE": "UNIT PRICE:",
+    "ACTION_DISABLED": "ACTION CLOSED",
+    "UPDATE_STATUS": "UPDATE STATUS",
+    "SELLER_EARNING": "YOUR EARNINGS FROM THIS ORDER",
+    "COMMISSION_INFO": "ORDER TOTAL: {{total}} ₺ (-10% COMMISSION)",
+    "MODAL": {
+      "TITLE": "UPDATE ORDER",
+      "LABEL": "NEW ORDER STATUS",
+      "INFO": "The customer will see this update on their panel instantly.",
+      "CANCEL": "CANCEL",
+      "SAVE": "SAVE",
+      "SAVING": "SAVING..."
+    }
+  },
+  "WALLET": {
+    "TITLE": "My Wallet",
+    "CURRENT_BALANCE": "CURRENT BALANCE",
+    "AVAILABLE_AMOUNT": "Total Available Amount",
+    "LAST_TRANSACTIONS": "RECENT TRANSACTIONS (RECEIPTS)",
+    "LOADING": "Loading...",
+    "EMPTY": "You don't have any account activity yet.",
+    "TX_NO": "TX No:",
+    "CURRENCY_CODE": "TRY"
+  },
+  "BASKET": {
+  "TITLE": "My Cart",
+  "LOADING": "Preparing your cart...",
+  "EMPTY": {
+    "TITLE": "Your cart is empty!",
+    "DESC": "Take a look at the products or head back to the bargaining table.",
+    "BUTTON": "Start Shopping"
+  },
+  "TABLE": {
+    "IMAGE": "Product Image",
+    "NAME": "Product Name",
+    "PRICE": "Price (Unit)",
+    "QUANTITY": "Quantity",
+    "TOTAL": "Total",
+    "ACTION": "Action",
+    "OFFER_BADGE": "SPECIAL OFFER",
+    "UNIT": "Pcs",
+    "DELETE": "Remove"
+  },
+  "CLEAR_BASKET": "Clear Cart",
+  "GRAND_TOTAL": "Grand Total:",
+  "CHECKOUT_BUTTON": "Complete Purchase",
+  "MODAL": {
+    "TITLE": "Payment Summary",
+    "CURRENT_BALANCE": "Current Balance:",
+    "AMOUNT_TO_PAY": "Amount to Pay:",
+    "REMAINING_BALANCE": "Remaining Balance:",
+    "INSUFFICIENT_BALANCE": "Insufficient balance for this transaction!",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm Payment",
+    "PROCESSING": "Processing..."
+  }
+},
+"AUTH": {
+  "SLOGAN": "The Address for Safe and Fast Shopping"
+},
+"LOGIN": {
+  "TITLE": "Welcome Back",
+  "SUBTITLE": "Login to your account.",
+  "EMAIL": "Email Address",
+  "PASSWORD": "Password",
+  "REMEMBER_ME": "Remember Me",
+  "FORGOT_PASSWORD": "Forgot Password?",
+  "SUBMIT": "Login",
+  "LOADING": "Logging in...",
+  "NO_ACCOUNT": "Don't have an account?",
+  "REGISTER": "Sign Up",
+  "ERRORS": {
+    "EMAIL_REQ": "Email is required."
+  }
+},
+"VERIFY": {
+  "TITLE": "Verify Your Account",
+  "DESC": "Please enter the 6-digit security code sent to <strong>{{email}}</strong> below.",
+  "PLACEHOLDER": "000000",
+  "SUBMIT": "Verify and Continue",
+  "NOT_RECEIVED": "Didn't receive the code or is it expired?",
+  "RESEND": "Resend Code",
+  "SENDING": "Sending..."
+},
+"RESET": {
+  "TITLE": "Reset Password",
+  "DESC_1": "Enter your registered email address and we'll send you a 6-digit reset code.",
+  "DESC_2": "Enter the 6-digit code sent to <strong>{{email}}</strong> and set your new password.",
+  "SEND_CODE": "Send Code",
+  "NEW_PASS": "New Password",
+  "CONFIRM_PASS": "Confirm New Password",
+  "UPDATE_BTN": "Update Password",
+  "UPDATING": "Updating...",
+  "BACK": "Back to Login"
+},
+"PROFILE": {
+  "LOADING": "Loading Store...",
+  "DEFAULT_BIO": "No store description added yet...",
+  "WALLET_LABEL": "Vault / Wallet",
+  "EDIT_STORE": "Edit Store",
+  "SECURITY_PASS": "Security (Password)",
+  "MY_SHOWCASE": "My Showcase",
+  "SHOWCASE": "Showcase",
+  "PRODUCT_COUNT": "({{count}} Products)",
+  "EMPTY_SHOWCASE": "There are no products in your showcase yet. Let's add your first product!",
+  "MODAL_PROFILE": {
+    "TITLE": "Edit Store Information",
+    "IMAGE_LABEL": "Upload Profile Image",
+    "IMAGE_WAIT": "Photo uploading, please wait...",
+    "IMAGE_SUCCESS": "✓ Image uploaded successfully",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "BIO_LABEL": "About Me / Store Description",
+    "BIO_PLACEHOLDER": "Tell your customers about yourself or your store...",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "SAVING": "Saving..."
+  },
+  "MODAL_PASS": {
+    "TITLE": "Security / Change Password",
+    "CURRENT": "Current Password",
+    "CURRENT_PH": "Enter your current password",
+    "NEW": "New Password",
+    "NEW_PH": "Set your new password",
+    "CONFIRM": "Confirm New Password",
+    "CONFIRM_PH": "Verify your new password",
+    "CANCEL": "Cancel",
+    "SUBMIT": "Change Password",
+    "UPDATING": "Updating..."
+  }
+},
+"REGISTER": {
+  "STEP1": {
+    "TITLE": "Sign Up",
+    "SUBTITLE": "Fill in your details to join us.",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "USERNAME": "Username",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "CONTINUE_BTN": "Continue",
+    "SENDING_CODE": "Sending Code (Please wait)...",
+    "HAVE_ACCOUNT": "Already have an account?",
+    "LOGIN": "Login"
+  },
+  "STEP2": {
+    "TITLE": "Check Your Email",
+    "SUBTITLE": "We've sent a 6-digit confirmation code to <b>{{email}}</b>. Please enter the code below to complete your registration.",
+    "CODE_LABEL": "Verification Code",
+    "FINISH_BTN": "Complete Registration",
+    "BACK": "Go Back and Edit Details"
+  }
+},
+"ADMIN": {
+  "BRAND": "E-COMMERCE",
+  "PANEL_SUFFIX": "PANEL",
+  "NAV": {
+    "DASHBOARD": "📊 Dashboard",
+    "USERS": "👥 Users",
+    "CATEGORIES": "📁 Categories",
+    "PRODUCTS": "📦 Products",
+    "SUPPORT_TICKETS": "Support Tickets"
+  },
+  "LOGOUT": "🚪 Logout",
+  "SEARCH_PH": "Search in panel...",
+  "PROFILE_NAME": "Admin"
+},
+"ADMIN_CAT": {
+  "TITLE": "Category Management",
+  "ADD_NEW": "+ Add New Category",
+  "EMPTY_STATE": "No categories added yet.",
+  "TABLE": {
+    "NAME": "Category Name",
+    "DESC": "Description",
+    "STATUS": "Status",
+    "ACTIONS": "Actions",
+    "ACTIVE": "Active",
+    "EDIT": "Edit",
+    "DELETE": "Delete"
+  },
+  "MODAL": {
+    "TITLE_NEW": "New Category",
+    "TITLE_EDIT": "Edit Category",
+    "NAME_LABEL": "Category Name",
+    "NAME_PH": "e.g. Electronics",
+    "DESC_LABEL": "Description",
+    "DESC_PH": "e.g. Smart devices and computers",
+    "PARENT_LABEL": "Parent Category (Optional)",
+    "PARENT_NONE": "-- Add as Main Category --",
+    "CANCEL": "Cancel",
+    "SAVE": "Save"
+  }
+},
+"DASHBOARD": {
+  "TITLE": "Platform Overview",
+  "SUBTITLE": "Brandcorner Marketplace current statistics and seller activities.",
+  "STATS": {
+    "VOLUME": "Platform Volume",
+    "COMMISSION": "Commission Revenue",
+    "ACTIVE_SELLERS": "Active Sellers",
+    "TOTAL_PRODUCTS": "Total Products"
+  },
+  "CHART": {
+    "TITLE": "Commission Summary",
+    "7_DAYS": "Last 7 Days",
+    "1_MONTH": "Last 1 Month",
+    "ALL_TIME": "All Time"
+  },
+  "RECENT_ORDERS": {
+    "TITLE": "Recent Platform Activities",
+    "VIEW_ALL": "View All",
+    "LOADING": "Updating data...",
+    "MODAL_TITLE": "All Orders"
+  },
+  "TABLE": {
+    "ORDER_NO": "Order No",
+    "SELLER": "Seller (Store)",
+    "CUSTOMER": "Customer",
+    "AMOUNT": "Amount",
+    "COMMISSION": "Commission",
+    "STATUS": "Status"
+  }
+},
+"ADMIN_PROD": {
+  "TITLE": "Product Management",
+  "SUBTITLE": "Review all products in the system, remove those that do not comply with the rules by notifying the seller.",
+  "LOADING": "Loading Products...",
+  "NOT_FOUND": "No products found matching your criteria!",
+  "STOCK": "Stock:",
+  "REMOVE_BTN": "🗑️ Remove Product",
+  "NO_IMAGE": "NO IMAGE",
+  "STATUS":"Active",
+  "MODAL": {
+    "TITLE": "Unpublish Product",
+    "DESC": "You are deleting the product named <strong>{{name}}</strong>.",
+    "INFO": "This action cannot be undone. Please write the reason for deletion that will appear on the seller's panel:",
+    "PLACEHOLDER": "E.g.: Product images have been removed from the system because they are inappropriate...",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Delete and Notify Seller"
+  }
+},
+"ADMIN_USER_DETAIL": {
+  "BACK": "Back",
+  "TITLE": "User Profile",
+  "SUBTITLE": "User information and active products.",
+  "LOADING": "Loading...",
+  "INFO_CARDS": {
+    "EMAIL": "E-Mail:",
+    "BALANCE": "Balance:",
+    "JOIN_DATE": "Join Date:",
+    "STORE_PRODUCTS": "Products in Store"
+  },
+  "TABLE": {
+    "NAME": "Product Name",
+    "PRICE": "Price",
+    "STOCK": "Stock",
+    "STATUS": "Status",
+    "EMPTY": "This user has no products yet."
+  }
+},
+"ADMIN_USERS": {
+  "TITLE": "User Management",
+  "SUBTITLE": "Manage all sellers and customers in the system from here.",
+  "SEARCH_PH": "Search by name or email...",
+  "LOADING": "Loading Users",
+  "NOT_FOUND": "No users found matching your criteria!",
+  "TABLE": {
+    "ID": "User Id",
+    "FULL_NAME": "Full Name",
+    "USERNAME": "Username",
+    "EMAIL": "E-Mail",
+    "ACTIONS": "Actions",
+    "DELETE": "Delete"
+  }
+},
+"STATUS": {
+  "PENDING": "Pending",
+  "CONFIRMED": "Confirmed",
+  "PROCESSING": "Processing",
+  "SHIPPED": "Shipped",
+  "DELIVERED": "Delivered",
+  "CANCELLED": "Cancelled",
+  "REFUNDED": "Refunded",
+  "UNKNOWN": "Unknown"
+}
+}

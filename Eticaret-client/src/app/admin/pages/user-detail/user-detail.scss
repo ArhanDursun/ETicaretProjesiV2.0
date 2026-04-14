@@ -1,0 +1,106 @@
+.user-list-page {
+  
+  // --- Üst Bilgi (Header) Stilleri ---
+  .page-header {
+    margin-bottom: 2rem;
+
+    &__titles {
+      h1 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.8rem;
+        color: #212529;
+        font-weight: 700;
+      }
+      p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+    }
+
+    // HTML'de yazdığın "Geri" butonuna hover (üzerine gelince) efekti
+    a {
+      transition: background-color 0.2s ease, color 0.2s ease;
+      &:hover {
+        background-color: #dee2e6 !important; 
+        color: #000 !important;
+      }
+    }
+  }
+
+  // --- Beyaz Kartlar ---
+  .card-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    
+    // Sol taraftaki listeyi biraz daha şık yapalım
+    ul {
+      li {
+        border-bottom: 1px dashed #f1f3f5;
+        padding: 8px 0;
+        &:last-child {
+          border-bottom: none;
+        }
+        strong {
+          color: #495057;
+          display: inline-block;
+          min-width: 90px; // Başlıklar hizalı dursun diye
+        }
+      }
+    }
+  }
+
+  // --- Tablo Stilleri ---
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f3f5;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #868e96;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    tbody {
+      tr {
+        transition: background-color 0.2s ease;
+        &:hover {
+          background-color: #f8f9fa; // Satırın üstüne gelince hafif gri
+        }
+      }
+    }
+  }
+
+  // --- Durum Etiketleri (Badges) ---
+  .badge {
+    display: inline-block;
+    padding: 0.4em 0.85em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 50px;
+    text-align: center;
+    white-space: nowrap;
+
+    &--info {
+      background-color: #e3f2fd;
+      color: #1565c0; // Mavi tonu (Kullanıcı Rolü için)
+    }
+
+    &--success {
+      background-color: #e8f5e9;
+      color: #2e7d32; // Yeşil tonu (Ürün Durumu için)
+    }
+  }
+}

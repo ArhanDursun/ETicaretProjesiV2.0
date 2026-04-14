@@ -1,0 +1,95 @@
+<div class="ticket-list-wrapper">
+
+    <div class="page-header">
+        <div>
+            <h2>Destek Taleplerim</h2>
+            <p>Müşteri hizmetleri ile yaptığınız tüm görüşmeler.</p>
+        </div>
+        <button class="btn-new-ticket" (click)="openNewTicketModal()">
+            + Yeni Talep Aç
+        </button>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+        Biletleriniz yükleniyor...
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && tickets.length === 0">
+        <img src="assets/no-data.png" alt="No Ticket" style="width: 100px; opacity: 0.5;">
+        <h3>Henüz bir destek talebiniz bulunmuyor.</h3>
+        <p>Bir sorun yaşarsanız sağ üstteki butondan yeni talep oluşturabilirsiniz.</p>
+    </div>
+
+    <div class="table-container" *ngIf="!isLoading && tickets.length > 0">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Konu</th>
+                    <th>Kategori</th>
+                    <th>Durum</th>
+                    <th>Tarih</th>
+                    <th style="text-align: right;">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ticket of tickets">
+                    <td class="fw-bold">{{ ticket.subject }}</td>
+                    <td>{{ ticket.categoryName }}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="ticket.statusName?.toLowerCase()">
+                            {{ ticket.statusName }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                    <td style="text-align: right;">
+                        <button class="btn-chat" [routerLink]="['/support/chat', ticket.id]">
+                            Sohbete Git ➔
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="showCreateModal = false">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Yeni Destek Talebi Oluştur</h3>
+            <button class="close-x" (click)="showCreateModal = false">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="input-group">
+                <label>Kategori</label>
+                <select [(ngModel)]="newTicket.category">
+
+                    <option *ngFor="let cat of categoryOptions" [value]="cat.id">
+                        {{ cat.name }}
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Konu Başlığı</label>
+                <input type="text" [(ngModel)]="newTicket.subject" placeholder="Örn: Ürünüm hasarlı geldi">
+            </div>
+
+            <div class="input-group">
+                <label>Sorununuzun Detayı</label>
+                <textarea [(ngModel)]="newTicket.initialMessage" rows="4"
+                    placeholder="Lütfen detaylı bilgi verin..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="showCreateModal = false">Vazgeç</button>
+            <button class="btn-submit" (click)="createTicket()"
+                [disabled]="isSubmitting || !newTicket.subject || !newTicket.initialMessage">
+                {{ isSubmitting ? 'Gönderiliyor...' : 'Talebi Oluştur' }}
+            </button>
+        </div>
+    </div>
+</div>

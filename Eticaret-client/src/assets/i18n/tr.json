@@ -1,0 +1,480 @@
+{
+  "NAVBAR": {
+    "BRAND": "E-Ticaret",
+    "SEARCH_PLACEHOLDER": "Satıcı veya mağaza ara...",
+    "SEARCHING": "Aranıyor...",
+    "USER_NOT_FOUND": "Kullanıcı bulunamadı."
+  },
+  "SIDEBAR": {
+    "MENU_TITLE": "Menü",
+    "HOME": "Anasayfa",
+    "PROFILE": "Profilim",
+    "MY_OFFERS": "Tekliflerim",
+    "MY_BASKET": "Sepetim",
+    "MY_ORDERS": "Siparişlerim",
+    "SELLER_ORDERS": "Alınan Siparişler",
+    "MY_WALLET": "Cüzdanım",
+    "LOGIN": "Giriş Yap",
+    "LOGOUT": "Çıkış Yap",
+    "SUPPORT_TICKETS":"Destek Talepleri",
+    "MESSAGES":"Mesajlar",
+    "NOTIFICATIONS":"Bildirimler"
+  },
+  "NOTIFICATIONS": {
+    "UNDERSTAND_BTN": "Anladım, Kapat"
+  },
+  "MESSAGES": {
+    "LOGOUT_SUCCESS": "Başarıyla çıkış yapıldı"
+  },
+  "HOME": {
+    "TITLE": "Vitrin",
+    "SUBTITLE": "En yeni ürünleri keşfet veya kendi ürününü satmaya başla!",
+    "ADD_PRODUCT_BTN": "Yeni Ürün Ekle",
+    "SEARCH_PLACEHOLDER": "Ürün ara (Örn: Laptop)...",
+    "ALL_CATEGORIES": "Tüm Kategoriler",
+    "MIN_PRICE": "Min ₺",
+    "MAX_PRICE": "Max ₺",
+    "SEARCH_BTN": "Ara",
+    "CLEAR_BTN": "Temizle",
+    "LOADING": "Ürünler yükleniyor... Lütfen bekleyin",
+    "NO_PRODUCTS": "Henüz vitrinde ürün yok. İlk ekleyen sen ol!",
+    "NO_IMAGE": "Görsel Yok",
+    "CATEGORY_PREFIX": "Kategori:",
+    "UNSPECIFIED": "Belirtilmemiş",
+    "NO_COMMENTS": "Henüz yorum yok",
+    "STOCK_PREFIX": "Stok:",
+    "SELLER_PREFIX": "Satıcı:"
+  },
+  "OFFERS": {
+    "TITLE": "Teklif Yönetimi",
+    "TABS": {
+      "SENT": "Yaptığım Teklifler",
+      "RECEIVED": "Gelen Teklifler"
+    },
+    "INFO": {
+      "NO_NAME": "Ürün Adı Yok",
+      "QUANTITY": "Talep Edilen: {{value}} Adet",
+      "RECEIVED_QUANTITY": "İstenen: {{value}} Adet",
+      "YOUR_OFFER": "Sizin Teklifiniz (Birim):",
+      "BUYER_FIRST_OFFER": "Alıcının İlk Teklifi (Birim):",
+      "TOTAL_AMOUNT": "Toplam Tutar:",
+      "BUYER": "Alıcı:",
+      "SELLER_NEW_PRICE": "Satıcının Yeni Fiyatı (Birim):",
+      "YOUR_NEW_PRICE": "Sizin Çektiğiniz Fiyat (Birim):",
+      "NEW_TOTAL": "Yeni Toplam Tutar:",
+      "DATE_LABEL": "Tarih:"
+    },
+    
+    "ACTIONS": {
+      "ACCEPT": "Kabul Et",
+      "REJECT": "Reddet",
+      "COUNTER": "Karşı Teklif Yap",
+      "COUNTER_SHORT": "Karşı Teklif"
+    },
+    "MODAL": {
+      "TITLE": "Karşı Teklif Ver",
+      "DESC": "Alıcıya yeni bir BİRİM FİYAT önerin:",
+      "PLACEHOLDER": "Örn: 180",
+      "CANCEL": "İptal",
+      "SUBMIT": "Gönder",
+      "SUBMITTING": "Gönderiliyor..."
+    },
+    "EMPTY": {
+      "SENT": "Henüz kimseye teklif vermemişsiniz.",
+      "RECEIVED": "Size gelen bir teklif bulunmuyor."
+    },
+    "LOADING": "Yükleniyor..."
+  },
+  "PRODUCT_ADD": {
+    "TITLE": "📦 Yeni Ürün Yükle",
+    "SUBTITLE": "Brandcorner'da satışa başlamak için ürün detaylarını gir.",
+    "NAME_LABEL": "Ürün Adı",
+    "NAME_PLACEHOLDER": "Örn: Razer DeathAdder V2",
+    "CATEGORY_LABEL": "Kategori",
+    "CATEGORY_SELECT": "Kategori Seçiniz",
+    "PRICE_LABEL": "Fiyat (TL)",
+    "STOCK_LABEL": "Stok Adedi",
+    "DESC_LABEL": "Ürün Açıklaması",
+    "DESC_PLACEHOLDER": "Ürünün özelliklerini detaylıca anlat...",
+    "IMAGE_LABEL": "Ürün Görseli",
+    "IMAGE_REQUIRED": "Lütfen en az bir ürün görseli seçin.",
+    "SUBMIT_BTN": "Satışa Çıkar",
+    "LOADING": "Yükleniyor..."
+  },"PRODUCT_DETAIL": {
+    "LOADING": "Ürün hazırlanıyor...",
+    "SELLER": "Satıcı:",
+    "DESCRIPTION_TITLE": "Ürün Açıklaması",
+    "IN_STOCK": "{{value}} Adet Stokta",
+    "OUT_OF_STOCK": "Stok Tükendi",
+    "QUANTITY_LABEL": "Adet:",
+    "OWN_PRODUCT": "Kendi Ürününüz",
+    "ADD_TO_CART": "Sepete Ekle",
+    "MAKE_OFFER": "Teklif Ver",
+    "BACK_BTN": "Geri Dön",
+    "TABS": {
+      "COMMENTS": "Ürün Yorumları",
+      "QUESTIONS": "Soru & Cevap"
+    },
+    "RATING": {
+      "REVIEWS": "Değerlendirme",
+      "ALL_FILTERS": "Tümü",
+      "POINTS_SUFFIX": "Puan"
+    },
+    "COMMENT_SECTION": {
+      "ADD_TITLE": "Yorum Yap",
+      "YOUR_SCORE": "Puanınız:",
+      "PLACEHOLDER": "Ürün hakkında ne düşünüyorsunuz?",
+      "SUBMIT": "Yorumu Gönder",
+      "EMPTY": "Bu ürün için henüz yorum yapılmamış. İlk yorumu siz yapın!"
+    },
+    "QUESTION_SECTION": {
+      "ADD_TITLE": "Satıcıya Soru Sor",
+      "PLACEHOLDER": "Ürünle ilgili merak ettiğiniz bir şey var mı?",
+      "SUBMIT": "Soruyu Gönder",
+      "EMPTY": "Bu ürün için henüz soru sorulmamış.",
+      "ASKED": "sordu:",
+      "SELLER_REPLY": "Satıcı Cevabı:",
+      "NO_REPLY": "Satıcı henüz cevap vermedi...",
+      "OWN_INFO": "Bu ürün size ait. Müşterinize cevap verin:",
+      "REPLY_PLACEHOLDER": "Cevabınızı buraya yazın...",
+      "PUBLISH_REPLY": "Cevabı Yayınla"
+    },
+    "OFFER_MODAL": {
+      "TITLE": "Satıcıya Teklif Ver",
+      "NORMAL_PRICE": "Ürünün Normal Birim Fiyatı:",
+      "QTY_PROMPT": "Kaç Adet Alacaksınız?",
+      "YOUR_PRICE": "Birim Fiyat Teklifiniz",
+      "PRICE_PLACEHOLDER": "Örn: 120",
+      "TOTAL_CALC": "Satıcı Kabul Ederse Toplam Tutar:",
+      "SUBMIT": "Teklifi İlet",
+      "SENDING": "Gönderiliyor..."
+    }
+  },
+  "ORDERS": {
+    "TITLE": "Siparişlerim",
+    "LOADING": "Siparişleriniz yükleniyor...",
+    "EMPTY": "Henüz hiç sipariş vermediniz. Sepetinizi doldurma vakti!",
+    "DATE_LABEL": "Sipariş Tarihi:",
+    "TOTAL_PRICE": "Toplam Tutar:",
+    "ORDER_NO": "Sipariş No:",
+    "VIEW_DETAILS": "Detayları Gör",
+    "CANCEL_ORDER": "SİPARİŞİ İPTAL ET",
+    "CANNOT_CANCEL": "İPTAL EDİLEMEZ",
+    "MODAL": {
+      "TITLE": "Sipariş Detayları",
+      "LOADING": "Sipariş detayları hazırlanıyor...",
+      "SUMMARY": "Sipariş Özeti",
+      "NO_NAME": "Ürün Adı Bulunamadı",
+      "UNIT_PRICE": "Birim Fiyat:",
+      "QUANTITY": "Miktar:",
+      "QTY_UNIT": "Adet",
+      "GRAND_TOTAL": "Genel Toplam"
+    },
+    "STATUS": {
+    "PENDING": "Beklemede",
+    "CONFIRMED": "Onaylandı",
+    "PROCESSING": "Hazırlanıyor",
+    "SHIPPED": "Kargolandı",
+    "DELIVERED": "Teslim Edildi",
+    "CANCELLED": "İptal Edildi",
+    "REFUNDED": "İade Edildi",
+    "UNKNOWN": "Bilinmiyor"
+}
+  },
+  "INCOMING_ORDERS": {
+    "TITLE": "Gelen Siparişler",
+    "LOADING": "Siparişler Çekiliyor...",
+    "EMPTY_TITLE": "HENÜZ SİPARİŞ YOK",
+    "EMPTY_DESC": "Dükkanına henüz bir sipariş düşmedi.",
+    "ORDER_NO": "SİPARİŞ NO:",
+    "DATE": "TARİH:",
+    "NO_IMAGE": "GÖRSEL YOK",
+    "NO_NAME": "Ürün Adı Bulunamadı",
+    "QUANTITY": "MİKTAR:",
+    "UNIT_PRICE": "BİRİM FİYAT:",
+    "ACTION_DISABLED": "İŞLEM KAPALI",
+    "UPDATE_STATUS": "DURUMU GÜNCELLE",
+    "SELLER_EARNING": "BU SİPARİŞTEN KAZANCIN",
+    "COMMISSION_INFO": "SİPARİŞ TUTARI: {{total}} ₺ (-%10 KOMİSYON)",
+    "MODAL": {
+      "TITLE": "SİPARİŞİ GÜNCELLE",
+      "LABEL": "YENİ SİPARİŞ DURUMU",
+      "INFO": "Müşteri bu güncellemeyi panelinde anında görecektir.",
+      "CANCEL": "İPTAL",
+      "SAVE": "KAYDET",
+      "SAVING": "KAYDEDİLİYOR..."
+    }
+  },
+  "WALLET": {
+    "TITLE": "Cüzdanım",
+    "CURRENT_BALANCE": "GÜNCEL BAKİYENİZ",
+    "AVAILABLE_AMOUNT": "Kullanılabilir Toplam Tutar",
+    "LAST_TRANSACTIONS": "SON İŞLEMLER (DEKONTLAR)",
+    "LOADING": "Yükleniyor...",
+    "EMPTY": "Henüz hiçbir hesap hareketiniz bulunmuyor.",
+    "TX_NO": "İşlem No:",
+    "CURRENCY_CODE": "TRY"
+  },
+  "BASKET": {
+  "TITLE": "Sepetim",
+  "LOADING": "Sepetiniz hazırlanıyor...",
+  "EMPTY": {
+    "TITLE": "Sepetiniz şu an bomboş!",
+    "DESC": "Hemen ürünlere göz atın veya pazarlık masasına dönün.",
+    "BUTTON": "Alışverişe Başla"
+  },
+  "TABLE": {
+    "IMAGE": "Ürün Görseli",
+    "NAME": "Ürün Adı",
+    "PRICE": "Fiyat (Adet)",
+    "QUANTITY": "Adet",
+    "TOTAL": "Toplam",
+    "ACTION": "İşlem",
+    "OFFER_BADGE": "ÖZEL TEKLİF",
+    "UNIT": "Adet",
+    "DELETE": "Sil"
+  },
+  "CLEAR_BASKET": "Sepeti Boşalt",
+  "GRAND_TOTAL": "Genel Toplam:",
+  "CHECKOUT_BUTTON": "Alışverişi Tamamla",
+  "MODAL": {
+    "TITLE": "Ödeme Özeti",
+    "CURRENT_BALANCE": "Mevcut Bakiyeniz:",
+    "AMOUNT_TO_PAY": "Ödenecek Tutar:",
+    "REMAINING_BALANCE": "Kalan Bakiye:",
+    "INSUFFICIENT_BALANCE": "Bakiyeniz bu işlem için yetersiz!",
+    "CANCEL": "İptal",
+    "CONFIRM": "Ödemeyi Onayla",
+    "PROCESSING": "Ödeme Alınıyor..."
+  }
+},
+"AUTH": {
+  "SLOGAN": "Güvenli ve Hızlı Alışverişin Adresi"
+},
+"LOGIN": {
+  "TITLE": "Hoş Geldiniz",
+  "SUBTITLE": "Hesabınıza giriş yapın.",
+  "EMAIL": "E-Posta Adresi",
+  "PASSWORD": "Şifre",
+  "REMEMBER_ME": "Beni Hatırla",
+  "FORGOT_PASSWORD": "Şifremi Unuttum?",
+  "SUBMIT": "Giriş Yap",
+  "LOADING": "Giriş Yapılıyor...",
+  "NO_ACCOUNT": "Hesabınız yok mu?",
+  "REGISTER": "Kayıt Ol",
+  "ERRORS": {
+    "EMAIL_REQ": "E-posta zorunludur."
+  }
+},
+"VERIFY": {
+  "TITLE": "Hesabınızı Onaylayın",
+  "DESC": "<strong>{{email}}</strong> adresine gönderilen 6 haneli güvenlik kodunu aşağıya girin.",
+  "PLACEHOLDER": "000000",
+  "SUBMIT": "Doğrula ve Devam Et",
+  "NOT_RECEIVED": "Kodu bulamadınız veya süresi mi doldu?",
+  "RESEND": "Kodu Tekrar Gönder",
+  "SENDING": "Gönderiliyor..."
+},
+"RESET": {
+  "TITLE": "Şifre Sıfırlama",
+  "DESC_1": "Kayıtlı e-posta adresinizi girin, size 6 haneli bir sıfırlama kodu gönderelim.",
+  "DESC_2": "<strong>{{email}}</strong> adresine gönderilen 6 haneli kodu girin ve yeni şifrenizi belirleyin.",
+  "SEND_CODE": "Kodu Gönder",
+  "NEW_PASS": "Yeni Şifre",
+  "CONFIRM_PASS": "Yeni Şifre (Tekrar)",
+  "UPDATE_BTN": "Şifremi Güncelle",
+  "UPDATING": "Güncelleniyor...",
+  "BACK": "Giriş Ekranına Dön"
+},
+"PROFILE": {
+  "LOADING": "Mağaza Yükleniyor...",
+  "DEFAULT_BIO": "Henüz bir mağaza açıklaması eklenmedi...",
+  "WALLET_LABEL": "Kasa / Cüzdan",
+  "EDIT_STORE": "Mağazayı Düzenle",
+  "SECURITY_PASS": "Güvenlik (Şifre)",
+  "MY_SHOWCASE": "Vitrinim",
+  "SHOWCASE": "Vitrin",
+  "PRODUCT_COUNT": "({{count}} Ürün)",
+  "EMPTY_SHOWCASE": "Vitrininizde henüz hiç ürün bulunmuyor. Hadi ilk ürününüzü ekleyin!",
+  "MODAL_PROFILE": {
+    "TITLE": "Mağaza Bilgilerini Düzenle",
+    "IMAGE_LABEL": "Profil Resmi Yükle",
+    "IMAGE_WAIT": "Fotoğraf yükleniyor, lütfen bekleyin...",
+    "IMAGE_SUCCESS": "✓ Resim başarıyla yüklendi",
+    "FIRST_NAME": "Ad",
+    "LAST_NAME": "Soyad",
+    "BIO_LABEL": "Hakkımda / Mağaza Açıklaması",
+    "BIO_PLACEHOLDER": "Müşterilerinize kendinizden veya mağazanızdan bahsedin...",
+    "CANCEL": "Vazgeç",
+    "SAVE": "Kaydet",
+    "SAVING": "Kaydediliyor..."
+  },
+  "MODAL_PASS": {
+    "TITLE": "Güvenlik / Şifre Değiştir",
+    "CURRENT": "Mevcut Şifre",
+    "CURRENT_PH": "Şu anki şifrenizi girin",
+    "NEW": "Yeni Şifre",
+    "NEW_PH": "Yeni şifrenizi belirleyin",
+    "CONFIRM": "Yeni Şifre (Tekrar)",
+    "CONFIRM_PH": "Yeni şifrenizi doğrulayın",
+    "CANCEL": "İptal",
+    "SUBMIT": "Şifreyi Değiştir",
+    "UPDATING": "Güncelleniyor..."
+  }
+},
+"REGISTER": {
+  "STEP1": {
+    "TITLE": "Kayıt Ol",
+    "SUBTITLE": "Aramıza katılmak için bilgilerinizi doldurun.",
+    "FIRST_NAME": "Ad",
+    "LAST_NAME": "Soyad",
+    "USERNAME": "Kullanıcı Adı",
+    "EMAIL": "E-Posta",
+    "PASSWORD": "Şifre",
+    "CONFIRM_PASSWORD": "Şifre Tekrar",
+    "CONTINUE_BTN": "Devam Et",
+    "SENDING_CODE": "Kod Gönderiliyor (Bekleyin)...",
+    "HAVE_ACCOUNT": "Zaten bir hesabınız var mı?",
+    "LOGIN": "Giriş Yap"
+  },
+  "STEP2": {
+    "TITLE": "Mailinizi Kontrol Edin",
+    "SUBTITLE": "<b>{{email}}</b> adresine 6 haneli bir onay kodu gönderdik. Lütfen kaydınızı tamamlamak için bu kodu aşağıya girin.",
+    "CODE_LABEL": "Doğrulama Kodu",
+    "FINISH_BTN": "Kaydı Tamamla",
+    "BACK": "Geri Dön ve Bilgileri Düzenle"
+  }
+},
+"ADMIN": {
+  "BRAND": "E-TİCARET",
+  "PANEL_SUFFIX": "PANEL",
+  "NAV": {
+    "DASHBOARD": "📊 Dashboard",
+    "USERS": "👥 Kullanıcılar",
+    "CATEGORIES": "📁 Kategoriler",
+    "PRODUCTS": "📦 Ürünler",
+    "SUPPORT_TICKETS": "Destek Talepleri"
+  },
+  "LOGOUT": "🚪 Çıkış Yap",
+  "SEARCH_PH": "Panelde ara...",
+  "PROFILE_NAME": "Yönetici"
+},
+"ADMIN_CAT": {
+  "TITLE": "Kategori Yönetimi",
+  "ADD_NEW": "+ Yeni Kategori Ekle",
+  "EMPTY_STATE": "Henüz hiçbir kategori eklenmemiş.",
+  "TABLE": {
+    "NAME": "Kategori Adı",
+    "DESC": "Açıklama",
+    "STATUS": "Durum",
+    "ACTIONS": "İşlemler",
+    "ACTIVE": "Aktif",
+    "EDIT": "Düzenle",
+    "DELETE": "Sil"
+  },
+  "MODAL": {
+    "TITLE_NEW": "Yeni Kategori",
+    "TITLE_EDIT": "Kategoriyi Düzenle",
+    "NAME_LABEL": "Kategori Adı",
+    "NAME_PH": "Örn: Elektronik",
+    "DESC_LABEL": "Açıklama",
+    "DESC_PH": "Örn: Akıllı cihazlar ve bilgisayarlar",
+    "PARENT_LABEL": "Üst Kategori (Opsiyonel)",
+    "PARENT_NONE": "-- Ana Kategori Olarak Ekle --",
+    "CANCEL": "İptal",
+    "SAVE": "Kaydet"
+  }
+},
+"DASHBOARD": {
+  "TITLE": "Platform Genel Bakış",
+  "SUBTITLE": "Brandcorner Pazaryeri güncel istatistikleri ve satıcı hareketleri.",
+  "STATS": {
+    "VOLUME": "Platform Hacmi",
+    "COMMISSION": "Komisyon Geliri",
+    "ACTIVE_SELLERS": "Aktif Satıcı",
+    "TOTAL_PRODUCTS": "Toplam Ürün"
+  },
+  "CHART": {
+    "TITLE": "Komisyon Özeti",
+    "7_DAYS": "Son 7 Gün",
+    "1_MONTH": "Son 1 Ay",
+    "ALL_TIME": "Tüm Zamanlar"
+  },
+  "RECENT_ORDERS": {
+    "TITLE": "Platformdaki Son Hareketler",
+    "VIEW_ALL": "Tümünü Gör",
+    "LOADING": "Veriler güncelleniyor...",
+    "MODAL_TITLE": "Tüm Siparişler"
+  },
+  "TABLE": {
+    "ORDER_NO": "Sipariş No",
+    "SELLER": "Satıcı (Mağaza)",
+    "CUSTOMER": "Müşteri",
+    "AMOUNT": "Tutar",
+    "COMMISSION": "Komisyon",
+    "STATUS": "Durum"
+  }
+},
+"ADMIN_PROD": {
+  "TITLE": "Ürün Yönetimi",
+  "SUBTITLE": "Sistemdeki tüm ürünleri inceleyin, kurallara uymayanları satıcıya bildirerek kaldırın.",
+  "LOADING": "Ürünler Yükleniyor...",
+  "NOT_FOUND": "Aradığınız kritere uygun ürün bulunamadı!",
+  "STOCK": "Stok:",
+  "REMOVE_BTN": "🗑️ Ürünü Kaldır",
+  "NO_IMAGE": "GÖRSEL YOK",
+  "STATUS":"Aktif",
+  "MODAL": {
+    "TITLE": "Ürünü Yayından Kaldır",
+    "DESC": "<strong>{{name}}</strong> adlı ürünü siliyorsunuz.",
+    "INFO": "Bu işlemi geri alamazsınız. Lütfen satıcının paneline düşecek silinme gerekçesini yazınız:",
+    "PLACEHOLDER": "Örn: Ürün görselleri uygunsuz olduğu için sistemden kaldırılmıştır...",
+    "CANCEL": "Vazgeç",
+    "CONFIRM": "Sil ve Satıcıya Bildir"
+  }
+},
+"ADMIN_USER_DETAIL": {
+  "BACK": "Geri",
+  "TITLE": "Kullanıcı Profili",
+  "SUBTITLE": "Kullanıcı bilgileri ve yayındaki ürünleri.",
+  "LOADING": "Yükleniyor...",
+  "INFO_CARDS": {
+    "EMAIL": "E-Posta:",
+    "BALANCE": "Bakiye:",
+    "JOIN_DATE": "Kayıt Tarihi:",
+    "STORE_PRODUCTS": "Mağazadaki Ürünler"
+  },
+  "TABLE": {
+    "NAME": "Ürün Adı",
+    "PRICE": "Fiyat",
+    "STOCK": "Stok",
+    "STATUS": "Durum",
+    "EMPTY": "Bu kullanıcının henüz ürünü yok."
+  }
+},
+"ADMIN_USERS": {
+  "TITLE": "Kullanıcı Yönetimi",
+  "SUBTITLE": "Sistemdeki tüm satıcı ve müşterileri buradan yönetin.",
+  "SEARCH_PH": "İsim veya E-posta ara...",
+  "LOADING": "Kullanıcılar Yükleniyor",
+  "NOT_FOUND": "Aradığınız kritere uygun kullanıcı bulunamadı!",
+  "TABLE": {
+    "ID": "Kullanıcı Id",
+    "FULL_NAME": "Ad Soyad",
+    "USERNAME": "Kullanıcı Adı",
+    "EMAIL": "E-Posta",
+    "ACTIONS": "İşlemler",
+    "DELETE": "Sil"
+  }
+},
+"STATUS": {
+  "PENDING": "Beklemede",
+  "CONFIRMED": "Onaylandı",
+  "PROCESSING": "Hazırlanıyor",
+  "SHIPPED": "Kargolandı",
+  "DELIVERED": "Teslim Edildi",
+  "CANCELLED": "İptal Edildi",
+  "REFUNDED": "İade Edildi",
+  "UNKNOWN": "Bilinmiyor"
+}
+}

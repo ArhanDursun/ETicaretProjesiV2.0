@@ -1,0 +1,45 @@
+<div class="chat-container">
+
+    <div class="chat-header">
+        <div class="header-info">
+            <h3>Destek Talebi</h3>
+            <small>Bilet No: {{ ticketId | slice:0:8 }}...</small>
+        </div>
+    </div>
+
+    <div class="chat-messages" #scrollMe>
+
+        <div *ngFor="let msg of messages$ | async" class="message-wrapper"
+            [ngClass]="{'is-mine': msg.senderId === currentUserId, 'is-other': msg.senderId !== currentUserId}">
+
+            <div class="message-bubble">
+                <div class="sender-name">
+                    {{ msg.senderName }}
+                    <span class="admin-badge" *ngIf="msg.isAdmin">Yetkili</span>
+                </div>
+                <p class="text">{{ msg.messageBody }}</p>
+                <span class="time">{{ msg.sentAt | date:'HH:mm' }}</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="chat-input-area" *ngIf="ticketStatus === 4 || ticketStatus === 2">
+        <input type="text" [(ngModel)]="messageText" (keyup.enter)="sendMessage()" placeholder="Mesajınızı yazın...">
+
+        <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
+            <i class="fa fa-paper-plane"></i> Gönder
+        </button>
+    </div>
+
+    <div class="ticket-closed-banner" *ngIf="ticketStatus === 4">
+        <i class="fa fa-lock"></i>
+        <span>Bu destek talebi kapatılmıştır. Artık yeni mesaj gönderemezsiniz.</span>
+    </div>
+    <div class="ticket-closed-banner" *ngIf="ticketStatus === 3"
+        style="background-color: #fef2f2; color: #dc2626; border-top: 1px solid #f87171;">
+        <i class="fa fa-ban"></i>
+        <span>Bu destek talebi asılsız/kuraldışı bulunduğu için reddedilmiştir.</span>
+    </div>
+</div>

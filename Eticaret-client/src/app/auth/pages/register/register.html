@@ -1,0 +1,82 @@
+<div class="auth-form">
+
+  <div *ngIf="step === 1">
+    <div class="auth-form__header">
+      <h2 class="auth-form__title">{{ 'REGISTER.STEP1.TITLE' | translate }}</h2>
+      <p class="auth-form__subtitle">{{ 'REGISTER.STEP1.SUBTITLE' | translate }}</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmitRequest()">
+
+      <div style="display: flex; gap: 1rem;">
+        <div class="auth-form__group" style="flex: 1;">
+          <label for="firstName">{{ 'REGISTER.STEP1.FIRST_NAME' | translate }}</label>
+          <input type="text" id="firstName" formControlName="firstName">
+        </div>
+        <div class="auth-form__group" style="flex: 1;">
+          <label for="lastName">{{ 'REGISTER.STEP1.LAST_NAME' | translate }}</label>
+          <input type="text" id="lastName" formControlName="lastName">
+        </div>
+      </div>
+
+      <div class="auth-form__group">
+        <label for="username">{{ 'REGISTER.STEP1.USERNAME' | translate }}</label>
+        <input type="text" id="username" formControlName="username">
+      </div>
+
+      <div class="auth-form__group">
+        <label for="email">{{ 'REGISTER.STEP1.EMAIL' | translate }}</label>
+        <input type="email" id="email" formControlName="email">
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <div class="auth-form__group" style="flex: 1;">
+          <label for="password">{{ 'REGISTER.STEP1.PASSWORD' | translate }}</label>
+          <input type="password" id="password" formControlName="password">
+        </div>
+        <div class="auth-form__group" style="flex: 1;">
+          <label for="confirmPassword">{{ 'REGISTER.STEP1.CONFIRM_PASSWORD' | translate }}</label>
+          <input type="password" id="confirmPassword" formControlName="confirmPassword">
+        </div>
+      </div>
+
+      <button type="submit" class="auth-form__button" [disabled]="registerForm.invalid||isLoading">
+        {{ (isLoading ? 'REGISTER.STEP1.SENDING_CODE' : 'REGISTER.STEP1.CONTINUE_BTN') | translate }}
+      </button>
+
+    </form>
+
+    <div class="auth-form__footer">
+      <span>{{ 'REGISTER.STEP1.HAVE_ACCOUNT' | translate }}</span>
+      <a routerLink="/auth/login" class="auth-form__link auth-form__link--bold">{{ 'REGISTER.STEP1.LOGIN' | translate
+        }}</a>
+    </div>
+  </div>
+
+  <div *ngIf="step === 2">
+    <div class="auth-form__header">
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">✉️</div>
+      <h2 class="auth-form__title">{{ 'REGISTER.STEP2.TITLE' | translate }}</h2>
+      <p class="auth-form__subtitle" [innerHTML]="'REGISTER.STEP2.SUBTITLE' | translate:{email: userEmail}"></p>
+    </div>
+
+    <form [formGroup]="verifyForm" (ngSubmit)="onVerifyCode()">
+      <div class="auth-form__group">
+        <label for="code" style="text-align: center; font-size: 1rem;">{{ 'REGISTER.STEP2.CODE_LABEL' | translate
+          }}</label>
+        <input type="text" id="code" formControlName="code" placeholder="123456"
+          style="text-align: center; font-size: 1.75rem; letter-spacing: 8px; font-weight: 700; padding: 1rem;">
+      </div>
+
+      <button type="submit" class="auth-form__button" [disabled]="verifyForm.invalid">
+        {{ 'REGISTER.STEP2.FINISH_BTN' | translate }}
+      </button>
+    </form>
+
+    <div class="auth-form__footer" style="margin-top: 1.5rem;">
+      <a href="javascript:void(0)" (click)="step = 1" class="auth-form__link">{{ 'REGISTER.STEP2.BACK' | translate
+        }}</a>
+    </div>
+  </div>
+
+</div>

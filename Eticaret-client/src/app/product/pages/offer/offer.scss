@@ -1,0 +1,86 @@
+.offers-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+
+  h2 { color: #111827; margin-bottom: 25px; }
+
+  .tabs {
+    display: flex; gap: 10px; margin-bottom: 20px;
+    button {
+      flex: 1; padding: 12px; border: none; background: #e5e7eb;
+      border-radius: 8px; cursor: pointer; font-weight: 600;
+      transition: 0.3s;
+      &.active { background: #4f46e5; color: white; }
+    }
+  }
+
+  .offer-card {
+    background: white; padding: 20px; border-radius: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid #d1d5db;
+
+    h4 { margin: 0 0 5px 0; color: #1f2937; }
+    p { margin: 0; font-size: 0.95rem; color: #4b5563; }
+    .price-tag { font-weight: bold; color: #10b981; font-size: 1.1rem; }
+  }
+
+  .offer-status {
+    padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+    &.status-warning { background: #fef3c7; color: #92400e; }
+    &.status-success { background: #d1fae5; color: #065f46; }
+    &.status-danger { background: #fee2e2; color: #991b1b; }
+  }
+
+  .offer-actions {
+    display: flex; gap: 10px;
+    button {
+      padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;
+      &.btn-accept { background: #10b981; color: white; &:hover { background: #059669; } }
+      &.btn-reject { background: #ef4444; color: white; &:hover { background: #dc2626; } }
+    }
+  }
+
+  .empty-msg { text-align: center; color: #9ca3af; margin-top: 40px; }
+}
+
+.offer-status.status-info { background: #e0f2fe; color: #0284c7; }
+
+
+.btn-counter {
+  background: #3b82f6 !important; 
+  color: white;
+  &:hover { background: #2563eb !important; }
+}
+
+
+.counter-alert {
+  color: #d97706 !important;
+  background: #fef3c7;
+  padding: 5px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+  background: white; padding: 25px; border-radius: 12px; width: 350px; text-align: center;
+  h3 { margin-top: 0; }
+  .form-group {
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0;
+    input { width: 100px; padding: 8px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 6px; }
+  }
+  .modal-actions {
+    display: flex; gap: 10px; justify-content: center;
+    button { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-cancel { background: #e5e7eb; color: #374151; }
+    .btn-submit { background: #10b981; color: white; }
+  }
+}

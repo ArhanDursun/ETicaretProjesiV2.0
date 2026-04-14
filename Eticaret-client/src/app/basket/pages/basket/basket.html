@@ -1,0 +1,126 @@
+<div class="container mt-5">
+  <h2><i class="fa fa-shopping-cart"></i> {{ 'BASKET.TITLE' | translate }}</h2>
+  <hr>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">{{ 'BASKET.LOADING' | translate }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && (!basket || !basket.items || basket.items.length === 0)"
+    class="alert alert-info text-center">
+    <i class="fa fa-info-circle fa-2x mb-3"></i>
+    <h4>{{ 'BASKET.EMPTY.TITLE' | translate }}</h4>
+    <p>{{ 'BASKET.EMPTY.DESC' | translate }}</p>
+    <a routerLink="/products" class="btn btn-primary mt-2">{{ 'BASKET.EMPTY.BUTTON' | translate }}</a>
+  </div>
+
+  <div *ngIf="!isLoading && basket && basket.items && basket.items.length > 0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>{{ 'BASKET.TABLE.IMAGE' | translate }}</th>
+            <th>{{ 'BASKET.TABLE.NAME' | translate }}</th>
+            <th>{{ 'BASKET.TABLE.PRICE' | translate }}</th>
+            <th>{{ 'BASKET.TABLE.QUANTITY' | translate }}</th>
+            <th>{{ 'BASKET.TABLE.TOTAL' | translate }}</th>
+            <th>{{ 'BASKET.TABLE.ACTION' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of basket.items">
+            <td>
+              <div style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px; position: relative;">
+                <swiper-container *ngIf="item.images && item.images.length > 0" navigation="true" pagination="true"
+                  css-mode="true" style="width: 100%; height: 100%;">
+                  <swiper-slide *ngFor="let img of item.images">
+                    <img [src]="img" alt="Product" style="width: 100%; height: 100%; object-fit: fill;">
+                  </swiper-slide>
+                </swiper-container>
+                <img *ngIf="!item.images || item.images.length === 0" src="assets/no-image.png"
+                  style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+            </td>
+
+            <td class="fw-bold">
+              {{ item.productName }}
+              <span *ngIf="item.isOfferItem" class="badge bg-warning text-dark ms-2 d-block mt-1"
+                style="width: fit-content; font-size: 0.7rem;">
+                <i class="fa fa-handshake"></i> {{ 'BASKET.TABLE.OFFER_BADGE' | translate }}
+              </span>
+            </td>
+
+            <td class="fw-bold" [ngClass]="{'text-success text-decoration-underline': item.isOfferItem}">
+              {{ item.unitPrice | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}
+            </td>
+
+            <td>{{ item.quantity }} {{ 'BASKET.TABLE.UNIT' | translate }}</td>
+
+            <td>{{ (item.unitPrice * item.quantity) | currency:('WALLET.CURRENCY_CODE' |
+              translate):'symbol-narrow':'1.2-2' }}</td>
+
+            <td>
+              <button class="btn btn-sm btn-danger" (click)="removeItem(item.productId)">
+                <i class="fa fa-trash"></i> {{ 'BASKET.TABLE.DELETE' | translate }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <button class="btn btn-outline-danger" (click)="clearBasket()">
+          <i class="fa fa-times"></i> {{ 'BASKET.CLEAR_BASKET' | translate }}
+        </button>
+      </div>
+      <div class="cart-summary text-end mt-4">
+        <h4>{{ 'BASKET.GRAND_TOTAL' | translate }} <strong>{{ basket.totalBasketPrices }} ₺</strong></h4>
+        <button class="btn btn-success btn-lg mt-2" (click)="openCheckOutModal()">
+          <i class="fa fa-credit-card"></i> {{ 'BASKET.CHECKOUT_BUTTON' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showCheckOutModal" (click)="closeCheckOutModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fa fa-wallet"></i> {{ 'BASKET.MODAL.TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="closeCheckOutModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="summary-row">
+        <span>{{ 'BASKET.MODAL.CURRENT_BALANCE' | translate }}</span>
+        <strong>{{ userBalance }} ₺</strong>
+      </div>
+      <div class="summary-row text-danger mt-2 pb-3 border-bottom">
+        <span>{{ 'BASKET.MODAL.AMOUNT_TO_PAY' | translate }}</span>
+        <strong>- {{ basket.totalBasketPrices }} ₺</strong>
+      </div>
+      <div class="summary-row mt-3 total-row">
+        <span>{{ 'BASKET.MODAL.REMAINING_BALANCE' | translate }}</span>
+        <strong
+          [ngClass]="{'text-danger': (userBalance - basket.totalBasketPrices) < 0, 'text-success': (userBalance - basket.totalBasketPrices) >= 0}">
+          {{ userBalance - basket.totalBasketPrices }} ₺
+        </strong>
+      </div>
+      <div class="alert alert-danger mt-3" *ngIf="(userBalance - basket.totalBasketPrices) < 0">
+        <i class="fa fa-exclamation-triangle"></i> {{ 'BASKET.MODAL.INSUFFICIENT_BALANCE' | translate }}
+      </div>
+    </div>
+
+    <div class="modal-footer mt-4">
+      <button class="btn btn-secondary" (click)="closeCheckOutModal()">{{ 'BASKET.MODAL.CANCEL' | translate }}</button>
+      <button class="btn btn-success" [disabled]="(userBalance - basket.totalBasketPrices) < 0 || isSubmitting"
+        (click)="confirmCheckOut()">
+        <i class="fa" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ (isSubmitting ? 'BASKET.MODAL.PROCESSING' : 'BASKET.MODAL.CONFIRM') | translate }}
+      </button>
+    </div>
+  </div>
+</div>

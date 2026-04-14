@@ -1,0 +1,37 @@
+<div class="container mt-5 wallet-container">
+
+    <div class="balance-card mb-5 p-4 text-center">
+        <h6>{{ 'WALLET.CURRENT_BALANCE' | translate }}</h6>
+        <h1>{{ currentBalance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h1>
+        <small>{{ 'WALLET.AVAILABLE_AMOUNT' | translate }}</small>
+    </div>
+
+    <h5>{{ 'WALLET.LAST_TRANSACTIONS' | translate }}</h5>
+
+    <div *ngIf="isLoading" class="text-center py-5">
+        <span class="spinner-border spinner-border-sm me-2"></span> {{ 'WALLET.LOADING' | translate }}
+    </div>
+
+    <div *ngIf="!isLoading && transactions.length === 0" class="text-center py-5 text-muted">
+        {{ 'WALLET.EMPTY' | translate }}
+    </div>
+
+    <div class="transaction-list" *ngIf="!isLoading && transactions.length > 0">
+        <div class="transaction-item d-flex justify-content-between align-items-center py-3"
+            *ngFor="let tx of transactions">
+
+            <div class="tx-details">
+                <div class="tx-desc">{{ tx.description }}</div>
+                <div class="tx-date">
+                    {{ tx.createdDate | date:'dd.MM.yyyy HH:mm' }}
+                    <span class="badge tx-badge ms-2">{{ 'WALLET.TX_NO' | translate }} {{ tx.id }}</span>
+                </div>
+            </div>
+
+            <div class="tx-amount" [ngClass]="{'positive': tx.amount > 0, 'negative': tx.amount <= 0}">
+                {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | currency:('WALLET.CURRENCY_CODE' |
+                translate):'symbol-narrow':'1.2-2' }}
+            </div>
+        </div>
+    </div>
+</div>

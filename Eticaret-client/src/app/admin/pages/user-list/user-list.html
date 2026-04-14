@@ -1,0 +1,57 @@
+<div class="user-list-page">
+  <div class="page-header">
+    <div class="page-header__titles">
+      <h1>{{ 'ADMIN_USERS.TITLE' | translate }}</h1>
+      <p>{{ 'ADMIN_USERS.SUBTITLE' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="card-container">
+    <div class="filter-bar">
+      <input type="text" class="search-input" [placeholder]="'ADMIN_USERS.SEARCH_PH' | translate"
+        [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()">
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'ADMIN_USERS.TABLE.ID' | translate }}</th>
+            <th>{{ 'ADMIN_USERS.TABLE.FULL_NAME' | translate }}</th>
+            <th>{{ 'ADMIN_USERS.TABLE.USERNAME' | translate }}</th>
+            <th>{{ 'ADMIN_USERS.TABLE.EMAIL' | translate }}</th>
+            <th class="text-right">{{ 'ADMIN_USERS.TABLE.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr *ngIf="isLoading">
+            <td colspan="5" style="text-align: center; padding: 3rem; color: #6c757d; font-size: 1.1rem;">
+              {{ 'ADMIN_USERS.LOADING' | translate }}
+            </td>
+          </tr>
+
+          <tr *ngFor="let user of filteredUsers">
+            <td><strong>{{user.id}}</strong></td>
+            <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
+            <td><strong>{{ user.userName }} </strong></td>
+            <td style="color: #6c757d;">{{ user.email }}</td>
+
+            <td class="text-right">
+              <button class="action-btn action-btn--delete" (click)="deleteUser(user.id)">
+                🗑️ {{ 'ADMIN_USERS.TABLE.DELETE' | translate }}
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && filteredUsers.length === 0">
+            <td colspan="5" style="text-align: center; padding: 3rem; color: #dc3545; font-weight: bold;">
+              {{ 'ADMIN_USERS.NOT_FOUND' | translate }}
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

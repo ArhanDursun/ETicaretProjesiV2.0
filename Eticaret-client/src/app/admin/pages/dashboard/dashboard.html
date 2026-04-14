@@ -1,0 +1,171 @@
+<div class="dashboard">
+
+  <div class="dashboard__header">
+    <h1>{{ 'DASHBOARD.TITLE' | translate }}</h1>
+    <p>{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="dashboard__stats">
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background-color: #e3f2fd; color: #1976d2;">🌍</div>
+      <div class="stat-card__info">
+        <h3>{{ stats.totalPlatformVolume | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</h3>
+        <span>{{ 'DASHBOARD.STATS.VOLUME' | translate }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background-color: #e8f5e9; color: #388e3c;">💸</div>
+      <div class="stat-card__info">
+        <h3>{{ stats.totalCommissionEarned | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
+        </h3>
+        <span>{{ 'DASHBOARD.STATS.COMMISSION' | translate }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background-color: #f3e5f5; color: #7b1fa2;">🏪</div>
+      <div class="stat-card__info">
+        <h3>{{ stats.activeSellers }}</h3>
+        <span>{{ 'DASHBOARD.STATS.ACTIVE_SELLERS' | translate }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background-color: #fff3e0; color: #f57c00;">🏷️</div>
+      <div class="stat-card__info">
+        <h3>{{ stats.totalProducts }}</h3>
+        <span>{{ 'DASHBOARD.STATS.TOTAL_PRODUCTS' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard__chart"
+    style="background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-top: 2rem; margin-bottom: 2rem; border: 1px solid #f3f5f9;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; color: #1e293b; font-size: 1.2rem;">{{ 'DASHBOARD.CHART.TITLE' | translate }}</h3>
+
+      <select [(ngModel)]="selectedTimeRange" (change)="onFilterChange()"
+        style="padding: 0.5rem 1rem; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; color: #475569; outline: none; cursor: pointer; background-color: #f8fafc;">
+        <option value="7days">{{ 'DASHBOARD.CHART.7_DAYS' | translate }}</option>
+        <option value="1month">{{ 'DASHBOARD.CHART.1_MONTH' | translate }}</option>
+        <option value="all">{{ 'DASHBOARD.CHART.ALL_TIME' | translate }}</option>
+      </select>
+    </div>
+
+    <div style="position: relative; height: 300px; width: 100%;">
+      <canvas id="commissionChart"></canvas>
+    </div>
+  </div>
+
+  <div class="dashboard__recent-orders">
+    <div class="table-header">
+      <h2>{{ 'DASHBOARD.RECENT_ORDERS.TITLE' | translate }}</h2>
+      <button class="view-all-btn" (click)="openModal()">{{ 'DASHBOARD.RECENT_ORDERS.VIEW_ALL' | translate }}</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'DASHBOARD.TABLE.ORDER_NO' | translate }}</th>
+            <th>{{ 'DASHBOARD.TABLE.SELLER' | translate }}</th>
+            <th>{{ 'DASHBOARD.TABLE.CUSTOMER' | translate }}</th>
+            <th>{{ 'DASHBOARD.TABLE.AMOUNT' | translate }}</th>
+            <th>{{ 'DASHBOARD.TABLE.COMMISSION' | translate }}</th>
+            <th>{{ 'DASHBOARD.TABLE.STATUS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="6" style="text-align: center; padding: 20px;">
+              {{ 'DASHBOARD.RECENT_ORDERS.LOADING' | translate }}
+            </td>
+          </tr>
+
+          <tr *ngFor="let order of recentOrders">
+            <td><strong>{{ order.id }}</strong></td>
+            <td><a [routerLink]="['/admin/user-detail', order.sellerId]"
+                style="color: #1976d2; font-weight: 600; text-decoration: none;">
+                {{ order.seller }}
+              </a></td>
+            <td>{{ order.customer }}</td>
+            <td>{{ order.amount | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
+            <td
+              [style.color]="(order.status === 'İptal Edildi' || order.status === 'Cancelled') ? '#6c757d' : '#388e3c'"
+              style="font-weight: bold;">
+
+              <ng-container
+                *ngIf="order.status !== 'İptal Edildi' && order.status !== 'Cancelled'; else cancelledCommission">
+                +{{ order.commission | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
+              </ng-container>
+
+              <ng-template #cancelledCommission>
+                {{ 0 | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
+              </ng-template>
+
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge--success': order.status === 'Tamamlandı',
+                'badge--warning': order.status === 'Bekliyor',
+                'badge--info': order.status === 'Kargoda',
+                'badge--danger': order.status === 'İptal Edildi'
+              }">{{ order.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="custom-modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+
+    <div class="custom-modal__header">
+      <h2>{{ 'DASHBOARD.RECENT_ORDERS.MODAL_TITLE' | translate }}</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <div class="custom-modal__body">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'DASHBOARD.TABLE.ORDER_NO' | translate }}</th>
+              <th>{{ 'DASHBOARD.TABLE.SELLER' | translate }}</th>
+              <th>{{ 'DASHBOARD.TABLE.CUSTOMER' | translate }}</th>
+              <th>{{ 'DASHBOARD.TABLE.AMOUNT' | translate }}</th>
+              <th>{{ 'DASHBOARD.TABLE.COMMISSION' | translate }}</th>
+              <th>{{ 'DASHBOARD.TABLE.STATUS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of recentOrders">
+              <td><strong>{{ order.id }}</strong></td>
+              <td><a [routerLink]="['/admin/user-detail', order.sellerId]"
+                  style="color: #1976d2; font-weight: 600; text-decoration: none;">
+                  {{ order.seller }}
+                </a></td>
+              <td>{{ order.customer }}</td>
+              <td>{{ order.amount | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
+              <td style="color: #388e3c; font-weight: bold;">+{{ order.commission |
+                currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge--success': order.status === 'Tamamlandı',
+                  'badge--warning': order.status === 'Bekliyor',
+                  'badge--info': order.status === 'Kargoda',
+                  'badge--danger': order.status === 'İptal Edildi'
+                }">{{ order.status }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

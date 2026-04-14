@@ -1,0 +1,89 @@
+<div class="update-container"
+    style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+
+    <h2 style="margin-bottom: 1.5rem; color: #1e293b;">Ürünü Güncelle</h2>
+
+    <div *ngIf="isLoading" style="text-align: center; padding: 2rem;">
+        <div class="spinner">Yükleniyor...</div>
+    </div>
+
+    <form *ngIf="!isLoading" (ngSubmit)="onSubmit()" #updateForm="ngForm">
+
+        <div class="form-group mb-3">
+            <label style="font-weight: 500;">Ürün Adı *</label>
+            <input type="text" class="form-control" name="name" [(ngModel)]="productData.name" required
+                style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="form-group" style="flex: 1;">
+                <label style="font-weight: 500;">Kategori *</label>
+                <select class="form-control" name="categoryId" [(ngModel)]="productData.categoryId" required
+                    style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px; background-color: #fff;">
+                    <option value="" disabled>Seçiniz</option>
+                    <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+                <label style="font-weight: 500;">Stok Adedi *</label>
+                <input type="number" class="form-control" name="stockQuantity" [(ngModel)]="productData.stockQuantity"
+                    required
+                    style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
+        </div>
+
+        <div
+            style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px dashed #cbd5e1;">
+            <h4 style="margin-bottom: 1rem; color: #334155; font-size: 1.1rem; margin-top: 0;">Fiyat ve Flaş İndirim
+            </h4>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <label style="font-weight: 500;">Normal Fiyat (₺) *</label>
+                    <input type="number" class="form-control" name="price" [(ngModel)]="productData.price" required
+                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <label style="color: #ef4444; font-weight: 500;">İndirim Oranı (%)</label>
+                    <input type="number" class="form-control" name="discountPercentage"
+                        [(ngModel)]="productData.discountPercentage" min="1" max="99" placeholder="Örn: 30"
+                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #fca5a5; border-radius: 6px; outline-color: #ef4444;">
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <label style="color: #ef4444; font-weight: 500;">Ne Kadar Sürsün?</label>
+                    <select class="form-control" name="selectedDuration" [(ngModel)]="selectedDuration"
+                        [disabled]="!productData.discountPercentage"
+                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #fca5a5; border-radius: 6px; outline-color: #ef4444; background-color: #fff;">
+                        <option value="" disabled selected>Süre Seçin</option>
+                        <option value="1">1 Gün (Flaş İndirim)</option>
+                        <option value="3">3 Gün</option>
+                        <option value="7">1 Hafta</option>
+                        <option value="14">2 Hafta</option>
+                        <option value="30">1 Ay</option>
+                    </select>
+                </div>
+            </div>
+            <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.75rem;">
+                İndirimi kaldırmak için yüzde kutusunu boş bırakın. Süre seçimi, indirim oranı girildiğinde aktif olur.
+            </small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label style="font-weight: 500;">Ürün Açıklaması</label>
+            <textarea class="form-control" name="description" [(ngModel)]="productData.description" rows="4"
+                style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <button type="button" (click)="router.navigate(['/product/detay', productId])"
+                style="padding: 0.6rem 1.5rem; background: #e2e8f0; color: #475569; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">İptal</button>
+            <button type="submit" [disabled]="!updateForm.form.valid"
+                style="padding: 0.6rem 1.5rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);">Değişiklikleri
+                Kaydet</button>
+        </div>
+
+    </form>
+</div>

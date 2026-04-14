@@ -1,0 +1,124 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 800px; // Projene göre yüksekliği ayarlayabilirsin
+  max-width: 1100px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #1e293b;
+  color: white;
+  padding: 15px 20px;
+  
+  h3 { margin: 0; font-size: 1.1rem; }
+  small { color: #cbd5e1; }
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #e2e8f0; // Sohbet arka plan rengi
+}
+
+.message-wrapper {
+  display: flex;
+  width: 100%;
+  
+  .message-bubble {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    
+    .sender-name {
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .admin-badge {
+        background: #ef4444; color: white;
+        padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;
+      }
+    }
+
+    .text { margin: 0 0 5px 0; font-size: 0.95rem; line-height: 1.4; color: #1e293b; }
+    .time { font-size: 0.7rem; color: #94a3b8; display: block; text-align: right; }
+  }
+
+  // Kullanıcının kendi mesajı (Sağa yaslı, Yeşil)
+  &.is-mine {
+    justify-content: flex-end;
+    .message-bubble {
+      background: #dcf8c6; // Kendi mesajı rengi
+      border-bottom-right-radius: 0; // Balon efekti
+    }
+  }
+
+  // Karşı tarafın mesajı (Sola yaslı, Beyaz)
+  &.is-other {
+    justify-content: flex-start;
+    .message-bubble {
+      background: #ffffff;
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
+.chat-input-area {
+  display: flex;
+  padding: 15px;
+  background: #ffffff;
+  border-top: 1px solid #cbd5e1;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.95rem;
+    &:focus { border-color: #0984e3; }
+  }
+
+  .btn-send {
+    background: #0984e3; color: white;
+    border: none; border-radius: 20px;
+    padding: 0 20px; font-weight: bold; cursor: pointer;
+    transition: 0.2s;
+    &:hover:not(:disabled) { background: #0773c5; }
+    &:disabled { background: #94a3b8; cursor: not-allowed; }
+  }
+}
+
+.ticket-closed-banner {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+
+    i {
+        font-size: 1.5rem;
+        color: #adb5bd;
+    }
+}

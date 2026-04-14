@@ -1,0 +1,108 @@
+<div class="home-container">
+
+  <div class="header-section">
+    <div class="title-area">
+      <h1>{{ 'HOME.TITLE' | translate }}</h1>
+      <p>{{ 'HOME.SUBTITLE' | translate }}</p>
+    </div>
+
+    <div class="action-area" *ngIf="isLoggedIn">
+      <button class="btn-add" routerLink="/product/add">
+        {{ 'HOME.ADD_PRODUCT_BTN' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" [(ngModel)]="filters.searchTerm" [placeholder]="'HOME.SEARCH_PLACEHOLDER' | translate"
+      class="f-input">
+
+    <select [(ngModel)]="filters.categoryId" class="f-select">
+      <option value="">{{ 'HOME.ALL_CATEGORIES' | translate }}</option>
+      <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+    </select>
+
+    <input type="number" [(ngModel)]="filters.minPrice" [placeholder]="'HOME.MIN_PRICE' | translate" class="f-price">
+    <input type="number" [(ngModel)]="filters.maxPrice" [placeholder]="'HOME.MAX_PRICE' | translate" class="f-price">
+
+    <button (click)="applyFilter()" class="btn-search">{{ 'HOME.SEARCH_BTN' | translate }}</button>
+    <button (click)="clearFilter()" class="btn-clear">{{ 'HOME.CLEAR_BTN' | translate }}</button>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <p>{{ 'HOME.LOADING' | translate }}</p>
+  </div>
+
+  <div class="products-grid" *ngIf="!isLoading">
+
+    <div class="no-products" *ngIf="products.length === 0">
+      <p>{{ 'HOME.NO_PRODUCTS' | translate }}</p>
+    </div>
+
+    <div class="product-card" *ngFor="let p of products">
+
+      <div class="card-img">
+        <swiper-container *ngIf="p.images && p.images.length > 0" navigation="true" pagination="true" loop="true"
+          css-mode="true" class="home-swiper">
+          <swiper-slide *ngFor="let img of p.images">
+            <img [src]="img" [alt]="p.name" class="home-product-image">
+          </swiper-slide>
+        </swiper-container>
+
+        <img *ngIf="!p.images || p.images.length === 0" src="assets/no-image.png" [alt]="'HOME.NO_IMAGE' | translate"
+          class="home-fallback-image">
+      </div>
+
+      <div class="card-body">
+        <span class="category-badge">
+          {{ 'HOME.CATEGORY_PREFIX' | translate }} {{ p.categoryName || ('HOME.UNSPECIFIED' | translate) }}
+        </span>
+
+        <h3 [routerLink]="['/product/detay', p.id]" class="product-title">
+          {{ p.name }}
+        </h3>
+        <p class="desc">{{ p.description }}</p>
+
+        <div class="card-rating-container" *ngIf="p.commentCount > 0">
+          <div class="mini-stars">
+            <span class="star-filled">★</span>
+            <span class="rating-value">{{ p.averageStar }}</span>
+          </div>
+          <span class="comment-count">({{ p.commentCount }})</span>
+        </div>
+
+        <div class="card-rating-container no-rating" *ngIf="p.commentCount === 0">
+          <span class="star-empty">★</span>
+          <span class="no-rating-text">{{ 'HOME.NO_COMMENTS' | translate }}</span>
+        </div>
+
+        <div class="card-footer">
+          <div class="price-area">
+
+            <ng-container *ngIf="p.discountPercentage && p.discountPercentage > 0; else noDiscount">
+              <div class="discount-header">
+                <span class="discount-badge">%{{ p.discountPercentage }} İndirim</span>
+                <del class="old-price">{{ p.price }} ₺</del>
+              </div>
+              <span class="new-price">{{ p.discountedPrice }} ₺</span>
+            </ng-container>
+
+            <ng-template #noDiscount>
+              <span class="standard-price">{{ p.price }} ₺</span>
+            </ng-template>
+
+          </div>
+
+          <span class="stock-info">
+            <i class="fa fa-box"></i> {{ p.stockQuantity }} Adet
+          </span>
+        </div>
+
+        <div class="seller-footer">
+          {{ 'HOME.SELLER_PREFIX' | translate }} <strong>{{ p.sellerName }}</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

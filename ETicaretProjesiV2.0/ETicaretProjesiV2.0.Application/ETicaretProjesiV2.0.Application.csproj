@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ETicaretProjesiV2._0.Application</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\ETicaretProjesiV2.0\ETicaretProjesiV2.0.Domain.csproj" />
+	  
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ETicaretProjesiV2.0.Persistence">
+      <HintPath>..\ETicaretProjesiV2.0.Persistence\bin\Debug\net10.0\ETicaretProjesiV2.0.Persistence.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
