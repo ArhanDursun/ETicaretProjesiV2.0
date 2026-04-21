@@ -40,7 +40,8 @@ namespace ETicaretProjesiV2._0.Application.Services
             {
                 UserId = product.SellerId,
                 Title = "Ürününüz Yönetim Tarafından Kaldırıldı",
-                Message = $"'{product.Name}' isimli ürününüz şu gerekçeyle kaldırılmıştır: {dto.Reason}"
+                Message = $"'{product.Name}' isimli ürününüz şu gerekçeyle kaldırılmıştır: {dto.Reason}",
+                Type = "System"
             };
 
             await _notificationService.CreateNotificationAsync(notificationDto);
@@ -73,7 +74,7 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         public async Task<List<AdminProductDto>> GetAllProductsAsync()
         {
-            var products = await _productRepo.Where(p=>true).Include(p=>p.Seller).OrderByDescending(p=>p.CreatedDate)
+            var products = await _productRepo.GetAllAsQueryable(tracking:false).OrderByDescending(p=>p.CreatedDate)
                                                 .Select(p=>new AdminProductDto
                                                 {
                                                     Id =p.Id,

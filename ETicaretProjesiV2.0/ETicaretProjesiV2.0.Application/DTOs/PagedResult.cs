@@ -4,12 +4,13 @@ using System.Text;
 
 namespace ETicaretProjesiV2._0.Application.DTOs
 {
-    public class PaginatedResultDto<T>
+    public class PagedResult <T>
     {
-        public List<T> Items { get; set; } = new List<T>();
+        public List<T> Items { get; set; }
         public int TotalCount { get; set; }
-        public int TotalPages { get; set; }
-        public int CurrentPages { get; set; }
+        public int PageNumber { get; set; }
         public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+
     }
 }

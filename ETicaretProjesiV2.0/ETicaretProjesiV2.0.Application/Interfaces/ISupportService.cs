@@ -15,7 +15,7 @@ namespace ETicaretProjesiV2._0.Application.Interfaces
 
         Task AssignTicketToAdminAsync(Guid ticketId, string adminId);
         Task UpdateTicketStatusAsync(Guid ticketId, TicketStatus newStatus);
-        Task<MessageDto> SaveMessageAsync(Guid ticketId,string senderId, string messageBody);
+        Task<MessageDto> SaveMessageAsync(Guid ticketId,string senderId, string messageBody,string messageType);
         Task<TicketChatViewModelDto> GetTicketMessagesAsync(Guid ticketId, string userId, bool isUserAdmin);
     }
 }

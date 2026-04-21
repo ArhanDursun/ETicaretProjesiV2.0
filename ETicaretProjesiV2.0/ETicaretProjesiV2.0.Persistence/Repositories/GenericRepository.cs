@@ -54,9 +54,23 @@ namespace ETicaretProjesiV2._0.Persistence.Repositories
             _dbset.Update(entity);
         }
 
-        public IQueryable<T> Where(Expression<Func<T, bool>> expression)
+        
+
+        public IQueryable<T> GetAllAsQueryable(bool tracking = true)
         {
-            return _dbset.Where(expression);
+            var query = _dbset.AsQueryable();
+            if(!tracking) query = query.AsNoTracking();
+
+            return query;
+        }
+
+        public IQueryable<T> Where(Expression<Func<T, bool>> expression, bool tracking = true)
+        {
+            var query = _dbset.Where(expression);
+
+            if(!tracking) query = query.AsNoTracking();
+
+            return query;
         }
     }
 }

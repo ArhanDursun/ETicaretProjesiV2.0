@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { form } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-ticket-chat',
@@ -27,6 +28,7 @@ export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
   messages$: any;
   currentUserId: string = '';
   ticketStatus: number = 0;
+  @ViewChild('fileInput') fileInput!: ElementRef;
   constructor(
     private signalRService: Signalr,
     private route: ActivatedRoute,
@@ -63,7 +65,7 @@ export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
   sendMessage() {
     if (!this.messageText.trim()) return;
 
-    this.signalRService.sendMessage(this.ticketId, this.messageText);
+    this.signalRService.sendMessage(this.ticketId, this.messageText, 'text');
     this.cdr.detectChanges();
     this.messageText = '';
   }
@@ -98,5 +100,31 @@ export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
     } catch {
       return null;
     }
+  }
+  onFilesSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (files.length === 0) return;
+
+    const formData = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+
+    this.http
+      .post<{ urls: string[] }>(`https://localhost:7185/api/support/upload-support-file`, formData)
+      .subscribe({
+        next: (res) => {
+          res.urls.forEach((url) => {
+            this.signalRService.sendMessage(this.ticketId, url, 'image');
+          });
+          event.target.value = '';
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Dosya yüklenemedi', err);
+          alert('resimler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        },
+      });
   }
 }

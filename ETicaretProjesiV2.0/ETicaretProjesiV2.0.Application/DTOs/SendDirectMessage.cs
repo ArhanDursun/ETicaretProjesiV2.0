@@ -8,6 +8,7 @@ namespace ETicaretProjesiV2._0.Application.DTOs
     {
         public string ReceiverId { get; set; }
         public string Content { get; set; }
+        public string MessageType { get; set; }
 
     }
 }

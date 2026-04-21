@@ -18,6 +18,7 @@ namespace ETicaretProjesiV2._0.Entities
         public string Content { get; set; }
         public bool IsRead { get; set; }
         public DateTime SentDate { get; set; }
+        public string MessageType { get; set; }
 
     }
 }

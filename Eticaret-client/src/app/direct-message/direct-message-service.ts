@@ -86,8 +86,8 @@ export class DirectMessageService {
     );
   }
 
-  sendMessage(receiverId: string, content: string) {
-    return this.http.post(`${this.apiUrl}/send`, { receiverId, content });
+  sendMessage(receiverId: string, content: string, messageType: string = 'text') {
+    return this.http.post(`${this.apiUrl}/send`, { receiverId, content, messageType });
   }
 
   stopHubConnection() {
@@ -101,5 +101,13 @@ export class DirectMessageService {
 
   markAsRead(otherUserId: string) {
     return this.http.post(`${this.apiUrl}/mark-read/${otherUserId}`, {});
+  }
+
+  uploadChatFiles(files: FileList) {
+    const formdata = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formdata.append('files', files[i]);
+    }
+    return this.http.post<any>(`${this.apiUrl}/upload-chat-files`, formdata);
   }
 }

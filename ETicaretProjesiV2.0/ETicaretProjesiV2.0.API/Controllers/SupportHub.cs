@@ -25,13 +25,13 @@ namespace ETicaretProjesiV2._0.API.Controllers
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, ticketId.ToLower());
         }
 
-        public async Task SendMessage(string ticketId, string messageBody)
+        public async Task SendMessage(string ticketId, string messageBody,string messageType = "text")
         {
             var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (senderId == null) return;
             try
             {
-                var messageDto = await _supportService.SaveMessageAsync(Guid.Parse(ticketId), senderId, messageBody);
+                var messageDto = await _supportService.SaveMessageAsync(Guid.Parse(ticketId), senderId, messageBody,messageType);
                 await Clients.Group(ticketId.ToLower()).SendAsync("RecieveMessage", messageDto);
 
             }

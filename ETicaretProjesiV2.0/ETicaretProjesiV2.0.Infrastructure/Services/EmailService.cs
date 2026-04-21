@@ -25,22 +25,23 @@ namespace ETicaretProjesiV2._0.Infrastructure.Services
             var port = int.Parse(_configuration["EmailSettings:Port"]);
             var displayName = _configuration["EmailSettings:DisplayName"];
 
-            var smtpClient = new SmtpClient(host, port)
+            using (var smtpClient = new SmtpClient(host, port))
             {
-                Port = port,
-                Credentials = new NetworkCredential(email, password),
-                EnableSsl = true
-            };
+                smtpClient.EnableSsl = true;
+                smtpClient.UseDefaultCredentials = false; 
+                smtpClient.Credentials = new NetworkCredential(email, password);
 
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(email, displayName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true,
-            };
-            mailMessage.To.Add(to);
-            await smtpClient.SendMailAsync(mailMessage);
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(email, displayName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true,
+                };
+                mailMessage.To.Add(to);
+
+                await smtpClient.SendMailAsync(mailMessage);
+            }
         }
 
     }

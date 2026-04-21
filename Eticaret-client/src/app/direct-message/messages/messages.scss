@@ -332,3 +332,41 @@
     }
   }
 }
+.msg-pdf {
+  .pdf-link-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e9ecef;
+    }
+  }
+
+  .pdf-icon-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .pdf-details {
+    display: flex;
+    flex-direction: column;
+    
+    .pdf-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .pdf-action {
+      font-size: 0.75rem;
+      color: #007bff;
+    }
+  }
+}

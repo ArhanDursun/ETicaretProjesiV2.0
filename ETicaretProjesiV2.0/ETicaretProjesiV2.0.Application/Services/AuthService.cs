@@ -44,7 +44,9 @@ namespace ETicaretProjesiV2._0.Application.Services
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null) throw new Exception("Giriş bilgileri hatalı");
-
+            if (user != null && user.IsDeleted)
+                throw new Exception("Kullanıcı hesabı Silinmiş");
+            
             if (!user.EmailConfirmed)
             {
                 throw new Exception("Lütfen Giriş yapmadan önce emailinize gelen doğrulama kodunu giriniz");
@@ -159,8 +161,26 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         public async Task SendRegistrationCodeAsync(RegisterRequestDto dto)
         {
-            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
-            if (existingUser != null) throw new Exception("Bu e-posta adresi zaten kayıtlı.");
+            
+            var existingUser = await _userManager.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (existingUser != null)
+            {
+                if (!existingUser.IsDeleted)
+                {
+                    throw new Exception("Bu e-posta adresi zaten kullanılıyor");
+                }
+
+                string suffix = $"_pre_del_{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
+                existingUser.Email += suffix;
+                existingUser.UserName += suffix;
+                existingUser.NormalizedEmail = existingUser.Email.ToUpper();
+                existingUser.NormalizedUserName = existingUser.UserName.ToUpper();
+
+                var updateResult = await _userManager.UpdateAsync(existingUser);
+
+                if (!updateResult.Succeeded)
+                    throw new Exception("Eski kayıt temizlenirken bir hata oluştu.");
+            }
             if (dto.Password != dto.ConfirmPassword)
             {
                 throw new Exception("Girdiğiniz şifreler eşleşmiyor");
@@ -270,7 +290,16 @@ namespace ETicaretProjesiV2._0.Application.Services
             if (user == null)
                 return false;
 
-            var result = await _userManager.DeleteAsync(user);
+            user.IsDeleted = true;
+            user.DeleteDate = DateTime.UtcNow;
+
+            string suffix =$"_deleted_{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
+
+            user.Email += suffix;
+            user.UserName += suffix;
+            user.NormalizedEmail =user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
+            var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
                 var errors = string.Join(" | ", result.Errors.Select(e => e.Description));

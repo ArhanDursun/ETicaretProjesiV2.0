@@ -100,6 +100,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
             try
             {
                 var result = await _authService.LoginAsync(dto);
+                
 
                 return Ok(result);
 

@@ -17,7 +17,17 @@
                     {{ msg.senderName }}
                     <span class="admin-badge" *ngIf="msg.isAdmin">Yetkili</span>
                 </div>
-                <p class="text">{{ msg.messageBody }}</p>
+
+                <div class="message-image" *ngIf="msg.messageType === 'image'">
+                    <a [href]="msg.messageBody" target="_blank">
+                        <img [src]="msg.messageBody" alt="Destek Görseli">
+                    </a>
+                </div>
+
+                <p class="text" *ngIf="msg.messageType === 'text' || !msg.messageType">
+                    {{ msg.messageBody }}
+                </p>
+
                 <span class="time">{{ msg.sentAt | date:'HH:mm' }}</span>
             </div>
 
@@ -25,11 +35,19 @@
 
     </div>
 
-    <div class="chat-input-area" *ngIf="ticketStatus === 4 || ticketStatus === 2">
+    <div class="chat-input-area" *ngIf="ticketStatus !== 4 && ticketStatus !== 3">
+
+        <input type="file" #fileInput multiple (change)="onFilesSelected($event)" accept="image/*"
+            style="display: none;">
+
+        <button class="btn-attach" (click)="fileInput.click()" title="Dosya Ekle">
+            <i class="bi bi-paperclip"></i>
+        </button>
+
         <input type="text" [(ngModel)]="messageText" (keyup.enter)="sendMessage()" placeholder="Mesajınızı yazın...">
 
         <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
-            <i class="fa fa-paper-plane"></i> Gönder
+            <i class="bi bi-send"></i> Gönder
         </button>
     </div>
 
@@ -37,6 +55,7 @@
         <i class="fa fa-lock"></i>
         <span>Bu destek talebi kapatılmıştır. Artık yeni mesaj gönderemezsiniz.</span>
     </div>
+
     <div class="ticket-closed-banner" *ngIf="ticketStatus === 3"
         style="background-color: #fef2f2; color: #dc2626; border-top: 1px solid #f87171;">
         <i class="fa fa-ban"></i>

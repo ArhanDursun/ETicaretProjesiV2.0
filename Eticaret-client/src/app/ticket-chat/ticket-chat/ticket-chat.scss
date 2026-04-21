@@ -1,9 +1,10 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 800px; // Projene göre yüksekliği ayarlayabilirsin
-  max-width: 1100px;
-  margin: 0 auto;
+  height: 100%;
+  max-height: 700px;
+  max-width: 100%;
+  margin: 0;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   background: #f8fafc;
@@ -120,5 +121,21 @@
     i {
         font-size: 1.5rem;
         color: #adb5bd;
+    }
+}
+.btn-attach{
+  background: #0984e3; color: white;
+    border: none; border-radius: 20px;
+    padding: 0 20px; font-weight: bold; cursor: pointer;
+    transition: 0.2s;
+}
+.message-image {
+    img {
+        max-width: 100%;       /* Baloncuğun dışına taşma */
+        max-height: 300px;     /* Çok uzun resimleri sınırla */
+        border-radius: 8px;    /* Kenarları yumuşat */
+        margin-top: 5px;
+        display: block;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 }

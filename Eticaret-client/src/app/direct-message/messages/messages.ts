@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  viewChild,
+} from '@angular/core';
 import { DirectMessageService } from '../direct-message-service';
 import { Auth } from '../../auth/services/auth';
 import { CommonModule } from '@angular/common';
@@ -23,6 +30,7 @@ export class Messages implements OnInit, OnDestroy {
   availableUsers: any[] = [];
   filteredUsers: any[] = [];
   searchUserText: string = '';
+  @ViewChild('fileInput') fileInput!: any;
   constructor(
     private dmService: DirectMessageService,
     private authService: Auth,
@@ -67,7 +75,7 @@ export class Messages implements OnInit, OnDestroy {
   sendMessage() {
     if (!this.messageText.trim() || !this.activeUserId) return;
 
-    this.dmService.sendMessage(this.activeUserId, this.messageText).subscribe({
+    this.dmService.sendMessage(this.activeUserId, this.messageText, 'text').subscribe({
       next: (res) => {
         this.messageThread.push(res);
         this.messageText = '';
@@ -133,5 +141,38 @@ export class Messages implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.activeUserId = null;
     this.dmService.activeChatUserId = null;
+  }
+  onFileSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (!files.length || !this.activeUserId) return;
+
+    this.dmService.uploadChatFiles(files).subscribe({
+      next: (res) => {
+        res.files.forEach((file: any) => {
+          if (this.activeUserId) {
+            this.dmService.sendMessage(this.activeUserId, file.url, file.type).subscribe();
+          } else {
+            console.error('Mesaj gönderilecek kullanıcı seçili değil!');
+          }
+        });
+        event.target.value = '';
+      },
+      error: (err) => {
+        alert('Dosya yüklenirken hata oluştu: ' + err.message);
+      },
+    });
+  }
+
+  sendDirectFile(fileUrl: string, type: string) {
+    if (!this.activeUserId) return;
+
+    this.dmService.sendMessage(this.activeUserId, fileUrl, type).subscribe({
+      next: (res) => {
+        this.messageThread.push(res);
+        this.cdr.detectChanges();
+        this.scrollToBottom();
+        this.dmService.loadRecentChats();
+      },
+    });
   }
 }

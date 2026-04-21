@@ -19,7 +19,8 @@ namespace ETicaretProjesiV2._0.Entities
         public string? ProfileImageUrl { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-
+        public  bool IsDeleted { get; set; } = false;
+        public DateTime? DeleteDate { get; set; }
 
     }
 }

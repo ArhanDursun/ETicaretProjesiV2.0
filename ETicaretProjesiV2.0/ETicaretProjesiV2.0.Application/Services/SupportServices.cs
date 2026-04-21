@@ -110,7 +110,7 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         }
 
-        public async Task<MessageDto> SaveMessageAsync(Guid ticketId, string senderId, string messageBody)
+        public async Task<MessageDto> SaveMessageAsync(Guid ticketId, string senderId, string messageBody,string messageType = "text")
         {
             var ticket = await _ticketRepo.GetByIdAsync(ticketId);
             if (ticket == null || ticket.Status == TicketStatus.Closed || ticket.Status == TicketStatus.Rejected)
@@ -123,9 +123,11 @@ namespace ETicaretProjesiV2._0.Application.Services
                 Id = Guid.NewGuid(),
                 SupportTicketId = ticketId,
                 SenderId = Guid.Parse(senderId),
+                MessageType = messageType,
                 MessageBody = messageBody,
-               
-                IsRead = false
+                IsRead = false,
+                CreatedDate = DateTime.UtcNow
+
             };
             await _messageRepo.AddAsync(message);
             await _messageRepo.SaveAsync();
@@ -137,7 +139,8 @@ namespace ETicaretProjesiV2._0.Application.Services
                 SenderId = message.SenderId,
                 SenderName = $"{sender.FirstName} {sender.LastName}",
                 MessageBody = message.MessageBody,
-                
+                MessageType = message.MessageType,
+                SentAt = message.CreatedDate,
                 IsAdmin = ticket.AssignedAdminId.ToString() == senderId,
             };
         }
@@ -162,6 +165,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                     SenderName = m.Sender.FirstName + " " + m.Sender.LastName,
                     MessageBody = m.MessageBody,
                     IsAdmin = ticket.AssignedAdminId == m.SenderId,
+                    MessageType = m.MessageType,
                     SentAt = m.CreatedDate
                 }).ToListAsync();
 

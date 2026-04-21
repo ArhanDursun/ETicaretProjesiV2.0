@@ -15,5 +15,6 @@ namespace ETicaretProjesiV2._0.Entities
         public string MessageBody { get; set; }
         
         public bool IsRead { get; set; } = false;
+        public string MessageType { get; set; } = "text";
     }
 }

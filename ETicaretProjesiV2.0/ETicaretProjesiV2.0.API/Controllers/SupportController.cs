@@ -119,5 +119,45 @@ namespace ETicaretProjesiV2._0.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpPost("upload-support-file")]
+        public async Task<IActionResult> UploadSupportFile(List<IFormFile> files)
+        {
+            if(files == null || !files.Any()) 
+            {
+                return BadRequest(new { message = "Dosya seçilmedi veya dosya boş." });
+            }
+
+            var uploadedUrls = new List<string>();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "support-uploads");
+            if (!Directory.Exists(uploadDirectory))
+            {
+                Directory.CreateDirectory(uploadDirectory);
+            }
+
+            foreach (var file in files)
+            {
+                if (file.Length > 0)
+                {
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension)) continue;
+
+                    var fileName = $"{Guid.NewGuid()}{extension}";
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "support-uploads", fileName);
+
+                    using(var stream = new FileStream(path,FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var fileUrl = $"{Request.Scheme}://{Request.Host}/support-uploads/{fileName}";
+                    uploadedUrls.Add(fileUrl);
+                }
+            }
+            return Ok(new { urls = uploadedUrls });
+            
+
+        }
     }
 }

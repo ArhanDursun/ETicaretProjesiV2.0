@@ -67,7 +67,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             if (PageNumber < 1) PageNumber = 1;
             if (PageSize < 1) PageSize = 10;
-            if (PageSize > 50) PageSize     = 50;
+            if (PageSize > 50) PageSize = 50;
             var result = await _productService.GetFilteredProductsAsync(categoryId, minPrice, maxPrice, searchTerm,onlyInStock,orderBy,PageNumber,PageSize);
             return Ok(result);
         }
@@ -105,8 +105,15 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var products = await _productService.GetMyProductsAsync(Guid.Parse(sellerId));
             return Ok(products);
         }
+        [HttpGet("showcase")]
+        public async Task<IActionResult> GetShowcaseProducts([FromQuery] PaginationParams paginationParams)
+        {
+            var result = await _productService.GetShowcaseProductsAsync(paginationParams);
 
-        
+            return Ok(result);
+        }
+
+
 
     }
 }

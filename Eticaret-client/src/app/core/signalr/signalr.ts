@@ -54,9 +54,9 @@ export class Signalr {
       .catch((err) => console.error('Odadan Çıkılamadı', err));
   }
 
-  public sendMessage(ticketId: string, messageBody: string) {
+  public sendMessage(ticketId: string, messageBody: string, messageType: string = 'text') {
     this.hubConnection
-      ?.invoke('SendMessage', ticketId, messageBody)
+      ?.invoke('SendMessage', ticketId, messageBody, messageType)
       .catch((err) => console.error('Mesaj Gönderilemedi', err));
   }
 

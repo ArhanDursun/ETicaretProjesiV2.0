@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
@@ -83,7 +84,7 @@ builder.Services.AddAuthentication(options => {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
 
-            if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/supporthub"))
+            if(!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chathub")|| path.StartsWithSegments("/supporthub") ))
             {
                 context.Token = accessToken;
             }
@@ -91,20 +92,7 @@ builder.Services.AddAuthentication(options => {
         }
     };
 
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-            var path = context.HttpContext.Request.Path;
-
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
-    };
+    
 });
 
 builder.Services.AddControllers().AddJsonOptions(x=>x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
@@ -165,6 +153,7 @@ app.UseCors("AllowAngular");
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.UseStaticFiles();
+
 app.MapControllers();
 app.MapHub<SupportHub>("/supporthub");
 app.MapHub<ChatHub>("/chathub");

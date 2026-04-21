@@ -22,7 +22,7 @@ namespace ETicaretProjesiV2._0.Application.Services
         }
 
         
-        public async Task<DirectMessageDto> SendMessageAsync(string senderId, string receiverId, string content)
+        public async Task<DirectMessageDto> SendMessageAsync(string senderId, string receiverId, string content,string messageType = "text")
         {
             var message = new DirectMessage
             {
@@ -30,6 +30,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                 SenderId = Guid.Parse(senderId),
                 ReceiverId = Guid.Parse(receiverId),
                 Content = content,
+                MessageType = messageType,
                 IsRead = false,
                 SentDate = DateTime.UtcNow
             };
@@ -43,6 +44,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                 SenderId = message.SenderId,
                 ReceiverId = message.ReceiverId,
                 Content = message.Content,
+                MessageType = message.MessageType,
                 SentDate = message.SentDate
             };
         }
@@ -63,6 +65,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                     SenderId = m.SenderId,
                     ReceiverId = m.ReceiverId,
                     Content = m.Content,
+                    MessageType = m.MessageType,
                     SentDate = m.SentDate,
                     IsRead = m.IsRead
                 }).ToListAsync();
@@ -86,12 +89,25 @@ namespace ETicaretProjesiV2._0.Application.Services
                 {
                     var lastMsg = group.First();
                     var otherUser = lastMsg.SenderId == uId ? lastMsg.Receiver : lastMsg.Sender;
+                    string displayMessage = lastMsg.Content;
 
+                    if (lastMsg.MessageType == "image")
+                    {
+                        displayMessage = "📷 Fotoğraf";
+                    }
+                    else if (lastMsg.MessageType == "pdf")
+                    {
+                        displayMessage = "📄 PDF Belgesi";
+                    }
+                    else if (displayMessage.Length > 35) 
+                    {
+                        displayMessage = displayMessage.Substring(0, 32) + "...";
+                    }
                     return new ChatListItemDto
                     {
                         UserId = otherUser.Id,
                         UserName = $"{otherUser.FirstName} {otherUser.LastName}",
-                        LastMessage = lastMsg.Content,
+                        LastMessage = displayMessage,
                         LastMessageDate = lastMsg.SentDate,
                         UnreadCount = group.Count(m => m.ReceiverId == uId && !m.IsRead)
                     };

@@ -19,5 +19,6 @@ namespace ETicaretProjesiV2._0.Application.DTOs
         public string MessageBody { get; set; }
         public DateTime SentAt { get; set; }
         public bool IsAdmin { get; set; }
+        public string MessageType { get; set; }
     }
 }

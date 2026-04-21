@@ -10,14 +10,12 @@ namespace ETicaretProjesiV2._0.Application.Interfaces
     {
         Task<T?> GetByIdAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync();
-
-        IQueryable<T> Where(Expression<Func<T,bool>> expression);
-
+        IQueryable<T> GetAllAsQueryable(bool tracking = true);
+        IQueryable<T> Where(Expression<Func<T,bool>> expression,bool tracking = true);
         Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);
         void RemoveRange(IEnumerable<T> entities);
         Task<int> SaveAsync();
-
     }
 }

@@ -24,5 +24,6 @@ namespace ETicaretProjesiV2._0.Entities
         public decimal? DiscountedPrice { get; set; }
         public int? DiscountPercentage { get; set; }
         public DateTime? DiscountEndDate { get; set; }
+        public bool IsShowcase { get; set; }
     }
 }

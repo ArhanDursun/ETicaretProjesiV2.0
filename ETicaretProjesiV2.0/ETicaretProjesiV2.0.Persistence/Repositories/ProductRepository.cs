@@ -17,6 +17,7 @@ namespace ETicaretProjesiV2._0.Persistence.Repositories
         {
             return await _context.Products
                 .Include(p => p.Category)
+                .Include(p=>!p.IsDeleted)
                 .Include(p => p.Seller)
                 .Include(p=>p.ProductImages)
                 .AsNoTracking()
@@ -43,20 +44,24 @@ namespace ETicaretProjesiV2._0.Persistence.Repositories
         public async Task<(List<Product> Products,int totalCount)> GetFilteredProductsAsync(Guid? categoryId, decimal? minPrice,decimal? maxPrice ,string? searchTerm,
             bool onlyInStock = false,string? orderBy = null,int PageNumber = 1,int PageSize= 10)
         {
-            var query = _context.Products.Include(p => p.Category).Include(p => p.Seller).Include(p => p.ProductImages).Include(p=>p.ProductComments).AsQueryable();
-
-            if (categoryId.HasValue) { 
-            query = query.Where(p=> p.CategoryId == categoryId.Value);
-            }
-            if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice.Value);
-            if(onlyInStock)
-                query = query.Where(p => p.StockQuanity > 0);
-
-            if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice.Value);
+            var query = _context.Products
+        .Include(p => p.Category)
+        .Include(p => p.Seller)
+        .Include(p => p.ProductImages)
+        .Include(p => p.ProductComments)
+        .AsNoTracking() // Başta eklemek daha iyi
+        .AsQueryable();
+            if (categoryId.HasValue && categoryId.Value != Guid.Empty)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            if (minPrice.HasValue) query = query.Where(p => p.Price >= minPrice.Value);
+            if (maxPrice.HasValue) query = query.Where(p => p.Price <= maxPrice.Value);
+            if (onlyInStock) query = query.Where(p => p.StockQuanity > 0);
             if (!string.IsNullOrWhiteSpace(searchTerm))
-                query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+            {
+                string search = searchTerm.Trim().ToLower(); 
+                query = query.Where(p => p.Name.ToLower().Contains(search) ||
+                                         p.Description.ToLower().Contains(search));
+            }
             int totalCount = await query.CountAsync();
             query = orderBy?.ToLower() switch
             {
@@ -65,9 +70,13 @@ namespace ETicaretProjesiV2._0.Persistence.Repositories
                 "name_asc" => query.OrderBy(p => p.Name),
                 "name_desc" => query.OrderByDescending(p => p.Name),
                 "newest" => query.OrderByDescending(p => p.CreatedDate),
-                _ => query
+                _ => query.OrderByDescending(p => p.Id) 
             };
-            var products = await query.Skip((PageNumber - 1) * PageSize).Take(PageSize).AsNoTracking().ToListAsync();
+            var products = await query
+         .Skip((PageNumber - 1) * PageSize)
+         .Take(PageSize)
+         .ToListAsync();
+
             return (products, totalCount);
         }
         public async Task SaveChangesAsync()

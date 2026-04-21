@@ -1,5 +1,4 @@
 <div class="messenger-container">
-
     <div class="contacts-panel">
         <div class="panel-header">
             <h2>Sohbetler</h2>
@@ -19,9 +18,7 @@
 
             <div class="contact-item" *ngFor="let chat of recentChats" [class.active]="activeUserId === chat.userId"
                 (click)="selectChat(chat.userId, chat.userName)">
-
                 <div class="avatar">{{ chat.userName.charAt(0) | uppercase }}</div>
-
                 <div class="contact-info">
                     <div class="top-row">
                         <span class="name">{{ chat.userName }}</span>
@@ -51,14 +48,55 @@
             <div class="chat-messages" id="chat-scroll-area">
                 <div class="message-bubble" *ngFor="let msg of messageThread" [class.my-message]="msg.senderId === myId"
                     [class.their-message]="msg.senderId !== myId">
-                    <div class="content">{{ msg.content }}</div>
+
+                    <div class="content">
+                        <span *ngIf="msg.messageType === 'text' || !msg.messageType">{{ msg.content }}</span>
+
+                        <div class="msg-image" *ngIf="msg.messageType === 'image'">
+                            <a [href]="msg.content" target="_blank">
+                                <img [src]="msg.content" alt="Görsel"
+                                    style="max-width: 100%; border-radius: 8px; cursor: zoom-in;">
+                            </a>
+                        </div>
+
+                        <div class="msg-pdf" *ngIf="msg.messageType === 'pdf'">
+                            <div class="pdf-box" style="display: flex; align-items: center; gap: 10px; padding: 5px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#e74c3c"
+                                    class="bi bi-file-earmark-pdf-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.523 12.424c.147 0 .241-.045.291-.093.05-.051.085-.118.085-.209 0-.103-.046-.175-.097-.225-.051-.049-.139-.08-.285-.08-.135 0-.22.033-.274.08-.053.047-.1.123-.1.225 0 .084.03.151.077.203.046.05.145.099.303.099" />
+                                    <path
+                                        d="M13.485 1.43A1.5 1.5 0 0 0 12.03 0H4.5A1.5 1.5 0 0 0 3 1.5v13A1.5 1.5 0 0 0 4.5 16h7a1.5 1.5 0 0 0 1.5-1.5V1.43zM4.5 1a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5h7z" />
+                                </svg>
+                                <div class="pdf-info">
+                                    <small style="display: block; font-weight: bold;">PDF Belgesi</small>
+                                    <a [href]="msg.content" target="_blank"
+                                        style="font-size: 11px; text-decoration: underline;">Görüntüle</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="timestamp">{{ msg.sentDate | date:'HH:mm' }}</div>
                 </div>
             </div>
 
             <div class="chat-input-area">
+                <input type="file" #fileInput multiple (change)="onFileSelected($event)"
+                    accept="image/*,application/pdf" style="display: none;">
+
+                <button class="btn-attach" (click)="fileInput.click()"
+                    style="background: none; border: none; color: #666; margin-right: 10px; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-paperclip" viewBox="0 0 16 16">
+                        <path
+                            d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z" />
+                    </svg>
+                </button>
+
                 <input type="text" [(ngModel)]="messageText" (keyup.enter)="sendMessage()"
                     placeholder="Mesajınızı yazın...">
+
                 <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                         class="bi bi-send-fill" viewBox="0 0 16 16">

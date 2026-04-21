@@ -10,5 +10,6 @@ namespace ETicaretProjesiV2._0.Application.DTOs
         public List<MessageDto> Messages { get; set; }
         public TicketStatus Status { get; set; }
         public string Subject { get; set; }
+        public string MessageType { get; set; }
     }
 }

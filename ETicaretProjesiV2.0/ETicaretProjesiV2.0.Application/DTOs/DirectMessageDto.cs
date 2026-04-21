@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ETicaretProjesiV2._0.Application.DTOs
 {
-    public class DirectMessageDto : BaseEntity
+    public class DirectMessageDto 
     {
         public Guid Id { get; set; }
         public Guid SenderId { get; set; }
@@ -16,5 +16,6 @@ namespace ETicaretProjesiV2._0.Application.DTOs
 
         public string SenderName { get; set; }
         public string ReceiverName { get; set; }
+        public string MessageType { get; set; }
     }
 }

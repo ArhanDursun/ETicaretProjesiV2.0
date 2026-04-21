@@ -55,7 +55,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
            
-            var savedMessage = await _messageService.SendMessageAsync(myId, request.ReceiverId, request.Content);
+            var savedMessage = await _messageService.SendMessageAsync(myId, request.ReceiverId, request.Content,request.MessageType ?? "text");
 
             
             var cleanMessage = new
@@ -64,6 +64,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
                 SenderId = savedMessage.SenderId,
                 ReceiverId = savedMessage.ReceiverId,
                 Content = savedMessage.Content,
+                MessageType = savedMessage.MessageType,
                 SentDate = savedMessage.SentDate,
                 IsRead = savedMessage.IsRead
             };
@@ -89,10 +90,50 @@ namespace ETicaretProjesiV2._0.API.Controllers
             if (string.IsNullOrEmpty(myId))
                 return Unauthorized();
 
-            // Servisteki okundu yapma metodunu tetikliyoruz
+            
             await _messageService.MarkAsReadAsync(myId, otherUserId);
 
             return Ok();
+        }
+        [HttpPost("upload-chat-files")]
+        public async Task<IActionResult> UploadChatFiles(List<IFormFile> files)
+        {
+            if (files == null || !files.Any()) return BadRequest("Dosya yok");
+
+            var uploadedFiles = new List<object>();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf" };
+            var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "chat-uploads");
+
+            if (!Directory.Exists(uploadDirectory)) Directory.CreateDirectory(uploadDirectory);
+
+            foreach (var file in files)
+            {
+                var extension = Path.GetExtension(file.FileName).ToLower();
+
+                
+                if (!allowedExtensions.Contains(extension)) continue;
+
+                
+                string type = extension == ".pdf" ? "pdf" : "image";
+
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var path = Path.Combine(uploadDirectory, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var fileUrl = $"{Request.Scheme}://{Request.Host}/chat-uploads/{fileName}";
+
+               
+                uploadedFiles.Add(new
+                {
+                    url = fileUrl,
+                    type = type 
+                });
+            }
+            return Ok(new { files = uploadedFiles });
         }
     }
 }

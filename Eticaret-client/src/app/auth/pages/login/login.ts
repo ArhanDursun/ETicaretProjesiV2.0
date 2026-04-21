@@ -152,17 +152,21 @@ export class Login implements OnInit {
         }
       },
       error: (err) => {
-        this.isLoading = false;
         const errorMsg = err.error?.Message || err.error?.message || err.error || err.message || '';
         const tamMetin = JSON.stringify(errorMsg);
 
         if (tamMetin.match(/doğrulama/i) || tamMetin.match(/email/i)) {
           this.unconfirmedEmail = this.loginForm.value.email;
           this.needsVerification = true;
+          this.isLoading = false;
           this.cdr.detectChanges();
         } else {
           alert('Giriş başarısız: ' + errorMsg);
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
     });
   }

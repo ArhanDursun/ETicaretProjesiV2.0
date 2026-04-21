@@ -31,11 +31,13 @@ namespace ETicaretProjesiV2._0.API.Controllers
             try
             {
                 await _adminService.DeleteProductWithReasonAsync(dto);
+
                 return Ok(new { Message = "Ürün Başarıyla Silindi" });
             }
             catch (Exception ex)
             {
-
+                string realError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                Console.WriteLine(realError);
                 return BadRequest(new { error = ex.Message });
             }
         }

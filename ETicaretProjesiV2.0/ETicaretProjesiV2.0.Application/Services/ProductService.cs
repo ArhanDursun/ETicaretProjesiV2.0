@@ -41,7 +41,8 @@ namespace ETicaretProjesiV2._0.Application.Services
                 StockQuanity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
                 SellerId = SellerId,
-                ProductImages = new List<ProductImage>() 
+                ProductImages = new List<ProductImage>() ,
+                IsShowcase = true, 
             };
 
             if (dto.ImageFiles != null && dto.ImageFiles.Any())
@@ -110,8 +111,10 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         public async Task<List<ProductDto>> GetAllProductsAsync()
         {
-            var products = await _productRepository.GetProductsWithCategoryAndSellerAsync();
-            return products.Select(p => new ProductDto
+
+            var query = _productRepository.GetAllAsQueryable(tracking: false);
+           
+            return await query.Select(p => new ProductDto
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -119,9 +122,9 @@ namespace ETicaretProjesiV2._0.Application.Services
                 Price = p.Price,
                 StockQuantity = p.StockQuanity,
                 CategoryId = p.CategoryId,
-                CategoryName = p.Category?.Name,
+                CategoryName = p.Category.Name,
                 SellerId = p.SellerId,
-                SellerName = p.Seller?.UserName,
+                SellerName = p.Seller.UserName,
                 DiscountedPrice=p.DiscountedPrice,
                 DiscountEndDate = p.DiscountEndDate,
                 DiscountPercentage = p.DiscountPercentage,
@@ -132,7 +135,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                 : 0,
 
                 CommentCount = p.ProductComments.Count
-            }).ToList();
+            }).ToListAsync();
         }
 
         public async Task<List<ProductDto>> GetAllProductsForAdminAsync()
@@ -151,40 +154,60 @@ namespace ETicaretProjesiV2._0.Application.Services
             }).ToList();
         }
 
-        public async Task<PaginatedResultDto<ProductDto>> GetFilteredProductsAsync(Guid? categoryId, decimal? minPrice, decimal? maxPrice, string? searchTerm, bool onlyInStock, string? orderBy, int PageNumber, int PageSize)
+        public async Task<PaginatedResult<ProductDto>> GetFilteredProductsAsync(Guid? categoryId, decimal? minPrice, decimal? maxPrice, string? searchTerm, bool onlyInStock, string? orderBy, int PageNumber, int PageSize)
         {
-            var result = await _productRepository.GetFilteredProductsAsync(categoryId, minPrice, maxPrice, searchTerm, onlyInStock, orderBy, PageNumber, PageSize);
-            var productsDtos = result.Products.Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuanity,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category?.Name,
-                SellerId = p.SellerId,
-                SellerName = p.Seller?.UserName,
-                DiscountedPrice = p.DiscountedPrice,
-                DiscountEndDate = p.DiscountEndDate,
-                DiscountPercentage = p.DiscountPercentage,
-                Images = p.ProductImages != null ? p.ProductImages.Select(img => img.ImagePath).ToList() : new List<string>(),
-                AverageStar = p.ProductComments != null && p.ProductComments.Any()
-            ? Math.Round(p.ProductComments.Average(c => c.StarCount), 1)
-            : 0,
+            var query = _productRepository.GetAllAsQueryable(tracking: false);
 
-                CommentCount = p.ProductComments != null ? p.ProductComments.Count : 0
-            }).ToList();
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId);
+            if(minPrice.HasValue)
+                query = query.Where(p=> p.Price >= minPrice.Value);
+            if(maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            if(!string.IsNullOrEmpty(searchTerm))
+                query = query.Where(p=>p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+            if(onlyInStock)
+                query = query.Where(p => p.StockQuanity > 0);
+            int totalCount = await query.CountAsync();
 
-            int totalPages = (int)Math.Ceiling(result.totalCount / (double)PageSize);
-            return new PaginatedResultDto<ProductDto>
+            query = orderBy switch
             {
-                Items = productsDtos,
-                TotalCount = result.totalCount,
-                TotalPages = totalPages,
+                "priceAsc" => query.OrderBy(p => p.Price),
+                "priceDesc" => query.OrderByDescending(p => p.Price),
+                _ => query.OrderByDescending(p => p.CreatedDate)
+            };
+
+            var productDtos = await query.Skip((PageNumber -1 )*PageSize)
+                                         .Take(PageSize)
+                                         .Select(p=> new ProductDto
+                                         {
+                                             Id = p.Id,
+                                             Name = p.Name,
+                                             Description = p.Description,
+                                             Price = p.Price,
+                                             StockQuantity = p.StockQuanity,
+                                             CategoryName = p.Category.Name,
+                                             SellerId = p.SellerId,
+                                             DiscountedPrice = p.DiscountedPrice,
+                                             DiscountPercentage = p.DiscountPercentage,
+                                             DiscountEndDate = p.DiscountEndDate,
+                                             Images = p.ProductImages.Select(img => img.ImagePath).ToList(),
+
+                                             AverageStar = p.ProductComments.Any()
+                                             ? Math.Round(p.ProductComments.Average(c => c.StarCount), 1)
+                                               : 0,
+                                             CommentCount = p.ProductComments.Count(),
+                                         }).ToListAsync();
+
+            return new PaginatedResult<ProductDto>
+            {
+                Items = productDtos,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize),
                 CurrentPages = PageNumber,
                 PageSize = PageSize
             };
+
         }
 
         public async Task<IEnumerable<ProductListResponseDto>> GetMyProductsAsync(Guid sellerId)
@@ -251,6 +274,43 @@ namespace ETicaretProjesiV2._0.Application.Services
                 DiscountedPrice = p.DiscountedPrice,
                 Images = p.ProductImages != null ? p.ProductImages.Select(img => img.ImagePath).ToList() : new List<string>()
             }).ToList();
+        }
+
+        public async Task<PagedResult<ProductListResponseDto>> GetShowcaseProductsAsync(PaginationParams userParams)
+        {
+            var query = _productRepository.Where(p => p.IsShowcase && !p.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var products = await query
+                .OrderByDescending(p => p.CreatedDate)
+                .Skip((userParams.PageNumber - 1) * userParams.PageSize)
+                .Take(userParams.PageSize)
+                .Select(p => new ProductListResponseDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    CategoryName = p.Category.Name,
+                    StockQuanity = p.StockQuanity,
+                    Images = p.ProductImages.Select(img => img.ImagePath).ToList(),
+                    AverageStar = p.ProductComments.Any() ? p.ProductComments.Average(c => c.StarCount) : 0,
+                    CommentCount = p.ProductComments.Count(),
+                    DiscountedPrice = p.DiscountedPrice,
+                    DiscountEndDate = p.DiscountEndDate,
+                    DiscountPercentage = p.DiscountPercentage,
+                    SellerName = p.Seller.UserName
+                }).ToListAsync();
+            return new PagedResult<ProductListResponseDto>
+            {
+                Items = products,
+                TotalCount = totalCount,
+                PageNumber = userParams.PageNumber,
+                PageSize = userParams.PageSize,
+            };
+
+
         }
 
         public async Task UpdateProductAsync(Guid id, ProductDto dto)

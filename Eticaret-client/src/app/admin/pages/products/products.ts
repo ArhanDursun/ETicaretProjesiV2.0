@@ -78,8 +78,13 @@ export class Products implements OnInit {
         .deleteProductWithReason(this.selectedProduct.id, this.deleteReason)
         .subscribe({
           next: () => {
-            this.products = this.products.filter((p) => p.id !== this.selectedProduct!.id);
+            this.products = [...this.products.filter((p) => p.id !== this.selectedProduct!.id)];
+            this.filteredProducts = [
+              ...this.filteredProducts.filter((p) => p.id !== this.selectedProduct!.id),
+            ];
+            console.log(this.products.length);
             this.closeDeleteModal();
+            this.cdr.markForCheck();
             this.cdr.detectChanges();
             alert('Ürün başarıyla silindi');
           },
