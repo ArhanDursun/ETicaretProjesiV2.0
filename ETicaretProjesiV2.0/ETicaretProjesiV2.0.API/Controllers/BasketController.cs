@@ -5,12 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace ETicaretProjesiV2._0.API.Controllers
-
 {
-    [Route("api/{controller}")]
+    [Route("api/[controller]")] // "api/{controller}" yerine "api/[controller]" daha standarttır
     [ApiController]
     [Authorize]
-    public class BasketController: ControllerBase
+    public class BasketController : ControllerBase
     {
         private readonly IBasketService _basketService;
 
@@ -18,15 +17,18 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             _basketService = basketService;
         }
+
         private Guid GetUserId()
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdString))
             {
+                // Middleware bu hatayı yakalayıp 500 veya 401 olarak dönecek
                 throw new Exception("Kullanıcı Kimliği Doğrulanamadı");
             }
             return Guid.Parse(userIdString);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetBasket()
         {
@@ -40,23 +42,23 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var userId = GetUserId();
             await _basketService.AddItemToBasketAsync(userId, dto);
-            return Ok(dto);
+            return Ok(new { Message = "Ürün sepete eklendi", Data = dto });
         }
+
         [HttpDelete("remove/{productId}")]
         public async Task<IActionResult> RemoveItemFromBasket(Guid productId)
         {
             var userId = GetUserId();
             await _basketService.RemoveItemFromBasketAsync(userId, productId);
-
-            return Ok();
+            return Ok(new { Message = "Ürün sepetten kaldırıldı" });
         }
+
         [HttpDelete("clear")]
         public async Task<IActionResult> ClearBasket()
         {
             var userId = GetUserId();
             await _basketService.ClearBasketAsync(userId);
-            
-            return Ok();
+            return Ok(new { Message = "Sepet başarıyla temizlendi" });
         }
     }
 }

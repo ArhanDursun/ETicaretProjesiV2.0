@@ -59,16 +59,10 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            try
-            {
+           
                 await _offerService.MakeCounterOfferAsync(request.OfferId, request.CounterPrice, userId);
                 return Ok();
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = ex.Message });
-            }
+           
         }
     }   
 }

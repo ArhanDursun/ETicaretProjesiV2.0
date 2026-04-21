@@ -12,30 +12,31 @@ namespace ETicaretProjesiV2._0.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
         }
+
         [HttpPost("createOrder")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequestDto dto)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim))
-            {
                 return Unauthorized(new { message = "Kullanıcı kimliği doğrulanamadı" });
-            }
 
             var buyerId = Guid.Parse(userIdClaim);
-
             await _orderService.CreateOrderAsync(buyerId, dto);
             return Ok(new { message = "Siparişiniz Başarıyla oluşturuldu" });
         }
+
         [HttpGet("my-orders")]
         public async Task<IActionResult> GetMyOrders()
         {
             var userIdClaims = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaims))
                 return Unauthorized(new { message = "Kullanıcı Kimliği Doğrulanamadı" });
+
             var userId = Guid.Parse(userIdClaims);
             var orders = await _orderService.GetUserOrdersAsync(userId);
             return Ok(orders);
@@ -50,6 +51,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
 
             return Ok(order);
         }
+
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> CancelOrder(Guid id)
         {
@@ -60,41 +62,27 @@ namespace ETicaretProjesiV2._0.API.Controllers
         [HttpGet("GetSellersOrders/{sellerId}")]
         public async Task<IActionResult> GetSellerOrders(Guid sellerId)
         {
-            try
-            {
-                var orders = await _orderService.GetSellerOrdersAsync(sellerId);
-                return Ok(orders);
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
+            var orders = await _orderService.GetSellerOrdersAsync(sellerId);
+            return Ok(orders);
         }
+
         [HttpPut("UpdateStatus/{orderId}")]
         public async Task<IActionResult> UpdateStatus(Guid orderId, [FromBody] StatusUpdateRequestDto request)
         {
-            try
-            {
-                await _orderService.UpdateOrderStatus(orderId, request.NewStatus);
-                return Ok(new { message = "Sipariş durumu güncellendi" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _orderService.UpdateOrderStatus(orderId, request.NewStatus);
+            return Ok(new { message = "Sipariş durumu güncellendi" });
         }
+
         [HttpGet("check-purchase/{productId}")]
         public async Task<IActionResult> CheckUserProduct(Guid productId)
         {
             var userIdClaims = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(string.IsNullOrEmpty(userIdClaims))
+            if (string.IsNullOrEmpty(userIdClaims))
                 return Unauthorized(new { message = "Kullanıcı Kimliği Doğrulanamadı" });
+
             var userId = Guid.Parse(userIdClaims);
-
             var hasPurchased = await _orderService.CheckIfUserPurchasedProductAsync(userId, productId);
-
             return Ok(hasPurchased);
         }
-    }  
+    }
 }

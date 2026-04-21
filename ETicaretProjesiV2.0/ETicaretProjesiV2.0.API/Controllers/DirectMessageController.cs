@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+
 namespace ETicaretProjesiV2._0.API.Controllers
 {
     [Route("api/[controller]")]
@@ -14,8 +15,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
         private readonly IDirectMessageService _messageService;
         private readonly IHubContext<ChatHub> _chatHub;
 
-
-       public DirectMessageController(IDirectMessageService messageService, IHubContext<ChatHub> chatHub)
+        public DirectMessageController(IDirectMessageService messageService, IHubContext<ChatHub> chatHub)
         {
             _messageService = messageService;
             _chatHub = chatHub;
@@ -24,21 +24,12 @@ namespace ETicaretProjesiV2._0.API.Controllers
         [HttpGet("recent-chats")]
         public async Task<IActionResult> GetRecentChats()
         {
-            try
-            {
-                var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(myId))
+                return Unauthorized(new { Message = "Kullanıcı kimliği bulunamadı." });
 
-                if (string.IsNullOrEmpty(myId))
-                    return BadRequest("Kullanıcı kimliği (Token) bulunamadı.");
-
-                var chats = await _messageService.GetRecentChatsAsync(myId);
-                return Ok(chats);
-            }
-            catch (Exception ex)
-            {
-                var errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                return StatusCode(500, new { message = "Sistem Patladı: " + errorMsg });
-            }
+            var chats = await _messageService.GetRecentChatsAsync(myId);
+            return Ok(chats);
         }
 
         [HttpGet("history/{otherUserId}")]
@@ -54,13 +45,11 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-           
-            var savedMessage = await _messageService.SendMessageAsync(myId, request.ReceiverId, request.Content,request.MessageType ?? "text");
+            var savedMessage = await _messageService.SendMessageAsync(myId, request.ReceiverId, request.Content, request.MessageType ?? "text");
 
-            
             var cleanMessage = new
             {
-                Id = savedMessage.Id, 
+                Id = savedMessage.Id,
                 SenderId = savedMessage.SenderId,
                 ReceiverId = savedMessage.ReceiverId,
                 Content = savedMessage.Content,
@@ -69,12 +58,12 @@ namespace ETicaretProjesiV2._0.API.Controllers
                 IsRead = savedMessage.IsRead
             };
 
-            
             await _chatHub.Clients.User(request.ReceiverId).SendAsync("ReceiveDirectMessage", cleanMessage);
             await _chatHub.Clients.User(myId).SendAsync("ReceiveDirectMessage", cleanMessage);
 
             return Ok(savedMessage);
         }
+
         [HttpGet("available-users")]
         public async Task<IActionResult> GetAvailableUsers()
         {
@@ -82,23 +71,22 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var users = await _messageService.GetAvailableUsersAsync(myId);
             return Ok(users);
         }
+
         [HttpPost("mark-read/{otherUserId}")]
         public async Task<IActionResult> MarkAsRead(string otherUserId)
         {
             var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(myId)) return Unauthorized();
 
-            if (string.IsNullOrEmpty(myId))
-                return Unauthorized();
-
-            
             await _messageService.MarkAsReadAsync(myId, otherUserId);
-
             return Ok();
         }
+
         [HttpPost("upload-chat-files")]
         public async Task<IActionResult> UploadChatFiles(List<IFormFile> files)
         {
-            if (files == null || !files.Any()) return BadRequest("Dosya yok");
+            if (files == null || !files.Any())
+                return BadRequest(new { Message = "Dosya seçilmedi." });
 
             var uploadedFiles = new List<object>();
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf" };
@@ -109,13 +97,9 @@ namespace ETicaretProjesiV2._0.API.Controllers
             foreach (var file in files)
             {
                 var extension = Path.GetExtension(file.FileName).ToLower();
-
-                
                 if (!allowedExtensions.Contains(extension)) continue;
 
-                
                 string type = extension == ".pdf" ? "pdf" : "image";
-
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var path = Path.Combine(uploadDirectory, fileName);
 
@@ -125,14 +109,9 @@ namespace ETicaretProjesiV2._0.API.Controllers
                 }
 
                 var fileUrl = $"{Request.Scheme}://{Request.Host}/chat-uploads/{fileName}";
-
-               
-                uploadedFiles.Add(new
-                {
-                    url = fileUrl,
-                    type = type 
-                });
+                uploadedFiles.Add(new { url = fileUrl, type = type });
             }
+
             return Ok(new { files = uploadedFiles });
         }
     }

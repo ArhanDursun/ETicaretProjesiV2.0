@@ -32,7 +32,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
         [HttpGet("check/{productId}")]
         public async Task<IActionResult> CheckFavorite(string productId)
         {
-            // Burada [Authorize] olduğu için token JİLET gibi gelir
+            
             var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(myId)) return Ok(false);
 

@@ -22,94 +22,62 @@ namespace ETicaretProjesiV2._0.API.Controllers
         [HttpPost("register-request")]
         public async Task<IActionResult> RegisterRequest(RegisterRequestDto dto)
         {
-            try
-            {
+           
                 await _authService.SendRegistrationCodeAsync(dto);
                 return Ok(new { Message = "Kayıt kodu mailinize gönderildi" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Kayıt sırasında bir hata oluştu", Error = ex.Message });
-            }
+            
         }
         [HttpPost("register-verification")]
         public async Task<IActionResult> VerifyRegister(VerifyCodeDto dto)
         {
-            try
-            {
+           
                 var response = await _authService.VerifyAndCompleteRegisterAsync(dto);
-                return Ok(response);    
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Kayıt sırasında bir hata oluştu", Error = ex.Message });
-            }
+                return Ok(response);
+           
         }
         [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword(ChangePasswordRequestDto dto)
         {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if(string.IsNullOrEmpty(userIdString))
-                        return Unauthorized(new { Message = "Kullanıcı kimliği bulunamadı" });
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString))
+                return Unauthorized(new { Message = "Kullanıcı kimliği bulunamadı" });
 
-                var userId = Guid.Parse(userIdString);
-            try
-            {
+            var userId = Guid.Parse(userIdString);
+            
                 var result = await _authService.ChangePasswordAsync(userId, dto);
-                if(result)
+                if (result)
                     return Ok(new { Message = "Şifre başarıyla değiştirildi" });
 
                 return BadRequest(new { Message = "Şifre değiştirme başarısız" });
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = "Şifre değiştirme sırasında bir hata oluştu", Error = ex.Message });
-            }
+           
         }
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto dto) {
-            try
-            {
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto dto)
+        {
+            
                 await _authService.ForgotPasswordAsync(dto.Email);
                 return Ok(new { Message = "Şifre sıfırlama kodu mailinize gönderildi" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Şifre sıfırlama sırasında bir hata oluştu", Error = ex.Message });
-            }
+           
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto dto)
         {
-            try
-            {
+           
                 await _authService.ResetPasswordAsync(dto);
                 return Ok(new { Message = "Şifre başarıyla sıfırlandı" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Şifre sıfırlama sırasında bir hata oluştu", Error = ex.Message });
-            }
+            
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            try
-            {
+            
                 var result = await _authService.LoginAsync(dto);
-                
+
 
                 return Ok(result);
 
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = $"Giriş sırasında bir hata oluştu {ex.Message}" });
-            }
         }
         [Authorize]
         [HttpPut("update-profile")]
@@ -117,69 +85,43 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if(string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
             {
                 return Unauthorized(new { Message = "Kullanıcı kimliği bulunamadı" });
             }
-            try
-            {
+           
                 await _authService.UpdateUserAsync(userId, dto);
                 return Ok(new { Message = "Profil başarıyla güncellendi" });
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = $"Profil güncelleme sırasında bir hata oluştu {ex.Message}" });
-            }   
-                
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
-            try
-            {
+          
                 var users = await _authService.GetAllUsersAsync();
                 return Ok(users);
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = "Kullanıcılar Getirlirken Bir hata oluşturuldu",Error = ex.Message});
-            }
+            
         }
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete-user/{id}")]
         public async Task<IActionResult> DeleteUser([FromRoute] string id)
         {
-            try
-            {
+            
                 var isDeleted = await _authService.DeleteUserAsync(id);
                 if (!isDeleted)
                 {
                     return BadRequest(new { Message = "Kullanıcı Bulunamadı Veya Silinemedi" });
                 }
                 return Ok(new { Message = "Kullanıcı Başarıyla Silindi" });
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(500, new { Message = "Sunucu hatası oluştu", Error = ex.Message });
-            }
+            
         }
         [HttpPost("resend-verification-code")]
         public async Task<IActionResult> ResendVerificationCode([FromBody] ResendCodeDto dto)
         {
-            try
-            {
+           
                 await _authService.ResendVerificationCodeAsync(dto.Email);
                 return Ok(new { Message = "Yeni doğrulama kodu e-posta adresinize gönderildi." });
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(new { Message = ex.Message });
-            }
+            
         }
 
         [Authorize]
@@ -236,10 +178,10 @@ namespace ETicaretProjesiV2._0.API.Controllers
 
             var result = await _authService.ChangePasswordAsync(Guid.Parse(userId), dto);
 
-            if(result)
+            if (result)
                 return Ok(new { message = "Şifreniz başarıyla değiştirildi." });
 
-            return BadRequest(new {message = "Şifre depiştirme işlemi başarısız oldu"});
+            return BadRequest(new { message = "Şifre depiştirme işlemi başarısız oldu" });
         }
 
         [Authorize]
@@ -252,29 +194,29 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            
+
             var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/profiles");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            
+
             var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-           
+
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
 
-            
+
             var imageUrl = $"/uploads/profiles/{uniqueFileName}";
             return Ok(new { imageUrl });
         }
         [HttpGet("public-profile/{sellerId}")]
         public async Task<IActionResult> GetPublicProfile(string sellerId)
         {
-            
+
             var profile = await _authService.GetPublicProfileAsync(Guid.Parse(sellerId));
             return Ok(profile);
         }

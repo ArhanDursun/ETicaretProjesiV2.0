@@ -116,7 +116,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 });
 
 var app = builder.Build();
-
+app.UseMiddleware<ETicaretProjesiV2._0.Infrastructure.Middlewares.GlobalExceptionMiddlerware>();
 
 using (var scope = app.Services.CreateScope())
 {

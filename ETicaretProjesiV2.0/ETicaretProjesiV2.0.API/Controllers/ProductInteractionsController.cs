@@ -8,7 +8,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductInteractionsController :ControllerBase
+    public class ProductInteractionsController : ControllerBase
     {
         private readonly IProductInteractionService _interactionService;
 
@@ -23,19 +23,17 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
-            {
-                return Unauthorized("Kullanıcı Kimliği Doğrulanamadı");
-            }
-            var userId = Guid.Parse(userIdStr);
+                return Unauthorized(new { Message = "Kullanıcı Kimliği Doğrulanamadı" });
 
+            var userId = Guid.Parse(userIdStr);
             await _interactionService.AddCommentAsync(userId, dto);
             return Ok(new { Message = "Yorumunuz Başarıyla eklendi" });
         }
+
         [HttpGet("comment/{productId}")]
         public async Task<IActionResult> GetCommentById(Guid productId)
         {
             var comments = await _interactionService.GetCommentsByProductIdAsync(productId);
-
             return Ok(comments);
         }
 
@@ -45,13 +43,13 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
-                return Unauthorized("Kullanıcı Kimliği Doğrulanamadı");
+                return Unauthorized(new { Message = "Kullanıcı Kimliği Doğrulanamadı" });
 
             var userId = Guid.Parse(userIdStr);
-
             await _interactionService.AddQuestionAsync(userId, dto);
             return Ok(new { Message = "Sorunuz Başarıyla eklendi" });
         }
+
         [HttpGet("question/{productId}")]
         public async Task<IActionResult> GetQuestionById(Guid productId)
         {
@@ -60,25 +58,16 @@ namespace ETicaretProjesiV2._0.API.Controllers
         }
 
         [HttpPut("question/answer")]
+        [Authorize]
         public async Task<IActionResult> AnswerQuestion([FromBody] AnswerQuestionDto dto)
         {
             var sellerIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(sellerIdStr))
-                return Unauthorized("Kullanıcı Kimliği Doğrulanamadı");
+                return Unauthorized(new { Message = "Kullanıcı Kimliği Doğrulanamadı" });
 
             var sellerId = Guid.Parse(sellerIdStr);
-
-            try
-            {
-                await _interactionService.AnswerQuestionAsync(sellerId, dto);
-                return Ok(new { Message = "Sorunuz Başarıyla cevaplandı" });
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.ToString());
-            }
+            await _interactionService.AnswerQuestionAsync(sellerId, dto);
+            return Ok(new { Message = "Sorunuz Başarıyla cevaplandı" });
         }
-
     }
 }

@@ -12,6 +12,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
     {
         private readonly IAdminManagementService _adminService;
         private readonly IAdminDashboardService _adminDashboardService;
+
         public AdminController(IAdminManagementService adminService, IAdminDashboardService adminDashboardService)
         {
             _adminService = adminService;
@@ -28,39 +29,17 @@ namespace ETicaretProjesiV2._0.API.Controllers
         [HttpPost("products/delete-with-reason")]
         public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductDto dto)
         {
-            try
-            {
-                await _adminService.DeleteProductWithReasonAsync(dto);
-
-                return Ok(new { Message = "Ürün Başarıyla Silindi" });
-            }
-            catch (Exception ex)
-            {
-                string realError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                Console.WriteLine(realError);
-                return BadRequest(new { error = ex.Message });
-            }
+            await _adminService.DeleteProductWithReasonAsync(dto);
+            return Ok(new { Message = "Ürün Başarıyla Silindi" });
         }
 
         [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUsersDetails(Guid id)
         {
-            try
-            {
-                var user = await _adminService.GetUserDetailsAsync(id);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { error = ex.Message });
-            }
+            var user = await _adminService.GetUserDetailsAsync(id);
+            return Ok(user);
         }
-        [HttpGet("users/{id}/products")]
-        public async Task<IActionResult> GetUserProducts(Guid id)
-        {
-            var products = await _adminService.GetUserProductsAsync(id);
-            return Ok(products);
-        }
+
         [HttpGet("dashboard/stats")]
         public async Task<IActionResult> GetStats()
         {
@@ -68,12 +47,6 @@ namespace ETicaretProjesiV2._0.API.Controllers
             return Ok(stats);
         }
 
-        [HttpGet("dashboard/recent-orders")]
-        public async Task<IActionResult> GetRecentOrders()
-        {
-            var recentOrders = await _adminDashboardService.GetRecentOrdersAsync();
-            return Ok(recentOrders);
-        }
         [HttpGet("dashboard/daily-commission")]
         public async Task<IActionResult> GetDailyComissions([FromQuery] string timeRange)
         {
