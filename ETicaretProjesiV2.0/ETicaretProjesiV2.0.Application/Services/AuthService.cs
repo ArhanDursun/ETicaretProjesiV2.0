@@ -38,24 +38,24 @@ namespace ETicaretProjesiV2._0.Application.Services
             if (!result.Succeeded)
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-            return true;
+            return result.Succeeded;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null) throw new Exception("Giriş bilgileri hatalı");
-            if (user.IsDeleted) throw new Exception("Kullanıcı hesabı silinmiş");
+            if (user.IsDeleted) throw new Exception("Kullanıcı hesabı Silinmiş");
 
             if (!user.EmailConfirmed)
-                throw new Exception("Lütfen önce emailinize gelen doğrulama kodunu giriniz");
+                throw new Exception("Lütfen Giriş yapmadan önce emailinize gelen doğrulama kodunu giriniz");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
-                var role = await _roleManager.FindByNameAsync(userRoles.FirstOrDefault() ?? "User");
+                var role = await _roleManager.FindByNameAsync(userRoles.FirstOrDefault());
                 var token = _tokenService.CreateTokenAsync(user, role, dto.RememberMe);
 
                 return new LoginResponseDto
@@ -94,6 +94,16 @@ namespace ETicaretProjesiV2._0.Application.Services
             await _userManager.UpdateAsync(user);
         }
 
+        public async Task GenerateForgotPasswordTokenAsync(ForgotPasswordRequestDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null) throw new Exception("Kullanıcı bulunamadı.");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            string mailbody = $"Merhaba {user.FirstName},<br>Şifrenizi sıfırlamak için aşağıdaki kodu kullanabilirsiniz: <b>{token}</b>";
+            await _emailService.SendEmailAsync(user.Email, "Şifre Sıfırlama Talebi", mailbody);
+        }
+
         public async Task<string> ForgotPasswordAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -107,20 +117,12 @@ namespace ETicaretProjesiV2._0.Application.Services
             var result = await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
-                throw new Exception("Kod oluşturulurken bir hata oluştu.");
+                throw new Exception($"Kod kaydedilemedi: {result.Errors.FirstOrDefault()?.Description}");
 
             string subject = "xyz Destek - Şifre Sıfırlama Kodu";
-            string body = $"<h3>Merhaba,</h3><p>Doğrulama Kodunuz: <b style='font-size: 20px; color: #ff9800;'>{code}</b></p>";
+            string body = $@"<h3>Merhaba,</h3><p>Şifrenizi sıfırlamak için talebinizi aldık.</p><p>Doğrulama Kodunuz: <b style='font-size: 20px; color: #ff9800;'>{code}</b></p><p><i>Bu kod 15 dakika boyunca geçerlidir.</i></p>";
 
-            try
-            {
-                await _emailService.SendEmailAsync(email, subject, body);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"E-posta gönderim hatası: {ex.Message}");
-            }
-
+            await _emailService.SendEmailAsync(email, subject, body);
             return code;
         }
 
@@ -131,13 +133,17 @@ namespace ETicaretProjesiV2._0.Application.Services
             {
                 if (!existingUser.IsDeleted) throw new Exception("Bu e-posta adresi zaten kullanılıyor");
 
-                string suffix = $"_old_{DateTime.UtcNow.Ticks.ToString().Substring(12)}";
+                string suffix = $"_pre_del_{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
                 existingUser.Email += suffix;
                 existingUser.UserName += suffix;
-                await _userManager.UpdateAsync(existingUser);
+                existingUser.NormalizedEmail = existingUser.Email.ToUpper();
+                existingUser.NormalizedUserName = existingUser.UserName.ToUpper();
+
+                var updateResult = await _userManager.UpdateAsync(existingUser);
+                if (!updateResult.Succeeded) throw new Exception("Eski kayıt temizlenirken bir hata oluştu.");
             }
 
-            if (dto.Password != dto.ConfirmPassword) throw new Exception("Şifreler eşleşmiyor");
+            if (dto.Password != dto.ConfirmPassword) throw new Exception("Girdiğiniz şifreler eşleşmiyor");
 
             var user = new AppUser
             {
@@ -152,11 +158,11 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
-                throw new Exception("Kayıt başarısız: " + result.Errors.FirstOrDefault()?.Description);
+                throw new Exception("Kullanıcı oluşturulamadı: " + result.Errors.FirstOrDefault()?.Description);
 
             await _userManager.AddToRoleAsync(user, "User");
-            string body = $"<h1>Hoş Geldiniz!</h1><p>Doğrulama kodunuz: {user.EmailConfirmationCode}</p>";
-            await _emailService.SendEmailAsync(user.Email, "Kayıt Doğrulama", body);
+            string body = $@"<div style='font-family: Arial;'><h2>Hoş Geldiniz!</h2><p>Doğrulama kodunuz:</p><h1 style='color: #2c3e50;'>{user.EmailConfirmationCode}</h1><p>Bu kod 15 dakika geçerlidir.</p></div>";
+            await _emailService.SendEmailAsync(user.Email, "Kayıt Doğrulama Kodu", body);
         }
 
         public async Task<LoginResponseDto> VerifyAndCompleteRegisterAsync(VerifyCodeDto dto)
@@ -172,11 +178,10 @@ namespace ETicaretProjesiV2._0.Application.Services
             user.EmailConfirmationCodeExpire = null;
 
             var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded) throw new Exception("Onaylama işlemi başarısız.");
+            if (!updateResult.Succeeded) throw new Exception("Kullanıcı onaylanırken bir hata oluştu.");
 
             var userRoles = await _userManager.GetRolesAsync(user);
             var role = await _roleManager.FindByNameAsync(userRoles.FirstOrDefault() ?? "User");
-
             return new LoginResponseDto
             {
                 Token = _tokenService.CreateTokenAsync(user, role, false),
@@ -193,9 +198,7 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             if (user.Email != dto.Email)
             {
-                if (await _userManager.FindByEmailAsync(dto.Email) != null)
-                    throw new Exception("Bu e-posta adresi zaten kullanılıyor.");
-
+                if (await _userManager.FindByEmailAsync(dto.Email) != null) throw new Exception("Bu e-posta adresi zaten kullanılıyor.");
                 user.Email = dto.Email;
                 user.NormalizedEmail = dto.Email.ToUpper();
             }
@@ -203,24 +206,25 @@ namespace ETicaretProjesiV2._0.Application.Services
             user.UserName = dto.UserName;
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
+            user.NormalizedUserName = dto.UserName.ToUpper();
             user.ProfileImageUrl = dto.ProfileImageUrl;
             user.Description = dto.Description;
 
             var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                throw new Exception("Güncelleme hatası: " + result.Errors.FirstOrDefault()?.Description);
+            if (!result.Succeeded) throw new Exception("Güncelleme hatası: " + result.Errors.FirstOrDefault()?.Description);
         }
 
         public async Task<List<UserListDto>> GetAllUsersAsync()
         {
-            return await _userManager.Users.Select(u => new UserListDto
+            var users = await _userManager.Users.ToListAsync();
+            return users.Select(u => new UserListDto
             {
                 Id = u.Id.ToString(),
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email,
                 UserName = u.UserName,
-            }).ToListAsync();
+            }).ToList();
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
@@ -230,16 +234,34 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             user.IsDeleted = true;
             user.DeleteDate = DateTime.UtcNow;
-            string suffix = $"_del_{DateTime.UtcNow.Ticks.ToString().Substring(12)}";
+            string suffix = $"_deleted_{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
             user.Email += suffix;
             user.UserName += suffix;
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
 
             var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                throw new Exception(string.Join(" | ", result.Errors.Select(e => e.Description)));
+            if (!result.Succeeded) throw new Exception(string.Join(" | ", result.Errors.Select(e => e.Description)));
 
             return true;
         }
+
+        public async Task<bool> ResendVerificationCodeAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) throw new Exception("Kullanıcı bulunamadı");
+            if (user.EmailConfirmed == true) throw new Exception("Bu mail zaten onaylı");
+
+            user.EmailConfirmationCode = Random.Shared.Next(100000, 999999).ToString();
+            await _userManager.UpdateAsync(user);
+
+            string body = $@"<div style='font-family: Arial;'><h2>Hoş Geldiniz!</h2><p>Doğrulama kodunuz:</p><h1 style='color: #2c3e50;'>{user.EmailConfirmationCode}</h1><p>Bu kod 15 dakika geçerlidir.</p></div>";
+            await _emailService.SendEmailAsync(user.Email, "Kayıt Doğrulama Kodu", body);
+
+            return true;
+        }
+
+        public async Task<AppUser> GetUserIdAsync(string userId) => await _userManager.FindByIdAsync(userId);
 
         public async Task<UserProfileDto> GetUserProfileAsync(string userId)
         {
@@ -254,15 +276,30 @@ namespace ETicaretProjesiV2._0.Application.Services
                 Email = user.Email,
                 Balance = user.Balance,
                 ProfileImageUrl = user.ProfileImageUrl,
-                Description = user.Description
+                Description = user.Description,
+            };
+        }
+
+        public async Task<UserProfileDto> GetPublicProfileAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) throw new Exception("Kullanıcı Bulunamadı");
+
+            return new UserProfileDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName,
+                ProfileImageUrl = user.ProfileImageUrl,
+                Description = user.Description,
             };
         }
 
         public async Task<IEnumerable<UserSearchDto>> SearchUsersAsync(string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword)) return new List<UserSearchDto>();
-            keyword = keyword.ToLower();
 
+            keyword = keyword.ToLower();
             return await _userManager.Users
                 .Where(u => u.UserName.ToLower() != "admin" &&
                            (u.UserName.ToLower().Contains(keyword) ||
@@ -277,7 +314,5 @@ namespace ETicaretProjesiV2._0.Application.Services
                     ProfileImageUrl = u.ProfileImageUrl
                 }).ToListAsync();
         }
-
-        public async Task<AppUser> GetUserIdAsync(string userId) => await _userManager.FindByIdAsync(userId);
     }
 }

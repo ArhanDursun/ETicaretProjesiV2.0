@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace ETicaretProjesiV2._0.Infrastructure.Middlewares
 {
@@ -26,22 +27,33 @@ namespace ETicaretProjesiV2._0.Infrastructure.Middlewares
             catch (Exception ex)
             {
 
-                _logger.LogError($"Aga bir hata yakalandı: {ex.Message}");
+                if (context.Response.HasStarted)
+                {
+                    _logger.LogWarning("Response Zaten Başladığı için hata mesajı gönderilmedi");
+                    return;
+                }
                 await HandleExceptionAsync(context, ex);
             }
         }
-        private static Task HandleExceptionAsync(HttpContext context ,Exception exception)
+        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
 
+          
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var errorResponse = new ErrorDetails
+            var message = exception.Message;
+
+           
+            if (exception.Message == "Giriş Bilgileri Hatalı" ||
+                exception.Message == "Kullanıcı bulunamadı" ||
+                exception.Message == "Lütfen önce emailinize gelen doğrulama kodunu giriniz")
             {
-                StatusCode = context.Response.StatusCode,
-                Message = exception.Message
-            };
-            return context.Response.WriteAsync(errorResponse.ToString());
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+
+            var response = new { message = message };
+            return context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }
 }

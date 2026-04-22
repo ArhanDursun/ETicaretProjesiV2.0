@@ -16,11 +16,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
+using Serilog.Events;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) 
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning) 
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Host.UseSerilog();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 var tokenSettings = builder.Configuration.GetSection("Token").Get<TokenSettings>();
@@ -117,6 +125,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 
 var app = builder.Build();
 app.UseMiddleware<ETicaretProjesiV2._0.Infrastructure.Middlewares.GlobalExceptionMiddlerware>();
+app.UseMiddleware<ETicaretProjesiV2._0.Infrastructure.Middlewares.RequestResponseLoggingMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
