@@ -3,218 +3,182 @@ using ETicaretProjesiV2._0.Application.Interfaces;
 using ETicaretProjesiV2._0.Entities;
 using ETicaretProjesiV2._0.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace ETicaretProjesiV2._0.Application.Services
 {
     public class BasketService : IBasketService
     {
-        private readonly IGenericRepository<Basket> _basketRepo;
-        private readonly IGenericRepository<BasketItem> _basketItemRepo;
+        private readonly IDistributedCache _cache;
         private readonly IGenericRepository<Product> _productRepo;
         private readonly IGenericRepository<Offer> _offerRepo;
 
-        public BasketService(IGenericRepository<Basket> basketRepo, IGenericRepository<BasketItem> basketItemRepo, IGenericRepository<Product> productRepo,
-            IGenericRepository<Offer> offerRepo)
+        public BasketService(IDistributedCache cache, IGenericRepository<Product> productRepo, IGenericRepository<Offer> offerRepo)
         {
-            _basketRepo = basketRepo;
-            _basketItemRepo = basketItemRepo;
+            _cache = cache;
             _productRepo = productRepo;
             _offerRepo = offerRepo;
         }
 
         public async Task AddItemToBasketAsync(Guid userId, AddItemToBasketDto dto)
         {
-            var product = await _productRepo.GetByIdAsync(dto.ProductId);
-            if (product == null)
-                throw new Exception("Ürün bulunamadı!");
-            
+            var product = await _productRepo.Where(p => p.Id == dto.ProductId)
+                .Include(p => p.ProductImages).FirstOrDefaultAsync();
+
+            if (product == null) throw new Exception("Ürün Bulunamadı");
 
             decimal activePrice = product.Price;
-            if(product.DiscountedPrice.HasValue&& product.DiscountEndDate.HasValue && product.DiscountEndDate.Value > DateTime.UtcNow)
+            if(product.DiscountedPrice.HasValue && product.DiscountEndDate.HasValue && product.DiscountEndDate.Value > DateTime.UtcNow)
             {
                 activePrice = product.DiscountedPrice.Value;
             }
-            var basket = await _basketRepo.Where(b => b.AppUserId == userId)
-                                          .Include(b => b.Items)
-                                          .FirstOrDefaultAsync();
-            if (basket == null)
-            {
-                basket = new Basket { AppUserId = userId };
-                await _basketRepo.AddAsync(basket);
-                await _basketRepo.SaveAsync();
-            }
 
-            var existingItem = basket.Items?.FirstOrDefault(i => i.ProductId == dto.ProductId);
+            var cacheKey = GetBasketKey(userId);
+            var basketJson = await _cache.GetStringAsync(cacheKey);
 
-           
-            int quantityToAdd = dto.Quantity > 0 ? dto.Quantity : 1;
+            BasketDto basket = string.IsNullOrEmpty(basketJson)
+                ? new BasketDto { BasketId = userId}:JsonSerializer.Deserialize<BasketDto>(basketJson);
 
+            var existingItem = basket.Items.FirstOrDefault(i=>i.ProductId ==dto.ProductId);
+            int quantityToAdd = dto.Quantity>0 ? dto.Quantity : 1;
             int currentInBasket = existingItem?.Quantity ?? 0;
             int totalRequestedQuantity = currentInBasket + quantityToAdd;
 
-            if (totalRequestedQuantity > product.StockQuanity)
+            if(totalRequestedQuantity> product.StockQuanity)
             {
-                throw new Exception($"Stok yetersiz! Bu üründen en fazla {product.StockQuanity} adet alabilirsiniz. Sepetinizde zaten {currentInBasket} adet var.");
+                throw new Exception($"Stok Yetersiz bu üründen en fazla {product.StockQuanity} adet alabilirsiniz. Sepetinizde zaten {currentInBasket} adet var.");
             }
-
-            product.StockQuanity -= quantityToAdd;
-            _productRepo.Update(product);
-
-            if (existingItem != null)
+            if(existingItem != null)
             {
-                existingItem.Quantity += quantityToAdd;
+                existingItem.Quantity = quantityToAdd;
                 existingItem.UnitPrice = activePrice;
-                _basketItemRepo.Update(existingItem);
             }
             else
             {
-                var newItem = new BasketItem
+                basket.Items.Add(new BasketItemDto
                 {
-                    BasketId = basket.Id,
-                    ProductId = dto.ProductId,
-                    Quantity = quantityToAdd,
+                    ProductId = product.Id,
+                    ProductName = product.Name,
                     UnitPrice = activePrice,
-                };
-                await _basketItemRepo.AddAsync(newItem);
+                    Quantity = quantityToAdd,
+                    IsOfferItem = false,
+                    Images = product.ProductImages?.Select(x => x.ImagePath).ToList() ?? new List<string>()
+
+                });
             }
 
-            await _basketItemRepo.SaveAsync();
+            basket.TotalBasketPrices = basket.Items.Sum(x=>x.Quantity *x.UnitPrice);
+
+            var options = new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(30) };
+            await _cache.SetStringAsync(cacheKey,JsonSerializer.Serialize(basket),options);
         }
 
         public async Task ClearBasketAsync(Guid userId)
         {
-            var basket = await _basketRepo.Where(b => b.AppUserId == userId).
-                                            Include(b => b.Items).
-                                            FirstOrDefaultAsync();
-
-            if (basket == null || basket.Items == null || !basket.Items.Any()) return;
-
-            foreach (var item in basket.Items.ToList())
-            {
-                _basketItemRepo.Delete(item);
-
-            }
-            await _basketItemRepo.SaveAsync();
+            var cacheKey = GetBasketKey(userId);
+            await _cache.RemoveAsync(cacheKey);
         }
 
         public async Task<BasketDto> GetBasketAsync(Guid userId)
         {
-            var basket = await _basketRepo.Where(b => b.AppUserId == userId)
-                                          .Include(b => b.Items).ThenInclude(i => i.Product)
-                                          .ThenInclude(p=>p.ProductImages)
-                                          .FirstOrDefaultAsync();
+            var basketJson = await _cache.GetStringAsync(GetBasketKey(userId));
+            if (string.IsNullOrEmpty(basketJson)) return new BasketDto { BasketId = userId };
 
-            if (basket == null) return new BasketDto();
+            var basket = JsonSerializer.Deserialize<BasketDto>(basketJson);
+
+            
+            if (basket.Items == null || !basket.Items.Any()) return basket;
+
+           
+            var productIds = basket.Items.Select(x => x.ProductId).ToList();
+            var currentProducts = await _productRepo.Where(p => productIds.Contains(p.Id)).ToListAsync();
 
             var finalItems = new List<BasketItemDto>();
 
             foreach (var item in basket.Items)
             {
-                
-                var acceptedOffer = await _offerRepo.Where(o => o.ProductId == item.ProductId
-                                                        && o.BuyerId == userId
-                                                        && o.Status == OfferStatus.Accepted)
-                                               .OrderByDescending(o => o.CreatedDate)
-                                               .FirstOrDefaultAsync();
-                var productImages = item.Product?.ProductImages != null
-                            ? item.Product.ProductImages.Select(pi => pi.ImagePath).ToList()
-                            : new List<string>();
-                decimal activePrice = item.Product?.Price ?? item.UnitPrice;
+               
+                var currentProduct = currentProducts.FirstOrDefault(p => p.Id == item.ProductId);
+                if (currentProduct == null) continue; 
 
-                if(item.Product?.DiscountedPrice.HasValue == true 
-                    && item.Product.DiscountEndDate.HasValue == true
-                    && item.Product.DiscountEndDate.Value > DateTime.UtcNow)
+              
+                decimal activePrice = currentProduct.Price;
+                if (currentProduct.DiscountedPrice.HasValue
+                    && currentProduct.DiscountEndDate.HasValue
+                    && currentProduct.DiscountEndDate.Value > DateTime.UtcNow)
                 {
-
-                    activePrice = item.Product.DiscountedPrice.Value; 
+                    activePrice = currentProduct.DiscountedPrice.Value;
                 }
+
+                var acceptedOffer = await _offerRepo.Where(o => o.ProductId == item.ProductId
+                                                             && o.BuyerId == userId
+                                                             && o.Status == OfferStatus.Accepted)
+                                                    .OrderByDescending(o => o.CreatedDate)
+                                                    .FirstOrDefaultAsync();
 
                 if (acceptedOffer != null)
                 {
-                    
                     int offerQty = Math.Min(item.Quantity, acceptedOffer.Quantity);
-
-                   
                     if (offerQty > 0)
                     {
-                        finalItems.Add(new BasketItemDto
-                        {
-                            ProductId = item.ProductId,
-                            ProductName = item.Product?.Name + " (Teklifli)",
-                            UnitPrice = acceptedOffer.OfferedPrice,
-                            Quantity = offerQty,
-                            IsOfferItem = true,
-                            Images = productImages
-                        });
+                        var offerItem = JsonSerializer.Deserialize<BasketItemDto>(JsonSerializer.Serialize(item)); 
+                        offerItem.ProductName += " (Teklifli)";
+                        offerItem.UnitPrice = acceptedOffer.OfferedPrice;
+                        offerItem.Quantity = offerQty;
+                        offerItem.IsOfferItem = true;
+                        finalItems.Add(offerItem);
                     }
 
-                   
                     int remainingQty = item.Quantity - offerQty;
                     if (remainingQty > 0)
                     {
-                        finalItems.Add(new BasketItemDto
-                        {
-                            ProductId = item.ProductId,
-                            ProductName = item.Product?.Name,
-                            UnitPrice = activePrice, 
-                            Quantity = remainingQty,
-                            IsOfferItem = false,
-                            Images = productImages
-                        });
+                        var normalItem = JsonSerializer.Deserialize<BasketItemDto>(JsonSerializer.Serialize(item)); 
+                        normalItem.Quantity = remainingQty;
+                        normalItem.UnitPrice = activePrice; 
+                        finalItems.Add(normalItem);
                     }
                 }
                 else
                 {
-                   
-                    finalItems.Add(new BasketItemDto
-                    {
-                        ProductId = item.ProductId,
-                        ProductName = item.Product?.Name,
-                        UnitPrice = activePrice,
-                        Quantity = item.Quantity,
-                        IsOfferItem = false,
-                        Images = productImages,
-                    });
+                    
+                    item.UnitPrice = activePrice;
+                    finalItems.Add(item);
                 }
             }
 
-            
-            decimal total = finalItems.Sum(x => x.Quantity * x.UnitPrice);
-            return new BasketDto
-            {
-                BasketId = basket.Id,
-                Items = finalItems,
-                TotalBasketPrices = total
-            };
+            basket.Items = finalItems;
+            basket.TotalBasketPrices = basket.Items.Sum(x => x.Quantity * x.UnitPrice);
+
+           
+            var options = new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(30) };
+            await _cache.SetStringAsync(GetBasketKey(userId), JsonSerializer.Serialize(basket), options);
+
+            return basket;
         }
-
-
-
 
         public async Task RemoveItemFromBasketAsync(Guid userId, Guid productId)
         {
-            var basket = await _basketRepo.Where(b=>b.AppUserId == userId).Include(b=>b.Items).FirstOrDefaultAsync();
+            var cacheKey = GetBasketKey(userId);
+            var basketJson = await _cache.GetStringAsync(cacheKey);
 
-            if (basket == null) return;
-
-            var itemToRemove = basket.Items?.FirstOrDefault(i=> i.ProductId == productId);
+            if (string.IsNullOrEmpty(basketJson)) return;
+            var basket = JsonSerializer.Deserialize<BasketDto>(basketJson);
+            var itemToRemove = basket.Items.FirstOrDefault(i => i.ProductId == productId);
             if (itemToRemove != null)
             {
-                var product = await _productRepo.GetByIdAsync(productId);
+                basket.Items.Remove(itemToRemove);
+                basket.TotalBasketPrices = basket.Items.Sum(x => x.Quantity * x.UnitPrice);
 
-                if(product != null)
-                {
-                    product.StockQuanity += itemToRemove.Quantity;
-                    _productRepo.Update(product);
-                    await _productRepo.SaveAsync();
-                }
-                _basketItemRepo.Delete(itemToRemove);
-                await _basketItemRepo.SaveAsync();
-            } 
+                var options = new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(30) };
+                await _cache.SetStringAsync(cacheKey,JsonSerializer.Serialize(basket),options);
+            }
         }
-    }
 
+        private string GetBasketKey(Guid userId) => $"basket_{userId}";
+    }
 }
+

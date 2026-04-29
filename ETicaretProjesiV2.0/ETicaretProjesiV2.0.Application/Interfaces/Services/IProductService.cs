@@ -18,6 +18,7 @@ namespace ETicaretProjesiV2._0.Application.Interfaces.Services
         Task<bool> DeleteProductByAdminAsync(Guid id);
         Task<IEnumerable<ProductListResponseDto>> GetMyProductsAsync(Guid sellerId);
         Task<PagedResult<ProductListResponseDto>> GetShowcaseProductsAsync(PaginationParams userParams);
+        Task<List<ProductListResponseDto>> GetTrendingProductsAsync();
 
     }
 }

@@ -384,3 +384,53 @@ body {
   font-weight: 400;
 }
 
+.custom-toast-container {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 9999;
+  animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+
+  .custom-toast {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #1e1e24, #2b2b36); 
+    color: #ffffff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border-left: 4px solid #ff416c; 
+    
+    .toast-icon {
+      font-size: 24px;
+      margin-right: 15px;
+      animation: pulseFire 1.5s infinite;
+    }
+
+    .toast-content {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+  }
+}
+
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+
+@keyframes pulseFire {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}

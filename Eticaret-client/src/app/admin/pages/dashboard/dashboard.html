@@ -118,6 +118,19 @@
       </table>
     </div>
   </div>
+  <div class="report-card">
+    <div class="card-header">
+      <h3>Genel Satış Raporu</h3>
+      <p>Son 1 yıla ait tüm satışların ve komisyonların detaylı dökümünü Excel olarak indirin.</p>
+    </div>
+
+    <button class="btn-generate" (click)="requestReport()" [disabled]="isGeneratingReport">
+      <div class="spinner" *ngIf="isGeneratingReport"></div>
+
+      <span *ngIf="!isGeneratingReport">Excel Raporu Oluştur</span>
+      <span *ngIf="isGeneratingReport">Rapor Hazırlanıyor...</span>
+    </button>
+  </div>
 
 </div>
 
@@ -151,8 +164,20 @@
                 </a></td>
               <td>{{ order.customer }}</td>
               <td>{{ order.amount | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
-              <td style="color: #388e3c; font-weight: bold;">+{{ order.commission |
-                currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
+              <td
+                [style.color]="(order.status === 'İptal Edildi' || order.status === 'Cancelled') ? '#6c757d' : '#388e3c'"
+                style="font-weight: bold;">
+
+                <ng-container
+                  *ngIf="order.status !== 'İptal Edildi' && order.status !== 'Cancelled'; else cancelledCommission">
+                  +{{ order.commission | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
+                </ng-container>
+
+                <ng-template #cancelledCommission>
+                  {{ 0 | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
+                </ng-template>
+
+              </td>
               <td>
                 <span class="badge" [ngClass]="{
                   'badge--success': order.status === 'Tamamlandı',
@@ -167,5 +192,35 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="custom-toast-container" [class.toast-show]="showNotification">
+  <div class="toast-box">
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <div class="toast-content">
+      <h4 class="toast-title">İşlem Tamamlandı 🚀</h4>
+      <p class="toast-message">{{ notificationMessage }}</p>
+
+      <div class="toast-action">
+        <a [href]="notificationUrl" target="_blank" (click)="closeNotification()" class="btn-download">
+          ⬇️ Excel'i İndir
+        </a>
+      </div>
+    </div>
+
+    <button class="toast-close" (click)="closeNotification()">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+          clip-rule="evenodd" />
+      </svg>
+    </button>
   </div>
 </div>

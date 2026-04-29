@@ -1,14 +1,18 @@
-﻿using ETicaretProjesiV2._0.Application.Interfaces;
+﻿using AutoMapper;
+using ETicaretProjesiV2._0.Application.DTOs;
+using ETicaretProjesiV2._0.Application.Events;
+using ETicaretProjesiV2._0.Application.Interfaces;
 using ETicaretProjesiV2._0.Entities;
 using ETicaretProjesiV2._0.Enums;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
+using RedLockNet;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using ETicaretProjesiV2._0.Application.DTOs;
-using Microsoft.Extensions.Configuration;
 
 namespace ETicaretProjesiV2._0.Application.Services
 {
@@ -23,9 +27,14 @@ namespace ETicaretProjesiV2._0.Application.Services
         private readonly IGenericRepository<BasketItem> _basketItemRepo;
         private readonly IConfiguration _config;
         private readonly IGenericRepository<WalletTransaction> _walletTransactionRepo;
+        private readonly IDistributedLockFactory _lockFactory;
+        private readonly IDistributedCache _cache;
+        private readonly IBasketService _basketService;
+        private readonly IPublishEndpoint _publishEndpoint;
         public OrderService(IGenericRepository<Order> orderRepo,IGenericRepository<Product> productRepo, UserManager<AppUser> userRepo
             ,IMapper mapper, IGenericRepository<Offer> offerRepo,IGenericRepository<Basket> basketRepo,IGenericRepository<BasketItem> basketItemRepo
-            ,IConfiguration config,IGenericRepository<WalletTransaction> walletTransactionRepo)
+            ,IConfiguration config,IGenericRepository<WalletTransaction> walletTransactionRepo,IDistributedCache cache,IDistributedLockFactory lockFactory,IBasketService basketService,
+            IPublishEndpoint publishEndpoint)
         {
             _orderRepo = orderRepo;
             _productRepo = productRepo;
@@ -36,6 +45,10 @@ namespace ETicaretProjesiV2._0.Application.Services
             _basketItemRepo = basketItemRepo;
             _config = config;
             _walletTransactionRepo = walletTransactionRepo;
+            _cache = cache;
+            _lockFactory = lockFactory;
+            _basketService = basketService;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task CancelOrderAsync(Guid orderId)
@@ -156,175 +169,193 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         public async Task CreateOrderAsync(Guid buyerId, CreateOrderRequestDto dto)
         {
-            var buyer = await _userRepo.FindByIdAsync(buyerId.ToString());
-            if (buyer == null)
-                throw new Exception("Alıcı Bulunamadı");
+            string lockKey = $"lock:order:create:{buyerId}";
 
-            var basket = await _basketRepo.Where(b => b.AppUserId == buyerId).Include(b => b.Items).FirstOrDefaultAsync();
-
-            if (basket == null || !basket.Items.Any())
-                throw new Exception("Sepetiniz Boş");
-
-            var order = _mapper.Map<Order>(dto);
-            order.AppUserId = buyerId;
-            order.OrderDate = DateTime.UtcNow;
-            order.Status = OrderStatus.Confirmed;
-            order.OrderItems = new List<OrderItem>();
-
-            decimal totalPrice = 0;
-            decimal totalAdminCommission = 0; 
-            List<WalletTransaction> transactions = new List<WalletTransaction>();
-            Dictionary<Guid, AppUser> sellersToUpdate = new Dictionary<Guid, AppUser>();
-            foreach (var basketItems in basket.Items)
+            using (var redLock = await _lockFactory.CreateLockAsync(lockKey, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
             {
-                var product = await _productRepo.GetByIdAsync(basketItems.ProductId);
-                if (product == null)
-                    throw new Exception($"Ürün bulunamadı: {basketItems.ProductId}");
+                if (!redLock.IsAcquired)
+                    throw new Exception("İşleminiz şu an başka bir cihazdan yürütülüyor.");
 
-                var seller = await _userRepo.FindByIdAsync(product.SellerId.ToString());
-                if (seller == null)
-                    throw new Exception($"Satıcı bulunamadı: {product.SellerId}");
-                if(seller.Id == buyer.Id)
-                    throw new Exception("Kendi ürününüzü satın alamazsınız!");
+                var buyer = await _userRepo.FindByIdAsync(buyerId.ToString());
+                if (buyer == null)
+                    throw new Exception("Alıcı Bulunamadı");
 
-                decimal lineTotal = 0;
+                var basket = await _basketService.GetBasketAsync(buyerId);
+                if (basket == null || !basket.Items.Any())
+                    throw new Exception("Sepetiniz Boş");
 
-                var acceptedOffer = await _offerRepo.Where(o => o.ProductId == basketItems.ProductId && o.BuyerId == buyerId
-                                                        && o.Status == OfferStatus.Accepted && o.CreatedDate >= DateTime.UtcNow.AddHours(-24))
-                                            .OrderByDescending(o => o.CreatedDate).FirstOrDefaultAsync();
-                if (acceptedOffer != null)
+                var order = _mapper.Map<Order>(dto);
+                order.AppUserId = buyerId;
+                order.OrderDate = DateTime.UtcNow;
+                order.Status = OrderStatus.Confirmed;
+                order.OrderItems = new List<OrderItem>();
+
+                decimal totalPrice = 0;
+                decimal totalAdminCommission = 0;
+                List<WalletTransaction> transactions = new List<WalletTransaction>();
+                Dictionary<Guid, AppUser> sellersToUpdate = new Dictionary<Guid, AppUser>();
+
+                foreach (var basketItems in basket.Items)
                 {
-                    int offerQty = Math.Min(acceptedOffer.Quantity, basketItems.Quantity);
-                    if(offerQty > 0)
-                    {
-                        lineTotal += acceptedOffer.OfferedPrice * offerQty;
+                    var product = await _productRepo.GetByIdAsync(basketItems.ProductId);
+                    if (product == null)
+                        throw new Exception($"Ürün bulunamadı: {basketItems.ProductId}");
 
+                    if (product.StockQuanity < basketItems.Quantity)
+                        throw new Exception($"{product.Name} için yetersiz stok!");
+
+                    decimal actualPrice = (product.DiscountedPrice.HasValue && product.DiscountEndDate >= DateTime.UtcNow)
+                          ? product.DiscountedPrice.Value
+                          : product.Price;
+
+                    var seller = await _userRepo.FindByIdAsync(product.SellerId.ToString());
+                    if (seller == null)
+                        throw new Exception($"Satıcı bulunamadı: {product.SellerId}");
+                    if (seller.Id == buyer.Id)
+                        throw new Exception("Kendi ürününüzü satın alamazsınız!");
+
+                    decimal lineTotal = 0;
+
+                    var acceptedOffer = await _offerRepo.Where(o => o.ProductId == basketItems.ProductId && o.BuyerId == buyerId
+                                                                    && o.Status == OfferStatus.Accepted && o.CreatedDate >= DateTime.UtcNow.AddHours(-24))
+                                                        .OrderByDescending(o => o.CreatedDate).FirstOrDefaultAsync();
+                    if (acceptedOffer != null)
+                    {
+                        int offerQty = Math.Min(acceptedOffer.Quantity, basketItems.Quantity);
+                        if (offerQty > 0)
+                        {
+                            lineTotal += acceptedOffer.OfferedPrice * offerQty;
+                            order.OrderItems.Add(new OrderItem
+                            {
+                                Id = Guid.NewGuid(),
+                                ProductId = basketItems.ProductId,
+                                Quanity = offerQty,
+                                UnitPrice = acceptedOffer.OfferedPrice
+                            });
+                        }
+
+                        int normalQty = basketItems.Quantity - offerQty;
+                        if (normalQty > 0)
+                        {
+                            lineTotal += actualPrice * normalQty;
+                            order.OrderItems.Add(new OrderItem
+                            {
+                                Id = Guid.NewGuid(),
+                                ProductId = basketItems.ProductId,
+                                Quanity = normalQty,
+                                UnitPrice = actualPrice
+                            });
+                        }
+
+                        acceptedOffer.Status = OfferStatus.Completed;
+                        _offerRepo.Update(acceptedOffer);
+                    }
+                    else
+                    {
+                        lineTotal += actualPrice * basketItems.Quantity;
                         order.OrderItems.Add(new OrderItem
                         {
                             Id = Guid.NewGuid(),
                             ProductId = basketItems.ProductId,
-                            Quanity = offerQty,
-                            UnitPrice = acceptedOffer.OfferedPrice
+                            Quanity = basketItems.Quantity,
+                            UnitPrice = actualPrice
                         });
                     }
 
-                    int normalQty = basketItems.Quantity - offerQty;
-                    if (normalQty > 0)
+                    product.StockQuanity -= basketItems.Quantity;
+                    _productRepo.Update(product);
+
+                    totalPrice += lineTotal;
+
+                    decimal sellerEarnings = lineTotal * 0.90m;
+                    decimal adminCut = lineTotal * 0.10m;
+                    totalAdminCommission += adminCut;
+
+                    if (!sellersToUpdate.ContainsKey(seller.Id))
                     {
-                        lineTotal += product.Price * normalQty;
-
-                        order.OrderItems.Add(new OrderItem
-                        {
-                            Id = Guid.NewGuid(),
-                            ProductId = basketItems.ProductId,
-                            Quanity = normalQty,
-                            UnitPrice = product.Price
-                        });
+                        sellersToUpdate.Add(seller.Id, seller);
                     }
 
-                    acceptedOffer.Status = OfferStatus.Completed;
-                    _offerRepo.Update(acceptedOffer);
-                }
-                else
-                {
-                    lineTotal += product.Price * basketItems.Quantity;
+                    sellersToUpdate[seller.Id].Balance += sellerEarnings;
 
-                    order.OrderItems.Add(new OrderItem
+                    transactions.Add(new WalletTransaction
                     {
                         Id = Guid.NewGuid(),
-                        ProductId = basketItems.ProductId,
-                        Quanity = basketItems.Quantity,
-                        UnitPrice = product.Price
+                        AppUserId = seller.Id,
+                        Amount = sellerEarnings,
+                        Description = $"Sipariş satışı: {product.Name} (Komisyon kesilmiş net kazanç)",
+                        CreatedDate = DateTime.UtcNow,
+                        TransactionType = TransactionType.OrderEarning,
                     });
                 }
 
-                totalPrice += lineTotal;
+                if (buyer.Balance < totalPrice)
+                    throw new Exception($"Yetersiz Bakiye! Toplam: {totalPrice} ₺, Bakiyeniz: {buyer.Balance} ₺");
 
-                decimal sellerEarnings = lineTotal * 0.90m;
-                decimal adminCut = lineTotal * 0.10m;
-                totalAdminCommission += adminCut;
-                
-                if(!sellersToUpdate.ContainsKey(seller.Id))
-                {
-                    sellersToUpdate.Add(seller.Id, seller);
-                }
-
-                sellersToUpdate[seller.Id].Balance += sellerEarnings;
+                buyer.Balance -= totalPrice;
 
                 transactions.Add(new WalletTransaction
                 {
                     Id = Guid.NewGuid(),
-                    AppUserId = seller.Id,
-                    Amount = sellerEarnings,
-                    Description = $"Sipariş satışı: {product.Name} (Komisyon kesilmiş net kazanç)",
+                    AppUserId = buyer.Id,
+                    Amount = -totalPrice,
+                    Description = "Sepet Ödemesi Yapıldı",
                     CreatedDate = DateTime.UtcNow,
-                    TransactionType = TransactionType.OrderEarning,
+                    TransactionType = TransactionType.OrderPayment,
                 });
-            }
+                await _userRepo.UpdateAsync(buyer);
 
-            if (buyer.Balance < totalPrice)
-                throw new Exception($"Yetersiz Bakiye! Toplam: {totalPrice} ₺, Bakiyeniz: {buyer.Balance} ₺");
-
-            
-            buyer.Balance -= totalPrice;
-
-            transactions.Add(new WalletTransaction
-            {
-                Id = Guid.NewGuid(),
-                AppUserId= buyer.Id,
-                Amount = -totalPrice,
-                Description = "Sepet Ödemesi Yapıldı",
-                CreatedDate = DateTime.UtcNow,
-                TransactionType = TransactionType.OrderPayment,
-            });
-            await _userRepo.UpdateAsync(buyer);
-
-            
-            foreach (var seller in sellersToUpdate.Values)
-            {
-                await _userRepo.UpdateAsync(seller);
-            }
-            string adminUserId = _config["AdminSettings:AdminUserId"];
-            if (adminUserId == null)
-                throw new Exception("Appsetting.json Dosyası okunamadı");
-            var adminUser = await _userRepo.FindByIdAsync(adminUserId);
-            if (adminUser != null)
-            {
-                adminUser.Balance += totalAdminCommission;
-
-                transactions.Add(new WalletTransaction
+                foreach (var seller in sellersToUpdate.Values)
                 {
-                    Id = Guid.NewGuid(),
-                    AppUserId = adminUser.Id,
-                    Amount = totalAdminCommission,
-                    Description = $"Hesabınıza {totalAdminCommission} ₺ komisyon aktarıldı",
-                    CreatedDate = DateTime.UtcNow,
-                    TransactionType = TransactionType.Comission, 
-                });
-
-                await _userRepo.UpdateAsync(adminUser);
-            }
-            else
-            {
-                
-                throw new Exception($"Kritik Hata: Admin kullanıcısı bulunamadı! Aranan ID: '{adminUserId}'");
-            }
-
-
-            order.TotalPrices = totalPrice;
-            await _orderRepo.AddAsync(order);
-
-            _basketItemRepo.RemoveRange(basket.Items);
-            _basketRepo.Delete(basket);
-
-            if (transactions.Any())
-            {
-                foreach (var t in transactions)
-                {
-                    await _walletTransactionRepo.AddAsync(t);
+                    await _userRepo.UpdateAsync(seller);
                 }
+
+                string adminUserId = _config["AdminSettings:AdminUserId"];
+                if (adminUserId == null)
+                    throw new Exception("Appsetting.json Dosyası okunamadı");
+
+                var adminUser = await _userRepo.FindByIdAsync(adminUserId);
+                if (adminUser != null)
+                {
+                    adminUser.Balance += totalAdminCommission;
+                    transactions.Add(new WalletTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        AppUserId = adminUser.Id,
+                        Amount = totalAdminCommission,
+                        Description = $"Hesabınıza {totalAdminCommission} ₺ komisyon aktarıldı",
+                        CreatedDate = DateTime.UtcNow,
+                        TransactionType = TransactionType.Comission,
+                    });
+                    await _userRepo.UpdateAsync(adminUser);
+                }
+                else
+                {
+                    throw new Exception($"Kritik Hata: Admin kullanıcısı bulunamadı! Aranan ID: '{adminUserId}'");
+                }
+
+                order.TotalPrices = totalPrice;
+                await _orderRepo.AddAsync(order);
+
+                await _basketService.ClearBasketAsync(buyerId);
+
+                if (transactions.Any())
+                {
+                    foreach (var t in transactions)
+                    {
+                        await _walletTransactionRepo.AddAsync(t);
+                    }
+                }
+
+                await _orderRepo.SaveAsync();
+                await _cache.RemoveAsync("showcase_all_products");
+
+                await _publishEndpoint.Publish(new OrderCreatedEvent(
+                        OrderId :order.Id,
+                        BuyerEmail: buyer.Email,
+                        TotalPrice : totalPrice
+                    ));
             }
-            await _orderRepo.SaveAsync();
         }
 
         public async Task<Order> GetOrderDetailsAsync(Guid orderId)

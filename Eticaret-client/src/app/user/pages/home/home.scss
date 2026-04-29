@@ -452,3 +452,121 @@ $radius: 8px;
     .filter-btns { width: 100%; .btn-search { flex: 1; } }
   }
 }
+
+/* --- Trend Toggle (Switch) Tasarımı --- */
+.trend-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 15px;
+  border-left: 1px solid #eee; // Filtreler arasında bir çizgi
+  margin-left: 10px;
+
+  .trend-label {
+    font-weight: 700;
+    color: #e63946; // Trend kırmızısı
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Apple Tarzı Modern Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .4s;
+  border-radius: 34px;
+
+  &:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+}
+
+input:checked + .slider {
+  background-color: #e63946; // Aktifken kırmızı
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* --- Trend Bölümü Özel Stilleri --- */
+.trending-bg {
+  background: linear-gradient(to bottom, #fffcfc, #fff); // Hafif kırmızımsı bir geçiş
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #ffe3e3;
+}
+
+.trend-info {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
+/* Trend Sıralama Rozeti (#1, #2...) */
+.trend-rank-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(230, 57, 70, 0.95);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(230, 57, 70, 0.3);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Trend Kartına Özel Hover Efekti */
+.trending-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  
+  &:hover {
+    transform: translateY(-5px);
+    border-color: #e63946 !important;
+    box-shadow: 0 10px 25px rgba(230, 57, 70, 0.1) !important;
+  }
+}
+
+/* --- Responsive Ayarı --- */
+@media (max-width: 768px) {
+  .trend-toggle {
+    border-left: none;
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+  }
+}

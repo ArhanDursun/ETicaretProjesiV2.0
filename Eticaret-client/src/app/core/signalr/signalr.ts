@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 export interface MessageDto {
   id?: string;
   ticketId: string;
@@ -16,10 +16,19 @@ export interface MessageDto {
 })
 export class Signalr {
   private hubConnection: signalR.HubConnection | undefined;
+  private trafficConnection: signalR.HubConnection | undefined;
+  private notificationConnection: signalR.HubConnection | undefined;
+  private reportNotificationSource = new Subject<{ message: string; downloadUrl: string }>();
+  public reportNotification$ = this.reportNotificationSource.asObservable();
   private messageSource = new BehaviorSubject<MessageDto[]>([]);
   public messages$ = this.messageSource.asObservable();
 
-  constructor(private zone: NgZone) {}
+  private onlineUsersSource = new BehaviorSubject<string[]>([]);
+  public onlineUsers$ = this.onlineUsersSource.asObservable();
+  constructor(private zone: NgZone) {
+    this.startTrafficConnection();
+    this.startNotificationConnection();
+  }
 
   public startConnection(ticketId: string) {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -77,5 +86,83 @@ export class Signalr {
 
   public loadInitialMessage(messages: MessageDto[]) {
     this.messageSource.next(messages);
+  }
+  private startTrafficConnection() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    this.trafficConnection = new signalR.HubConnectionBuilder()
+      .withUrl('https://localhost:7185/traffichub', {
+        accessTokenFactory: () => token || '',
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    this.trafficConnection
+      .start()
+      .then(() => {
+        console.log('TrafficHub bağlantısı başarılı');
+        this.addTrafficListeners();
+      })
+      .catch((err) => console.error('TrafficHub Bağlantı Hatası', err));
+  }
+
+  private addTrafficListeners() {
+    this.trafficConnection?.on('UpdateOnlineStatus', (userIds: string[]) => {
+      this.zone.run(() => {
+        this.onlineUsersSource.next(userIds);
+      });
+    });
+  }
+  public stopTrafficConnection() {
+    if (this.trafficConnection) {
+      this.trafficConnection
+        .stop()
+        .then(() => {
+          console.log('TrafficHub bağlantısı kesildi.');
+          this.onlineUsersSource.next([]);
+        })
+        .catch((err) => console.error('TrafficHub durdurulurken hata:', err));
+    }
+  }
+  private startNotificationConnection() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    this.notificationConnection = new signalR.HubConnectionBuilder()
+      // Backend'deki NotificationHub'ın adresini buraya yazıyoruz
+      .withUrl('https://localhost:7185/notificationhub', {
+        accessTokenFactory: () => token || '',
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    this.notificationConnection
+      .start()
+      .then(() => {
+        console.log('NotificationHub bağlantısı başarılı 🚀');
+        this.addNotificationListeners();
+      })
+      .catch((err) => console.error('NotificationHub Bağlantı Hatası', err));
+  }
+
+  private addNotificationListeners() {
+    // Backend Consumer'dan (GenerateReportEventConsumer) fırlattığımız metot ismi
+    this.notificationConnection?.on('ReceiveReportNotification', (data: any) => {
+      this.zone.run(() => {
+        // Gelen datayı Dashboard'un yakalaması için boruya (Subject) basıyoruz
+        this.reportNotificationSource.next({
+          message: data.message, // Backend'de anonymous object'teki property'ler küçük harfle gelir
+          downloadUrl: data.downloadUrl,
+        });
+      });
+    });
+  }
+
+  public stopNotificationConnection() {
+    if (this.notificationConnection) {
+      this.notificationConnection
+        .stop()
+        .then(() => console.log('NotificationHub bağlantısı kesildi.'))
+        .catch((err) => console.error('NotificationHub durdurulurken hata:', err));
+    }
   }
 }

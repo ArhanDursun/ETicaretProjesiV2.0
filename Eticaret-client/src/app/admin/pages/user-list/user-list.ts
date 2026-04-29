@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user';
+import { Signalr } from '../../../core/signalr/signalr';
 
 @Component({
   selector: 'app-user-list',
@@ -12,12 +13,20 @@ export class UserList implements OnInit {
   users: any[] = [];
   isLoading: boolean = true;
   filteredUsers: any[] = [];
+  statusFilter: 'all' | 'online' | 'offline' = 'all';
+  onlineIds: string[] = [];
   constructor(
     private userService: UserService,
     private cdr: ChangeDetectorRef,
+    public signalr: Signalr,
   ) {}
   ngOnInit(): void {
     this.loadUser();
+    this.signalr.onlineUsers$.subscribe((ids) => {
+      this.onlineIds = ids;
+      this.filterUsers();
+      this.cdr.detectChanges();
+    });
   }
   loadUser(): void {
     this.isLoading = true;
@@ -53,18 +62,26 @@ export class UserList implements OnInit {
     }
   }
   filterUsers() {
-    if (!this.searchTerm) {
-      this.filteredUsers = this.users;
-    } else {
-      const term = this.searchTerm.toLowerCase();
+    const term = this.searchTerm.toLowerCase().trim();
 
-      this.filteredUsers = this.users.filter(
-        (user) =>
-          user.firstName.toLowerCase().includes(term) ||
-          user.lastName.toLowerCase().includes(term) ||
-          user.userName.toLowerCase().includes(term) ||
-          user.email.toLowerCase().includes(term),
-      );
-    }
+    this.filteredUsers = this.users.filter((user) => {
+      const matchesSearch =
+        user.firstName.toLowerCase().includes(term) ||
+        user.lastName.toLowerCase().includes(term) ||
+        user.userName.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term);
+
+      const isOnline = this.onlineIds.includes(user.id);
+      let matchesStatus = true;
+
+      if (this.statusFilter === 'online') matchesStatus = isOnline;
+      if (this.statusFilter === 'offline') matchesStatus = !isOnline;
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+  setStatusFilter(status: 'all' | 'online' | 'offline') {
+    this.statusFilter = status;
+    this.filterUsers();
   }
 }

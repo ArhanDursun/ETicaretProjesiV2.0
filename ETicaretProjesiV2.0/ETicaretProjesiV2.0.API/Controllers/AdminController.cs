@@ -1,7 +1,10 @@
 ﻿using ETicaretProjesiV2._0.Application.DTOs;
+using ETicaretProjesiV2._0.Application.Events;
 using ETicaretProjesiV2._0.Application.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ETicaretProjesiV2._0.API.Controllers
 {
@@ -12,11 +15,12 @@ namespace ETicaretProjesiV2._0.API.Controllers
     {
         private readonly IAdminManagementService _adminService;
         private readonly IAdminDashboardService _adminDashboardService;
-
-        public AdminController(IAdminManagementService adminService, IAdminDashboardService adminDashboardService)
+        private readonly IPublishEndpoint _publishEndpoint;
+        public AdminController(IAdminManagementService adminService, IAdminDashboardService adminDashboardService,IPublishEndpoint publishEndpoint)
         {
             _adminService = adminService;
             _adminDashboardService = adminDashboardService;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet("products")]
@@ -52,6 +56,30 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var data = await _adminDashboardService.GetDailyComissionsAsync(timeRange);
             return Ok(data);
+        }
+        [HttpGet("dashboard/recent-orders")]
+        public async Task<IActionResult> GetRecentOrders()
+        {
+            var data = await _adminDashboardService.GetRecentOrdersAsync();
+            return Ok(data);
+        }
+        [HttpPost("generate-sales-report")]
+        public async Task<IActionResult> GenerateSalesReport()
+        {
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(adminId))
+                return Unauthorized("Kullanıcı Kimliği Doğrulanamadı");
+
+            await _publishEndpoint.Publish(new GenerateReportEvent(
+                AdminUserId: adminId,
+                StartDate: DateTime.UtcNow.AddYears(-1),
+                EndDate: DateTime.UtcNow
+                ));
+
+            return Accepted(new
+            {
+                Message = "Rapor Talebi başarıyla alındı"
+            });
         }
     }
 }

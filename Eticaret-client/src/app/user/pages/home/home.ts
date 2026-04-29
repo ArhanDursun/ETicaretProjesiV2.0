@@ -38,7 +38,8 @@ export class Home implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10; // Test için 2'de bıraktık, istersen 10 yaparsın
   pageNumbers: number[] = [];
-
+  showTrendingOnly: boolean = false;
+  trendingProducts: any[] = [];
   constructor(
     private product: Product,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -247,5 +248,41 @@ export class Home implements OnInit {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  loadTrending(): void {
+    this.isLoading = true;
+    this.product.getTrendingProducts().subscribe({
+      next: (data) => {
+        this.trendingProducts = data.map((p: any) => {
+          let finalImages =
+            p.images && p.images.length > 0
+              ? p.images.map((img: string) =>
+                  img.startsWith('http')
+                    ? img
+                    : `https://localhost:7185${img.startsWith('/') ? img : '/' + img}`,
+                )
+              : ['assets/no-image.png'];
+          return { ...p, images: finalImages };
+        });
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Trend Çekilemedi:', err);
+        this.isLoading = false;
+      },
+    });
+  }
+  onTrendChange() {
+    if (this.showTrendingOnly) {
+      this.loadTrending();
+    } else {
+      this.loadShowCase();
+    }
+  }
+  isDiscountActive(endDate: string | Date | null | undefined): boolean {
+    if (!endDate) return false;
+    return new Date(endDate).getTime() > new Date().getTime();
   }
 }

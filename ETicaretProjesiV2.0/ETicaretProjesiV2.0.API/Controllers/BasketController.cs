@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace ETicaretProjesiV2._0.API.Controllers
 {
-    [Route("api/[controller]")] // "api/{controller}" yerine "api/[controller]" daha standarttır
+    [Route("api/[controller]")] 
     [ApiController]
     [Authorize]
     public class BasketController : ControllerBase
@@ -23,7 +23,7 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdString))
             {
-                // Middleware bu hatayı yakalayıp 500 veya 401 olarak dönecek
+               
                 throw new Exception("Kullanıcı Kimliği Doğrulanamadı");
             }
             return Guid.Parse(userIdString);

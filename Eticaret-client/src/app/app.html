@@ -10,7 +10,7 @@
       <div class="search-box">
         <input type="text" [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate" (input)="onSearchInput($event)"
           (blur)="closeSearch()" class="search-input">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon"><i class="bi bi-search"></i></span>
       </div>
 
       <div class="search-results-dropdown" *ngIf="showDropdown">
@@ -113,5 +113,13 @@
 
     </div>
 
+  </div>
+</div>
+
+
+<div class="custom-toast-container" *ngIf="showToast">
+  <div class="custom-toast">
+    <div class="toast-icon"><i class="bi bi-fire"></i></div>
+    <div class="toast-content">{{ trendMessage }}</div>
   </div>
 </div>

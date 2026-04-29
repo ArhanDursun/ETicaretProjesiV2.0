@@ -26,7 +26,8 @@
         (click)="switchTab('comments')">
         <ng-container *ngIf="comments.length > 0; else noCommentsTop">
           <div class="mini-stars">
-            <span class="star-filled" style="color: #f59e0b !important; font-size: 1.2rem;">★</span>
+            <span class="star-filled" style="color: #f59e0b !important; font-size: 1.2rem;"><i
+                class="bi bi-star-fill"></i></span>
             <span class="rating-value" style="font-weight: bold; margin-left: 4px;">{{ averageRating }}</span>
           </div>
           <span class="comment-count" style="margin-left: 6px; color: #64748b;">({{ comments.length }}
@@ -34,7 +35,8 @@
         </ng-container>
         <ng-template #noCommentsTop>
           <div class="card-rating-container no-rating" style="margin: 0; opacity: 0.7;">
-            <span class="star-empty" style="color: #cbd5e1 !important; font-size: 1.2rem;">★</span>
+            <span class="star-empty" style="color: #cbd5e1 !important; font-size: 1.2rem;"><i
+                class="bi bi-star-fill"></i></span>
             <span class="no-rating-text" style="margin-left: 4px; color: #94a3b8;">Henüz değerlendirilmedi</span>
           </div>
         </ng-template>
@@ -153,7 +155,7 @@
               <span class="rating-label">Puanınız:</span>
               <div class="stars">
                 <span *ngFor="let star of [1, 2, 3, 4, 5]" (click)="newComment.starCount = star"
-                  [class.filled]="star <= newComment.starCount" class="star">★</span>
+                  [class.filled]="star <= newComment.starCount" class="star"><i class="bi bi-star-fill"></i></span>
               </div>
               <span class="rating-number">{{ newComment.starCount || 0 }} / 5</span>
             </div>
@@ -188,7 +190,7 @@
                   <strong>{{ c.userName }}</strong>
                   <div class="comment-stars">
                     <span *ngFor="let s of [1,2,3,4,5]" [style.color]="s <= c.starCount ? '#f59e0b' : '#e2e8f0'"
-                      style="font-size: 0.9rem;">★</span>
+                      style="font-size: 0.9rem;"><i class="bi bi-star-fill"></i></span>
                   </div>
                 </div>
               </div>

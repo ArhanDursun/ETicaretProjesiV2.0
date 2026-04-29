@@ -10,6 +10,18 @@
     <div class="filter-bar">
       <input type="text" class="search-input" [placeholder]="'ADMIN_USERS.SEARCH_PH' | translate"
         [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()">
+
+      <div class="status-toggle">
+        <button [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
+          {{ 'HEPSİ' }}
+        </button>
+        <button [class.active]="statusFilter === 'online'" (click)="setStatusFilter('online')" class="btn-online">
+          <span class="dot green"></span> {{ 'AKTİF' }}
+        </button>
+        <button [class.active]="statusFilter === 'offline'" (click)="setStatusFilter('offline')" class="btn-offline">
+          <span class="dot gray"></span> {{ 'OFFLINE' }}
+        </button>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -34,7 +46,15 @@
           <tr *ngFor="let user of filteredUsers">
             <td><strong>{{user.id}}</strong></td>
             <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
-            <td><strong>{{ user.userName }} </strong></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="status-dot"
+                  [ngClass]="(signalr.onlineUsers$ | async)?.includes(user.id) ? 'online' : 'offline'">
+                </span>
+
+                <strong>{{ user.userName }}</strong>
+              </div>
+            </td>
             <td style="color: #6c757d;">{{ user.email }}</td>
 
             <td class="text-right">

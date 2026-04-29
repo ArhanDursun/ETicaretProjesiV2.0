@@ -8,33 +8,83 @@
       <button class="btn-add" routerLink="/product/add">{{ 'HOME.ADD_PRODUCT_BTN' | translate }}</button>
     </div>
   </div>
-
   <div class="filter-bar">
     <div class="search-input-group">
       <i class="fa fa-search"></i>
       <input type="text" [(ngModel)]="filters.searchTerm" [placeholder]="'HOME.SEARCH_PLACEHOLDER' | translate"
         class="f-input">
     </div>
-
     <select [(ngModel)]="filters.categoryId" class="f-select">
       <option value="">{{ 'HOME.ALL_CATEGORIES' | translate }}</option>
       <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
     </select>
-
     <div class="price-inputs">
       <input type="number" [(ngModel)]="filters.minPrice" placeholder="Min TL" class="f-price">
       <input type="number" [(ngModel)]="filters.maxPrice" placeholder="Max TL" class="f-price">
     </div>
-
+    <div class="trend-toggle">
+      <label class="switch">
+        <input type="checkbox" [(ngModel)]="showTrendingOnly" (change)="onTrendChange()">
+        <span class="slider round"></span>
+      </label>
+      <span class="trend-label"><i class="bi bi-fire"></i> Trend</span>
+    </div>
     <div class="filter-btns">
       <button (click)="applyFilter()" class="btn-search">Ara</button>
       <button (click)="clearFilter()" class="btn-clear"><i class="bi bi-x"></i></button>
     </div>
   </div>
-
+  <div class="showcase-section trending-bg" *ngIf="showTrendingOnly && !isLoading && trendingProducts.length > 0">
+    <div class="section-header">
+      <h2 class="showcase-title"><i class="bi bi-fire"></i> En Çok İncelenen Trend Ürünler</h2>
+      <p class="trend-info">Şu an en çok ilgi gören ürünler listeleniyor.</p>
+    </div>
+    <div class="products-list-wrapper">
+      <div class="product-card-horizontal trending-card" *ngFor="let p of trendingProducts; let i = index">
+        <div class="card-img-area">
+          <div class="trend-rank-badge">#{{i + 1}}</div>
+          <swiper-container *ngIf="p.images && p.images.length > 0" navigation="true" pagination="true"
+            class="card-swiper">
+            <swiper-slide *ngFor="let img of p.images">
+              <img [src]="img" [alt]="p.name">
+            </swiper-slide>
+          </swiper-container>
+          <img *ngIf="!p.images || p.images.length === 0" src="assets/no-image.png" class="fallback-img">
+        </div>
+        <div class="card-details-area">
+          <div class="details-top">
+            <span class="cat-badge">{{ p.categoryName || 'Genel' }}</span>
+            <h3 [routerLink]="['/product/detay', p.id]" class="title">{{ p.name }}</h3>
+            <p class="description">{{ p.description }}</p>
+          </div>
+          <div class="details-bottom">
+            <div class="rating-box">
+              <span *ngIf="p.commentCount > 0">
+                <span class="star"><i class="bi bi-star-fill"></i></span> {{ p.averageStar }} <small>({{ p.commentCount
+                  }})</small>
+              </span>
+            </div>
+            <div class="seller-info">Satıcı: <strong>{{ p.sellerName }}</strong></div>
+          </div>
+        </div>
+        <div class="card-price-area">
+          <div class="price-box">
+            <ng-container *ngIf="p.discountPercentage > 0 && isDiscountActive(p.discountEndDate); else stdTrendPrice">
+              <span class="discount-tag">-%{{p.discountPercentage}}</span>
+              <del class="old-p">{{p.price | number}} ₺</del>
+              <span class="new-p">{{p.discountedPrice | number}} ₺</span>
+            </ng-container>
+            <ng-template #stdTrendPrice>
+              <span class="new-p">{{p.price | number}} ₺</span>
+            </ng-template>
+          </div>
+          <button class="btn-view" [routerLink]="['/product/detay', p.id]">Detayları Gör</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="showcase-section"
-    *ngIf="products.length === 0 && pagedProducts && pagedProducts.items?.length > 0 && !filters.searchTerm && !filters.categoryId && !filters.minPrice && !filters.maxPrice">
-
+    *ngIf="!showTrendingOnly && products.length === 0 && pagedProducts && pagedProducts.items?.length > 0 && !filters.searchTerm && !filters.categoryId">
     <div class="section-header">
       <h2 class="showcase-title">Vitrin Ürünleri</h2>
       <div class="showcase-pagination">
@@ -48,10 +98,8 @@
         </button>
       </div>
     </div>
-
     <div class="products-list-wrapper">
       <div class="product-card-horizontal" *ngFor="let p of pagedProducts.items">
-
         <div class="card-img-area">
           <swiper-container *ngIf="p.images && p.images.length > 0" navigation="true" pagination="true"
             class="card-swiper">
@@ -61,133 +109,95 @@
           </swiper-container>
           <img *ngIf="!p.images || p.images.length === 0" src="assets/no-image.png" class="fallback-img">
         </div>
-
         <div class="card-details-area">
           <div class="details-top">
             <span class="cat-badge">{{ p.categoryName || 'Genel' }}</span>
             <h3 [routerLink]="['/product/detay', p.id]" class="title">{{ p.name }}</h3>
             <p class="description">{{ p.description }}</p>
           </div>
-
           <div class="details-bottom">
-
             <div class="rating-box">
-
-              <span *ngIf="p.commentCount > 0" style="display: flex; align-items: center; gap: 4px;">
-                <span class="star" style="color: #ffc107; font-size: 18px;">★</span>
-                <span>{{ p.averageStar }}</span>
-                <small style="color: #757575;">({{ p.commentCount }})</small>
+              <span *ngIf="p.commentCount > 0">
+                <span class="star" style="color: #ffc107;"><i class="bi bi-star-fill"></i></span> {{ p.averageStar }}
+                <small>({{ p.commentCount
+                  }})</small>
               </span>
-
-              <span *ngIf="!p.commentCount || p.commentCount === 0"
-                style="color: #9e9e9e; font-size: 13px; font-style: italic;">
-                Ürün değerlendirmesi yok
-              </span>
-
+              <span *ngIf="!p.commentCount || p.commentCount === 0" class="no-rating">Değerlendirme yok</span>
             </div>
-
-            <div class="seller-info">Satıcı: <strong>{{ p.sellerName || 'Bilinmiyor' }}</strong></div>
-
+            <div class="seller-info">Satıcı: <strong>{{ p.sellerName }}</strong></div>
           </div>
         </div>
-
         <div class="card-price-area">
           <div class="price-box">
-            <ng-container *ngIf="p.discountPercentage > 0; else stdPrice">
+            <ng-container *ngIf="p.discountPercentage > 0 && isDiscountActive(p.discountEndDate); else stdTrendPrice">
               <span class="discount-tag">-%{{p.discountPercentage}}</span>
               <del class="old-p">{{p.price | number}} ₺</del>
               <span class="new-p">{{p.discountedPrice | number}} ₺</span>
             </ng-container>
-            <ng-template #stdPrice>
+
+            <ng-template #stdTrendPrice>
               <span class="new-p">{{p.price | number}} ₺</span>
             </ng-template>
           </div>
           <span class="stock-tag"><i class="bi bi-box"></i> {{ p.stockQuanity }} Adet</span>
+          <button class="btn-view" [routerLink]="['/product/detay', p.id]">Detayları Gör</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main-products-section"
+    *ngIf="!isLoading && (products.length > 0 || filters.searchTerm || filters.categoryId || filters.minPrice || filters.maxPrice) && !showTrendingOnly">
+    <h2 class="grid-title" *ngIf="products.length > 0">Arama Sonuçları</h2>
+    <div class="no-products" *ngIf="products.length === 0 && !isLoading">
+      <p>{{ 'HOME.NO_PRODUCTS' | translate }}</p>
+    </div>
+    <div class="products-list-wrapper">
+      <div class="product-card-horizontal" *ngFor="let p of products">
+        <div class="card-img-area">
+          <swiper-container *ngIf="p.images && p.images.length > 0" navigation="true" pagination="true"
+            class="card-swiper">
+            <swiper-slide *ngFor="let img of p.images">
+              <img [src]="img" [alt]="p.name">
+            </swiper-slide>
+          </swiper-container>
+          <img *ngIf="!p.images || p.images.length === 0" src="assets/no-image.png" class="fallback-img">
+        </div>
+        <div class="card-details-area">
+          <div class="details-top">
+            <span class="cat-badge">{{ p.categoryName || 'Genel' }}</span>
+            <h3 [routerLink]="['/product/detay', p.id]" class="title">{{ p.name }}</h3>
+            <p class="description">{{ p.description }}</p>
+          </div>
+          <div class="details-bottom">
+            <div class="rating-box">
+              <span *ngIf="p.commentCount > 0">
+                <span class="star" style="color: #ffc107;"><i class="bi bi-star-fill"></i></span> {{ p.averageStar }}
+                <small>({{ p.commentCount
+                  }})</small>
+              </span>
+            </div>
+            <div class="seller-info">Satıcı: <strong>{{ p.sellerName }}</strong></div>
+          </div>
+        </div>
+        <div class="card-price-area">
+          <div class="price-box">
+            <ng-container *ngIf="p.discountPercentage > 0; else stdFilteredPrice">
+              <span class="discount-tag">-%{{p.discountPercentage}}</span>
+              <del class="old-p">{{p.price | number}} ₺</del>
+              <span class="new-p">{{p.discountedPrice | number}} ₺</span>
+            </ng-container>
+            <ng-template #stdFilteredPrice>
+              <span class="new-p">{{p.price | number}} ₺</span>
+            </ng-template>
+          </div>
+          <span class="stock-tag"><i class="bi bi-box"></i> {{ p.stockQuantity }} Adet</span>
           <button class="btn-view" [routerLink]="['/product/detay', p.id]">Detay</button>
         </div>
       </div>
     </div>
   </div>
-
-  <hr class="section-divider"
-    *ngIf="pagedProducts && pagedProducts.items?.length > 0 && !filters.searchTerm && !filters.categoryId">
-
-  <div class="main-products-section"
-    *ngIf="!isLoading && (products.length > 0 || filters.searchTerm || filters.categoryId || filters.minPrice || filters.maxPrice)">
-
-    <h2 class="grid-title" *ngIf="products.length > 0 && !filters.searchTerm && !filters.categoryId">Arama Sonuçları
-    </h2>
-
-    <div class="no-products" *ngIf="products.length === 0">
-      <p>{{ 'HOME.NO_PRODUCTS' | translate }}</p>
-    </div>
-
-    <div class="products-list-wrapper">
-      <div class="product-card-horizontal" *ngFor="let p of products">
-
-        <div class="card-img-area">
-          <swiper-container *ngIf="p.images && p.images.length > 0" navigation="true" pagination="true"
-            class="card-swiper">
-            <swiper-slide *ngFor="let img of p.images">
-              <img [src]="img" [alt]="p.name">
-            </swiper-slide>
-          </swiper-container>
-          <img *ngIf="!p.images || p.images.length === 0" src="assets/no-image.png" class="fallback-img">
-        </div>
-
-        <div class="card-details-area">
-          <div class="details-top">
-            <span class="cat-badge">{{ p.categoryName || 'Genel' }}</span>
-            <h3 [routerLink]="['/product/detay', p.id]" class="title">{{ p.name }}</h3>
-            <p class="description">{{ p.description }}</p>
-
-          </div>
-
-          <div class="details-bottom">
-            <div class="rating-box">
-              <ng-container *ngIf="p.commentCount > 0; else noCardRating">
-                <span class="star" style="color: #ffc107; text-shadow: 0 0 2px rgba(255,193,7,0.5);">★</span>
-                {{ p.averageStar }}
-                <small>({{ p.commentCount }})</small>
-              </ng-container>
-
-              <ng-template #noCardRating>
-                <span style="color: #6c757d; font-size: 0.85em; font-style: italic;">Ürün değerlendirmesi yok</span>
-              </ng-template>
-            </div>
-
-            <div class="seller-info">Satıcı: <strong>{{ p.sellerName }}</strong></div>
-          </div>
-
-          <div class="card-price-area">
-            <div class="price-box">
-              <ng-container *ngIf="p.discountPercentage > 0; else stdPrice">
-                <span class="discount-tag">-%{{p.discountPercentage}}</span>
-                <del class="old-p">{{p.price | number}} ₺</del>
-                <span class="new-p">{{p.discountedPrice | number}} ₺</span>
-              </ng-container>
-              <ng-template #stdPrice>
-                <span class="new-p">{{p.price | number}} ₺</span>
-              </ng-template>
-            </div>
-            <span class="stock-tag"><i class="bi bi-box"></i> {{ p.stockQuantity }} Adet</span>
-            <button class="btn-view" [routerLink]="['/product/detay', p.id]">Detay</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pagination-container" *ngIf="!isLoading && pageNumbers.length > 0">
-      <div class="page-numbers">
-        <!-- <button *ngFor="let page of pageNumbers" class="num-btn" [class.active]="currentPage === page"
-          (click)="changePage(page)">
-          {{ page }}
-        </button> -->
-      </div>
-    </div>
-
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="spinner"></div>
-      <p>{{ 'HOME.LOADING' | translate }}</p>
-    </div>
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>{{ 'HOME.LOADING' | translate }}</p>
   </div>
+</div>

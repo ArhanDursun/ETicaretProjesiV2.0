@@ -9,6 +9,7 @@ import { NotificationService, NotificationDto } from './services/notification';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DirectMessageService } from './direct-message/direct-message-service';
 import { FactoryTarget } from '@angular/compiler';
+import { NotificationSignalR } from './core/signalr/notification';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -18,6 +19,10 @@ import { FactoryTarget } from '@angular/compiler';
 })
 export class App implements OnInit {
   title = 'E-Ticaret';
+
+  trendMessage: string = '';
+  showToast: boolean = false;
+  private timeoutId: any;
 
   isMenuOpen: boolean = false;
   isLoggedIn: boolean = false;
@@ -45,6 +50,7 @@ export class App implements OnInit {
     private notificationService: NotificationService,
     public translate: TranslateService,
     private directMessageService: DirectMessageService,
+    private notificationSignalR: NotificationSignalR,
   ) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -137,6 +143,22 @@ export class App implements OnInit {
         this.cdr.detectChanges();
       }, 0);
     });
+
+    this.notificationSignalR.startConnection();
+
+    this.notificationSignalR.trendUpdate$.subscribe((message: string) => {
+      setTimeout(() => {
+        this.trendMessage = message;
+        this.showToast = true;
+
+        if (this.timeoutId) {
+          clearTimeout(this.timeoutId);
+        }
+        this.timeoutId = setTimeout(() => {
+          this.showToast = false;
+        }, 4000);
+      }, 0);
+    });
   }
 
   toggleMenu() {
@@ -145,10 +167,13 @@ export class App implements OnInit {
 
   onLogout() {
     this.authService.logout();
+
     this.isMenuOpen = false;
+    this.directMessageService.stopHubConnection();
+
     const logoutMessage = this.translate.instant('MESSAGES.LOGOUT_SUCCESS');
     alert(logoutMessage);
-    this.directMessageService.stopHubConnection();
+
     this.router.navigate(['/auth/login']);
   }
 

@@ -115,5 +115,12 @@ namespace ETicaretProjesiV2._0.API.Controllers
             var result = await _productService.GetShowcaseProductsAsync(paginationParams);
             return Ok(result);
         }
+        [AllowAnonymous]
+        [HttpGet("trending")]
+        public async Task<IActionResult> GetTrendingProducts()
+        {
+            var products = await _productService.GetTrendingProductsAsync();
+            return Ok(products);
+        }
     }
 }

@@ -44,4 +44,7 @@ export class Admin {
   getUserProducts(userId: string): Observable<AdminProduct[]> {
     return this.http.get<AdminProduct[]>(`${this.apiUrl}/users/${userId}/products`);
   }
+  generateSalesReport() {
+    return this.http.post(`${this.apiUrl}/generate-sales-report`, {});
+  }
 }

@@ -208,3 +208,162 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+
+/* ==========================================
+   RAPOR KARTI VE BUTON TASARIMI
+========================================== */
+.report-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+
+  .card-header {
+    margin-bottom: 15px;
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 5px 0;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .btn-generate {
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      background-color: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Yükleniyor Yuvarlağı (Spinner) */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   KAYARAK GELEN BİLDİRİM (TOAST) TASARIMI
+========================================== */
+.custom-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  transform: translateX(120%); // Başlangıçta ekranın sağında gizli
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); // Jilet gibi yaylanma efekti
+
+  &.toast-show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .toast-box {
+    display: flex;
+    background-color: white;
+    border-left: 5px solid #22c55e; // Sol tarafı yeşil çizgi
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    width: 350px;
+    padding: 16px;
+  }
+
+  .toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: #22c55e;
+  }
+
+  .toast-content {
+    margin-left: 12px;
+    flex: 1;
+
+    .toast-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .toast-message {
+      font-size: 0.85rem;
+      color: #475569;
+      margin: 4px 0 10px 0;
+    }
+
+    .toast-action {
+      .btn-download {
+        display: inline-block;
+        background-color: #16a34a;
+        color: white;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.2s;
+
+        &:hover {
+          background-color: #15803d;
+        }
+      }
+    }
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    margin-left: 10px;
+    background: none;
+    border: none;
+    width: 20px;
+    height: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #475569;
+    }
+  }
+}

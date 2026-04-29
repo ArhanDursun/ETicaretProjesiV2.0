@@ -1,7 +1,10 @@
 ﻿using ETicaretProjesiV2._0.Application.DTOs;
 using ETicaretProjesiV2._0.Application.Interfaces;
+using ETicaretProjesiV2._0.Infrastructure.Hubs;
+using ETicaretProjesiV2._0.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace ETicaretProjesiV2._0.API.Controllers
@@ -12,11 +15,15 @@ namespace ETicaretProjesiV2._0.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _env;
+        private readonly VisitorStorage _visitorStorage;
+        private readonly IHubContext<TrafficHub> _hubContext;
 
-        public AuthController(IAuthService authService, IWebHostEnvironment env)
+        public AuthController(IAuthService authService, IWebHostEnvironment env,VisitorStorage visitorStorage,IHubContext<TrafficHub> hubContext)
         {
             _authService = authService;
             _env = env;
+            _visitorStorage = visitorStorage;
+            _hubContext = hubContext;
         }
 
         [HttpPost("register-request")]
@@ -225,6 +232,22 @@ namespace ETicaretProjesiV2._0.API.Controllers
         {
             var users = await _authService.SearchUsersAsync(q);
             return Ok(users);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                _visitorStorage.ForceRemoveUser(userId);
+
+                await _hubContext.Clients.All.SendAsync("UpdateOnlineStatus", _visitorStorage.GetOnlineUserIds());
+            }
+
+            return Ok();
         }
     }
 

@@ -68,24 +68,29 @@ export class ProductDetail implements OnInit {
       if (productId) {
         this.productService.getProductById(productId).subscribe({
           next: (data: any) => {
-            this.product = {
-              ...data,
-              images:
-                data.images && data.images.length > 0
-                  ? data.images.map((img: string) => `https://localhost:7185${img}`)
-                  : [],
-            };
-            this.loadComments(this.product.id);
-            this.loadQuestions(this.product.id);
-            if (this.currentUserId) {
-              this.favoriteService.checkFavoriteStatus(productId).subscribe((status) => {
-                this.isFavorited = status;
-                this.cdr.detectChanges();
-              });
-            }
-            this.checkPurchaseStatus(productId);
-            this.isLoading = false;
-            this.cdr.detectChanges();
+            setTimeout(() => {
+              this.product = {
+                ...data,
+                images:
+                  data.images && data.images.length > 0
+                    ? data.images.map((img: string) => `https://localhost:7185${img}`)
+                    : [],
+              };
+
+              this.loadComments(this.product.id);
+              this.loadQuestions(this.product.id);
+
+              if (this.currentUserId) {
+                this.favoriteService.checkFavoriteStatus(productId).subscribe((status) => {
+                  this.isFavorited = status;
+                  this.cdr.detectChanges();
+                });
+              }
+
+              this.checkPurchaseStatus(productId);
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }, 0);
           },
           error: (err) => {
             console.error(err);

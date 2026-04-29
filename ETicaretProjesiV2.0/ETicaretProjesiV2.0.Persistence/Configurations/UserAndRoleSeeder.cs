@@ -43,6 +43,29 @@ namespace ETicaretProjesiV2._0.Persistence.Configurations
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
                 }
             }
+
+            var secondAdminEmail = "admin@arhan.com"; 
+            var secondAdmin = await userManager.FindByEmailAsync(secondAdminEmail);
+
+            if (secondAdmin == null)
+            {
+                var newSecondAdmin = new AppUser
+                {
+                    UserName = "AdminArhan", 
+                    Email = secondAdminEmail,
+                    FirstName = "Arhan",
+                    LastName = "Admin",
+                    EmailConfirmed = true,
+                    Balance = 5000000 
+                };
+
+                var result = await userManager.CreateAsync(newSecondAdmin, "Admin123!"); 
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newSecondAdmin, "Admin");
+                }
+            }
         }
     }
 }

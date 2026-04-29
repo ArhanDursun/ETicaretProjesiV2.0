@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Signalr } from '../../core/signalr/signalr';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,10 @@ export class Auth {
 
   public isLoggedIn$ = this.loggedIn.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    public signalRService: Signalr,
+  ) {}
 
   login(dto: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, dto);
@@ -60,11 +64,19 @@ export class Auth {
     return this.hasToken();
   }
   logout(): void {
+    this.http.post('https://localhost:7185/api/Auth/logout', {}).subscribe({
+      next: () => console.log('Backend online listesi güncellendi.'),
+      error: (err) => console.error('Logout sinyali gönderilemedi:', err),
+    });
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
     }
+
+    // 3. Durumları güncelle ve Hub'ı durdur
     this.loggedIn.next(false);
+    this.signalRService.stopTrafficConnection();
   }
   getUserProfile() {
     return this.http.get(`${this.apiUrl}/getProfile`);

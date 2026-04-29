@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { DashboardService, DashboardStats, RecentOrder } from '../../services/dashboard-service';
 import { Chart, registerables } from 'chart.js';
+import { Admin } from '../../services/admin';
+import { Signalr } from '../../../core/signalr/signalr';
+import { Subscription } from 'rxjs';
+
 Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
@@ -9,7 +13,7 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   stats: DashboardStats = {
     totalPlatformVolume: 0,
     totalCommissionEarned: 0,
@@ -21,15 +25,27 @@ export class Dashboard implements OnInit {
   isModalOpen: boolean = false;
   public chart: any;
   public selectedTimeRange: string = '7days';
+  private notificationSub!: Subscription;
+  isGeneratingReport: boolean = false;
+  showNotification: boolean = false;
+  notificationMessage: string = '';
+  notificationUrl: string = '';
 
   constructor(
     private dashboardService: DashboardService,
     private cdr: ChangeDetectorRef,
+    private adminService: Admin,
+    private signalrService: Signalr,
   ) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
     this.loadChartData();
+    this.notificationSub = this.signalrService.reportNotification$.subscribe((data) => {
+      this.showCustomToast(data.message, data.downloadUrl);
+      this.isGeneratingReport = false;
+      this.cdr.detectChanges();
+    });
   }
 
   loadDashboardData(): void {
@@ -42,7 +58,6 @@ export class Dashboard implements OnInit {
         console.error('istatistikler yüklenmedi:', err);
       },
     });
-
     this.dashboardService.getRecentOrders().subscribe({
       next: (res) => {
         this.recentOrders = res;
@@ -115,5 +130,41 @@ export class Dashboard implements OnInit {
         },
       },
     });
+  }
+  requestReport() {
+    this.isGeneratingReport = true;
+    this.cdr.detectChanges();
+
+    this.adminService.generateSalesReport().subscribe({
+      next: (response: any) => {
+        console.log('Rapor talebi alındı,kurye yola çıktı', response);
+      },
+      error: (err) => {
+        console.error('Rapor talebi başarısız oldu:', err);
+        this.isGeneratingReport = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  showCustomToast(message: string, url: string) {
+    this.notificationMessage = message;
+    this.notificationUrl = url;
+    this.showNotification = true;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.closeNotification();
+    }, 15000);
+  }
+
+  closeNotification() {
+    this.showNotification = false;
+    this.cdr.detectChanges();
+  }
+  ngOnDestroy(): void {
+    if (this.notificationSub) {
+      this.notificationSub.unsubscribe();
+    }
   }
 }

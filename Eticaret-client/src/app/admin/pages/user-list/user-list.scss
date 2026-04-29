@@ -83,3 +83,54 @@
     &--delete { color: #c62828; &:hover { background: #ffebee; } }
   }
 }
+/* Baloncuğun genel tipi */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Aktifse MSI Titan gibi parlasın */
+.status-dot.online {
+  background-color: #2ecc71;
+  box-shadow: 0 0 8px #2ecc71;
+}
+
+/* Çevrimdışıysa sönük kalsın */
+.status-dot.offline {
+  background-color: #bdc3c7;
+}
+
+.status-toggle {
+  display: flex;
+  gap: 8px;
+  margin-left: 15px;
+
+  button {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+
+    &.active {
+      background: #3498db;
+      color: white;
+      border-color: #2980b9;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      &.green { background: #2ecc71; }
+      &.gray { background: #95a5a6; }
+    }
+  }
+}

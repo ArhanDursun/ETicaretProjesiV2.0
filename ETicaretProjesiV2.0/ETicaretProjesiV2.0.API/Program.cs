@@ -1,4 +1,5 @@
 using ETicaretProjesiV2._0.API.Controllers;
+using ETicaretProjesiV2._0.Application.Consumers;
 using ETicaretProjesiV2._0.Application.Interfaces;
 using ETicaretProjesiV2._0.Application.Interfaces.Repositories;
 using ETicaretProjesiV2._0.Application.Interfaces.Services;
@@ -6,18 +7,25 @@ using ETicaretProjesiV2._0.Application.Mapping;
 using ETicaretProjesiV2._0.Application.Models;
 using ETicaretProjesiV2._0.Application.Services;
 using ETicaretProjesiV2._0.Entities;
+using ETicaretProjesiV2._0.Infrastructure.Hubs;
+using ETicaretProjesiV2._0.Infrastructure.Middlewares;
 using ETicaretProjesiV2._0.Infrastructure.Services;
 using ETicaretProjesiV2._0.Persistence.Context;
 using ETicaretProjesiV2._0.Persistence.Repositories;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using RedLockNet;
+using RedLockNet.SERedis;
+using RedLockNet.SERedis.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 var tokenSettings = builder.Configuration.GetSection("Token").Get<TokenSettings>();
 builder.Services.AddSingleton(tokenSettings);
+builder.Services.AddSingleton<VisitorStorage>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
 
@@ -63,6 +72,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISupportService, SupportServices>();
 builder.Services.AddScoped<IDirectMessageService, DirectMessageService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<ISignalService,SignalRService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
@@ -92,7 +102,7 @@ builder.Services.AddAuthentication(options => {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
 
-            if(!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chathub")|| path.StartsWithSegments("/supporthub") ))
+            if(!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chathub")|| path.StartsWithSegments("/supporthub") || path.StartsWithSegments("/notificationhub") || path.StartsWithSegments("/traffichub")))
             {
                 context.Token = accessToken;
             }
@@ -107,10 +117,15 @@ builder.Services.AddControllers().AddJsonOptions(x=>x.JsonSerializerOptions.Refe
 builder.Services.AddSignalR(options =>
 {
 
-    options.EnableDetailedErrors = true; 
-    options.KeepAliveInterval = TimeSpan.FromSeconds(15); 
+    options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+}).AddStackExchangeRedis("localhost:6379", options =>
+{
+    options.Configuration.ChannelPrefix = "E-Ticaret_SignalR";
 });
+    
+    
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddOpenApi();
@@ -122,10 +137,35 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(15);
 });
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379"; 
+    options.InstanceName = "E-Ticaret";
+});
+var redisEndpoints = new List<RedLockEndPoint> { new RedLockEndPoint { EndPoint = new System.Net.DnsEndPoint("localhost", 6379) } };
+builder.Services.AddSingleton<IDistributedLockFactory>(RedLockFactory.Create(redisEndpoints));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OrderCreatedConsumer>();
+    x.AddConsumer<GenerateReportEventConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 var app = builder.Build();
-app.UseMiddleware<ETicaretProjesiV2._0.Infrastructure.Middlewares.GlobalExceptionMiddlerware>();
-app.UseMiddleware<ETicaretProjesiV2._0.Infrastructure.Middlewares.RequestResponseLoggingMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddlerware>();
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseMiddleware <PerformanceMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -161,10 +201,16 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 app.UseAuthentication(); 
 app.UseAuthorization();
+app.UseMiddleware<VisitorTrackingMiddleware>();
+app.UseMiddleware<DetectionMiddleware>();
+
+
 app.UseStaticFiles();
 
 app.MapControllers();
 app.MapHub<SupportHub>("/supporthub");
 app.MapHub<ChatHub>("/chathub");
+app.MapHub<TrafficHub>("/traffichub");
+app.MapHub<NotificationHub>("/notificationhub");
 
 app.Run();

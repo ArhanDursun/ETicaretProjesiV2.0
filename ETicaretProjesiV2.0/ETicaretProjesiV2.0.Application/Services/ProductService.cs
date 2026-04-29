@@ -4,11 +4,15 @@ using ETicaretProjesiV2._0.Application.Interfaces.Repositories;
 using ETicaretProjesiV2._0.Application.Interfaces.Services;
 using ETicaretProjesiV2._0.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ETicaretProjesiV2._0.Application.Services
 {
@@ -17,12 +21,19 @@ namespace ETicaretProjesiV2._0.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IGenericRepository<UserFavorite> _favoriteRepo;
+        private readonly IDistributedCache _cache;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly INotificationService _notificationService;
+        
 
-        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository,IGenericRepository<UserFavorite> favoriteRepo)
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository,IGenericRepository<UserFavorite> favoriteRepo,IDistributedCache cache,IConnectionMultiplexer redis,INotificationService notificationService)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _favoriteRepo = favoriteRepo;
+            _cache = cache;
+            _redis = redis;
+            _notificationService = notificationService;
         }
 
         public async Task CreateProductAsync(ProductDto dto, Guid SellerId)
@@ -88,6 +99,8 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
+
+            await _cache.RemoveAsync("showcase_all_products");
         }
 
         public async Task<bool> DeleteProductByAdminAsync(Guid id)
@@ -97,6 +110,7 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
+            await _cache.RemoveAsync("showcase_all_products");
             return true;
         }
 
@@ -107,6 +121,8 @@ namespace ETicaretProjesiV2._0.Application.Services
                 throw new Exception("Product not found");
             _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
+
+            await _cache.RemoveAsync("showcase_all_products");
         }
 
         public async Task<List<ProductDto>> GetAllProductsAsync()
@@ -228,11 +244,19 @@ namespace ETicaretProjesiV2._0.Application.Services
             return myProducts;
         }
 
-        public async Task<ProductDto> GetProductByIdAsync(Guid id,string? userId = null)
+        public async Task<ProductDto> GetProductByIdAsync(Guid id, string? userId = null)
         {
             var product = await _productRepository.GetProductWithDetailsAsync(id);
             if (product == null)
                 throw new Exception("Product not found");
+
+            var db = _redis.GetDatabase();
+            double newScore = await db.SortedSetIncrementAsync("trending_products", id.ToString(), 1);
+
+            if (newScore % 10 == 0)
+            {
+                await _notificationService.SendTrendUpdateAsync($"{product.Name} şu an çok popüler! 🔥");
+            }
 
             bool isFav = false;
             if (!string.IsNullOrEmpty(userId))
@@ -259,6 +283,7 @@ namespace ETicaretProjesiV2._0.Application.Services
             };
         }
 
+
         public async Task<List<ProductDto>> GetProductsByCategoryAsync(Guid categoryId)
         {
             var products = await _productRepository.GetProductsByCategoryIdAsync(categoryId);
@@ -278,14 +303,85 @@ namespace ETicaretProjesiV2._0.Application.Services
 
         public async Task<PagedResult<ProductListResponseDto>> GetShowcaseProductsAsync(PaginationParams userParams)
         {
-            var query = _productRepository.Where(p => p.IsShowcase && !p.IsDeleted);
+            
+            string cacheKey = "showcase_all_products";
+            List<ProductListResponseDto> allShowcaseProducts;
 
-            var totalCount = await query.CountAsync();
+            var cachedData = await _cache.GetStringAsync(cacheKey);
 
-            var products = await query
-                .OrderByDescending(p => p.CreatedDate)
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+              
+                allShowcaseProducts = JsonSerializer.Deserialize<List<ProductListResponseDto>>(cachedData);
+            }
+            else
+            {
+               
+                var query = _productRepository.Where(p => p.IsShowcase && !p.IsDeleted);
+
+                allShowcaseProducts = await query.OrderByDescending(p => p.CreatedDate)
+                    .Select(p => new ProductListResponseDto
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Description = p.Description,
+                        CategoryName = p.Category.Name,
+                        StockQuanity = p.StockQuanity,
+                        Images = p.ProductImages.Select(img => img.ImagePath).ToList(),
+                        AverageStar = p.ProductComments.Any() ? p.ProductComments.Average(c => c.StarCount) : 0,
+                        CommentCount = p.ProductComments.Count(),
+                        DiscountedPrice = p.DiscountedPrice,
+                        DiscountEndDate = p.DiscountEndDate,
+                        DiscountPercentage = p.DiscountPercentage,
+                        SellerName = p.Seller.UserName
+                    }).ToListAsync();
+
+                
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(allShowcaseProducts), cacheOptions);
+            }
+
+            
+            var totalCount = allShowcaseProducts.Count;
+            var pagedItems = allShowcaseProducts
                 .Skip((userParams.PageNumber - 1) * userParams.PageSize)
                 .Take(userParams.PageSize)
+                .ToList();
+
+            return new PagedResult<ProductListResponseDto>
+            {
+                Items = pagedItems,
+                TotalCount = totalCount,
+                PageNumber = userParams.PageNumber,
+                PageSize = userParams.PageSize,
+            };
+        }
+
+        public async Task<List<ProductListResponseDto>> GetTrendingProductsAsync()
+        {
+            var db = _redis.GetDatabase();
+
+           
+            var topProductIdsRedis = await db.SortedSetRangeByScoreAsync(
+                key: "trending_products",
+                start: double.PositiveInfinity, 
+                stop: 50,                       
+                exclude: Exclude.None,
+                order: StackExchange.Redis.Order.Descending,
+                skip: 0,
+                take: 20                        
+            );
+
+            if (topProductIdsRedis.Length == 0)
+                return new List<ProductListResponseDto>();
+
+            var productIds = topProductIdsRedis.Select(id => Guid.Parse(id.ToString())).ToList();
+
+            var trendingProducts = await _productRepository.Where(p => productIds.Contains(p.Id) && !p.IsDeleted)
                 .Select(p => new ProductListResponseDto
                 {
                     Id = p.Id,
@@ -297,20 +393,23 @@ namespace ETicaretProjesiV2._0.Application.Services
                     Images = p.ProductImages.Select(img => img.ImagePath).ToList(),
                     AverageStar = p.ProductComments.Any() ? p.ProductComments.Average(c => c.StarCount) : 0,
                     CommentCount = p.ProductComments.Count(),
-                    DiscountedPrice = p.DiscountedPrice,
-                    DiscountEndDate = p.DiscountEndDate,
-                    DiscountPercentage = p.DiscountPercentage,
+                    DiscountedPrice = (p.DiscountEndDate.HasValue && p.DiscountEndDate >= DateTime.UtcNow)
+                      ? p.DiscountedPrice
+                      : null,
+                    DiscountPercentage = (p.DiscountEndDate.HasValue && p.DiscountEndDate >= DateTime.UtcNow)
+                         ? p.DiscountPercentage
+                         : null,
+                    DiscountEndDate = (p.DiscountEndDate.HasValue && p.DiscountEndDate >= DateTime.UtcNow)
+                      ? p.DiscountEndDate
+                      : null,
                     SellerName = p.Seller.UserName
                 }).ToListAsync();
-            return new PagedResult<ProductListResponseDto>
-            {
-                Items = products,
-                TotalCount = totalCount,
-                PageNumber = userParams.PageNumber,
-                PageSize = userParams.PageSize,
-            };
 
+            
+            var sortedTrendingProducts = trendingProducts.OrderBy(p => productIds.IndexOf(p.Id))
+                .ToList();
 
+            return sortedTrendingProducts;
         }
 
         public async Task UpdateProductAsync(Guid id, ProductDto dto)
@@ -340,6 +439,8 @@ namespace ETicaretProjesiV2._0.Application.Services
 
             _productRepository.Update(product);
             await _productRepository.SaveChangesAsync();
+
+            await _cache.RemoveAsync("showcase_all_products");
         }
     }
 }

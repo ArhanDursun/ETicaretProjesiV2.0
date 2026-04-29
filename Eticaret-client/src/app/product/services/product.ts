@@ -96,4 +96,7 @@ export class Product {
       params,
     });
   }
+  getTrendingProducts(): Observable<ProductListResponseDto[]> {
+    return this.http.get<ProductListResponseDto[]>(`${this.apiUrl}/trending`);
+  }
 }

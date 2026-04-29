@@ -5,8 +5,12 @@ using System.Text;
 
 namespace ETicaretProjesiV2._0.Application.Interfaces.Services
 {
-    public interface INotificationService
+    public interface INotificationService 
     {
         Task CreateNotificationAsync(UserNotificationDto dto);
+        Task SendTrendUpdateAsync(string message);
+        Task SendReportNotificationAsync(string userId, string message, string downloadUrl);
+
     }
+
 }
