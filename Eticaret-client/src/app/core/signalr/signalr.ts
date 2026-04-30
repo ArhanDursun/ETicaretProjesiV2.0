@@ -179,6 +179,7 @@ export class Signalr {
     });
     this.notificationConnection?.on('ReceivePriceAlert', (data: any) => {
       this.zone.run(() => {
+        console.log('Sinyal :', data);
         this.priceAlertSource.next({
           message: data.message,
           productId: data.productId,

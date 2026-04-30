@@ -172,9 +172,13 @@ export class App implements OnInit {
         if (this.timeoutId) {
           clearTimeout(this.timeoutId);
         }
+
         this.timeoutId = setTimeout(() => {
           this.showToast = false;
+          this.cdr.detectChanges();
         }, 5000);
+
+        this.cdr.detectChanges();
       }, 0);
     });
   }
