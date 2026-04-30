@@ -1,16 +1,9 @@
-````
-4. Tarayıcınızda `http://localhost:4200` adresine giderek projeyi görüntüleyin.
+---
 
-## Katkıda Bulunma
-
-Bu proje kişisel gelişim ve portfolyo amacıyla geliştirilmektedir. Bulduğunuz hatalar (bug) veya geliştirme önerileri için `Issues` sekmesini kullanabilir veya `Pull Request` gönderebilirsiniz.
-
-## Lisans
-BuKanka, bilgisayarında proje ana dizinine gidip **`README.md`** adında bir dosya oluştur ve aşağıdaki kodun tamamını kopyalayıp o dosyanın içine yapıştır. Saf markdown (.md) formatı tam olarak budur:
 ```markdown
 # ETicaretProjesi - Gerçek Zamanlı ve Modern E-Ticaret Platformu
 
-Modern web teknolojileri kullanılarak geliştirilmiş, mikroservis haberleşme prensiplerini barındıran, gerçek zamanlı (real-time) bildirim ve mesajlaşma özelliklerine sahip kapsamlı bir B2C/C2C e-ticaret platformudur.
+Modern web teknolojileri kullanılarak geliştirilmiş, mikroservis haberleşme prensiplerini barındıran, gerçek zamanlı (real-time) bildirim ve mesajlaşma özelliklerine sahip kapsamlı bir B2C/C2C e-ticaret platformudur. 
 
 Proje, kullanıcı deneyimini asenkron arka plan işlemleri ve anlık soket bağlantıları ile en üst düzeye çıkarmayı hedeflemektedir.
 
@@ -25,7 +18,7 @@ Proje, kullanıcı deneyimini asenkron arka plan işlemleri ve anlık soket bağ
 
 ## Kullanılan Teknolojiler
 
-Bu proje, ölçeklenebilir ve sürdürülebilir bir mimari kurmak amacıyla modern araçlarla geliştirilmiştir.
+Bu proje, ölçeklenebilir ve sürdürülebilir bir mimari kurmak amacıyla modern araçlarla (VS Code ve Visual Studio 2026 ortamlarında) geliştirilmiştir.
 
 ### Frontend (İstemci)
 * **Framework:** Angular 17+ (Standalone Components Mimari)
@@ -58,55 +51,45 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 ### Ön Koşullar
 * [.NET 10 SDK](https://dotnet.microsoft.com/download)
 * [Node.js (v18+)](https://nodejs.org/)
-* [RabbitMQ](https://www.rabbitmq.com/download.html) (Docker Desktop üzerinden `rabbitmq:3-management` imajı tavsiye edilir)
+* **Docker Desktop** (RabbitMQ ve Redis servislerini hızlıca ayağa kaldırmak için tavsiye edilir)
 * PostgreSQL veya SQLite ortamı
 
 ### 1. RabbitMQ'yu Ayağa Kaldırma (Docker ile)
 ```bash
 docker run -d --hostname my-rabbit --name e-ticaret-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-````
-
-_(Yönetim paneline `http://localhost:15672` adresinden guest/guest ile erişebilirsiniz.)_
+```
+*(Yönetim paneline `http://localhost:15672` adresinden guest/guest ile erişebilirsiniz.)*
 
 ### 2. Backend Kurulumu
-
 1. Terminalde `Backend` (API) dizinine gidin.
 2. `appsettings.json` dosyasını açarak `ConnectionStrings` (PostgreSQL/SQLite) ve `RabbitMQ` ayarlarınızı kendi lokal ortamınıza göre düzenleyin.
 3. Veritabanını oluşturmak için EF Core migrasyonlarını çalıştırın:
-
 ```bash
 dotnet ef database update
 ```
-
 4. Projeyi başlatın:
-
 ```bash
 dotnet run
 ```
-
-_API varsayılan olarak `https://localhost:7185` portunda ayağa kalkacaktır._
+*API varsayılan olarak `https://localhost:7185` portunda ayağa kalkacaktır.*
 
 ### 3. Frontend Kurulumu
-
 1. Terminalde `Frontend` dizinine gidin.
 2. Gerekli NPM paketlerini yükleyin:
-
 ```bash
 npm install
 ```
-
 3. Angular projesini geliştirme modunda çalıştırın:
-
 ```bash
 ng serve
 ```
-
 4. Tarayıcınızda `http://localhost:4200` adresine giderek projeyi görüntüleyin.
 
 ## Katkıda Bulunma
 
 Bu proje kişisel gelişim ve portfolyo amacıyla geliştirilmektedir. Bulduğunuz hatalar (bug) veya geliştirme önerileri için `Issues` sekmesini kullanabilir veya `Pull Request` gönderebilirsiniz.
 
-```
 
 ```
+
+---
