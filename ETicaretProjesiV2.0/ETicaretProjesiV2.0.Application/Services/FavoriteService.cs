@@ -28,6 +28,13 @@ namespace ETicaretProjesiV2._0.Application.Services
             return await _favoriteRepo.Where(f => f.UserId == uId && f.ProductId == pId).AnyAsync();
         }
 
+        public async Task<List<string>> GetUserFavoritedProductAsync(Guid productId)
+        {
+           var query = _favoriteRepo.Where(f=>f.ProductId == productId);
+            return query.Select(f => f.UserId.ToString()).ToList();
+
+        }
+
         public async Task<FavoriteToggleResponseDto> ToggleFavoriteAsync(string userId, string productId)
         {
             var uId = Guid.Parse(userId);

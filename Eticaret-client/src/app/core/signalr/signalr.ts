@@ -18,10 +18,15 @@ export class Signalr {
   private hubConnection: signalR.HubConnection | undefined;
   private trafficConnection: signalR.HubConnection | undefined;
   private notificationConnection: signalR.HubConnection | undefined;
+
   private reportNotificationSource = new Subject<{ message: string; downloadUrl: string }>();
   public reportNotification$ = this.reportNotificationSource.asObservable();
+
   private messageSource = new BehaviorSubject<MessageDto[]>([]);
   public messages$ = this.messageSource.asObservable();
+
+  private priceAlertSource = new Subject<{ message: string; productId: string }>();
+  public priceAlert$ = this.priceAlertSource.asObservable();
 
   private onlineUsersSource = new BehaviorSubject<string[]>([]);
   public onlineUsers$ = this.onlineUsersSource.asObservable();
@@ -32,6 +37,7 @@ export class Signalr {
 
   public startConnection(ticketId: string) {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:7185/supporthub', {
         accessTokenFactory: () => token || '',
@@ -89,7 +95,16 @@ export class Signalr {
   }
   private startTrafficConnection() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      return;
+    }
 
+    if (
+      this.notificationConnection?.state === signalR.HubConnectionState.Connected ||
+      this.notificationConnection?.state === signalR.HubConnectionState.Connecting
+    ) {
+      return;
+    }
     this.trafficConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:7185/traffichub', {
         accessTokenFactory: () => token || '',
@@ -126,9 +141,18 @@ export class Signalr {
   }
   private startNotificationConnection() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      return;
+    }
 
+    if (
+      this.notificationConnection?.state === signalR.HubConnectionState.Connected ||
+      this.notificationConnection?.state === signalR.HubConnectionState.Connecting
+    ) {
+      return;
+    }
     this.notificationConnection = new signalR.HubConnectionBuilder()
-      // Backend'deki NotificationHub'ın adresini buraya yazıyoruz
+
       .withUrl('https://localhost:7185/notificationhub', {
         accessTokenFactory: () => token || '',
       })
@@ -145,13 +169,19 @@ export class Signalr {
   }
 
   private addNotificationListeners() {
-    // Backend Consumer'dan (GenerateReportEventConsumer) fırlattığımız metot ismi
     this.notificationConnection?.on('ReceiveReportNotification', (data: any) => {
       this.zone.run(() => {
-        // Gelen datayı Dashboard'un yakalaması için boruya (Subject) basıyoruz
         this.reportNotificationSource.next({
-          message: data.message, // Backend'de anonymous object'teki property'ler küçük harfle gelir
+          message: data.message,
           downloadUrl: data.downloadUrl,
+        });
+      });
+    });
+    this.notificationConnection?.on('ReceivePriceAlert', (data: any) => {
+      this.zone.run(() => {
+        this.priceAlertSource.next({
+          message: data.message,
+          productId: data.productId,
         });
       });
     });

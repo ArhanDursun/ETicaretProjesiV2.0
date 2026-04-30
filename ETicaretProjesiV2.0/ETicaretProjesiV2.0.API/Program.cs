@@ -150,6 +150,7 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<OrderCreatedConsumer>();
     x.AddConsumer<GenerateReportEventConsumer>();
+    x.AddConsumer<ProductPriceChangedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {

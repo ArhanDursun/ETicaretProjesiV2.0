@@ -13,6 +13,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.SignalR;
+using MassTransit;
+using ETicaretProjesiV2._0.Application.Events;
 
 namespace ETicaretProjesiV2._0.Application.Services
 {
@@ -24,9 +26,10 @@ namespace ETicaretProjesiV2._0.Application.Services
         private readonly IDistributedCache _cache;
         private readonly IConnectionMultiplexer _redis;
         private readonly INotificationService _notificationService;
-        
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository,IGenericRepository<UserFavorite> favoriteRepo,IDistributedCache cache,IConnectionMultiplexer redis,INotificationService notificationService)
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository,IGenericRepository<UserFavorite> favoriteRepo,
+            IDistributedCache cache,IConnectionMultiplexer redis,INotificationService notificationService,IPublishEndpoint publishEndpoint)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
@@ -34,6 +37,7 @@ namespace ETicaretProjesiV2._0.Application.Services
             _cache = cache;
             _redis = redis;
             _notificationService = notificationService;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task CreateProductAsync(ProductDto dto, Guid SellerId)
@@ -417,7 +421,7 @@ namespace ETicaretProjesiV2._0.Application.Services
             var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
                 throw new Exception("Product not found");
-
+            decimal oldEffectivePrice = product.DiscountedPrice ?? product.Price;
             product.Name = dto.Name;
             product.Description = dto.Description;
             product.Price = dto.Price;
@@ -437,9 +441,20 @@ namespace ETicaretProjesiV2._0.Application.Services
                 product.DiscountedPrice = null;
             }
 
+            decimal newEffectivePrice = product.DiscountedPrice ?? product.Price;
             _productRepository.Update(product);
             await _productRepository.SaveChangesAsync();
 
+            if (newEffectivePrice < oldEffectivePrice)
+            {
+                await _publishEndpoint.Publish(new ProductPriceChangedEvent
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    OldPrice = oldEffectivePrice,
+                    NewPrice = newEffectivePrice,
+                });  
+            }
             await _cache.RemoveAsync("showcase_all_products");
         }
     }

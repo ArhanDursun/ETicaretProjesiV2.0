@@ -10,6 +10,7 @@ namespace ETicaretProjesiV2._0.Application.Interfaces.Services
         Task CreateNotificationAsync(UserNotificationDto dto);
         Task SendTrendUpdateAsync(string message);
         Task SendReportNotificationAsync(string userId, string message, string downloadUrl);
+        Task SendPriceAlertNotificationAsync(string userId, string message, string productId);
 
     }
 

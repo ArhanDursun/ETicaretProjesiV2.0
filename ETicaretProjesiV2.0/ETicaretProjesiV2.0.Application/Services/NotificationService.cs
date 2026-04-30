@@ -41,11 +41,17 @@ namespace ETicaretProjesiV2._0.Application.Services
             await _notificationRepository.SaveAsync();
         }
 
+        public async Task SendPriceAlertNotificationAsync(string userId, string message, string productId)
+        {
+           await _signalService.SendPriceAlertNotificationAsync(userId, message, productId);
+        }
+
         public async Task SendReportNotificationAsync(string userId, string message, string downloadUrl)
         {
              await _signalService.SendReportNotificationAsync(userId,message,downloadUrl);
         }
 
+       
         public async Task SendTrendUpdateAsync(string message)
         {
             await _signalService.SendNotificationAsync("ReceiveTrendUpdate", message);

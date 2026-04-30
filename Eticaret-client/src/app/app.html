@@ -117,9 +117,9 @@
 </div>
 
 
-<div class="custom-toast-container" *ngIf="showToast">
+<<div class="custom-toast-container" *ngIf="showToast" (click)="goToProductFromToast()" style="cursor: pointer;">
   <div class="custom-toast">
     <div class="toast-icon"><i class="bi bi-fire"></i></div>
     <div class="toast-content">{{ trendMessage }}</div>
   </div>
-</div>
+  </div>
