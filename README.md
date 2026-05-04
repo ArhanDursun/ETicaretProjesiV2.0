@@ -61,7 +61,7 @@ docker run -d --hostname my-rabbit --name e-ticaret-rabbit -p 5672:5672 -p 15672
 *(Yönetim paneline `http://localhost:15672` adresinden guest/guest ile erişebilirsiniz.)*
 
 ### 2. Backend Kurulumu
-1. Terminalde  (API) dizinine gidin.
+1. Terminalde `Backend` (API) dizinine gidin.
 2. `appsettings.json` dosyasını açarak `ConnectionStrings` (PostgreSQL/SQLite) ve `RabbitMQ` ayarlarınızı kendi lokal ortamınıza göre düzenleyin.
 3. Veritabanını oluşturmak için EF Core migrasyonlarını çalıştırın:
 ```bash
