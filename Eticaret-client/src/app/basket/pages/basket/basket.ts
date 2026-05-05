@@ -6,12 +6,15 @@ import { OrderService } from '../../../order/services/order';
 import { UserService } from '../../../admin/services/user';
 import { Auth } from '../../../auth/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
 
+import { PaymentService } from '../../../core/services/payment.service';
+import { PaymentRequest } from '../../../core/models/payment.model';
 @Component({
   selector: 'app-basket',
   templateUrl: './basket.html',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, FormsModule],
   styleUrl: './basket.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -22,17 +25,41 @@ export class Basket implements OnInit {
   showCheckOutModal: boolean = false;
   userBalance: number = 0;
   isSubmitting: boolean = false;
+
+  paymentMethod: 'wallet' | 'card' = 'wallet';
+
+  selectedCountryCode: string = '+90';
+  phoneNumber: string = '';
+
+  paymentData: PaymentRequest = {
+    cardHolderName: '',
+    cardNumber: '',
+    expireMonth: '',
+    expireYear: '',
+    cvc: '',
+    price: 0,
+    paymentType: 1,
+    buyerName: '',
+    buyerSurname: '',
+    buyerEmail: '',
+    buyerGsmNumber: '',
+    buyerIdentityNumber: '',
+    city: '',
+    country: '',
+    addressDescription: '',
+    zipCode: '',
+  };
   constructor(
     private basketService: BasketService,
     private cdr: ChangeDetectorRef,
     private orderService: OrderService,
     private router: Router,
     private authService: Auth,
+    private paymentService: PaymentService,
   ) {}
 
   ngOnInit(): void {
     this.loadBasket();
-
     this.loadUserBalance();
   }
 
@@ -117,41 +144,76 @@ export class Basket implements OnInit {
       alert('Sepetiniz boş');
       return;
     }
+    if (this.userBalance < this.basket.totalBasketPrices) {
+      this.paymentMethod = 'card';
+    } else {
+      this.paymentMethod = 'wallet';
+    }
     this.showCheckOutModal = true;
   }
+
   closeCheckOutModal() {
     this.showCheckOutModal = false;
   }
 
-  confirmCheckOut() {
-    if (this.userBalance < this.basket.totalPrices) {
-      alert('Bakiyeniz Yetersiz');
+  setPaymentMethod(method: 'wallet' | 'card') {
+    if (method === 'wallet' && this.userBalance < this.basket.totalBasketPrices) {
       return;
     }
+    this.paymentMethod = method;
+  }
 
+  formatCardNumber(value: string) {
+    if (!value) {
+      this.paymentData.cardNumber = '';
+      return;
+    }
+    let val = value.replace(/\D/g, '');
+    if (val.length > 16) val = val.substring(0, 16);
+    let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
+    this.paymentData.cardNumber = formatted;
+  }
+
+  confirmCheckOut() {
     this.isSubmitting = true;
 
-    const dto = {};
+    if (this.paymentMethod === 'wallet') {
+      const dto = {};
+      this.orderService.createOrder(dto).subscribe({
+        next: (res) => this.handleSuccessfulOrder(),
+        error: (err) => this.handleErrorOrder(err),
+      });
+    } else if (this.paymentMethod === 'card') {
+      this.paymentData.price = this.basket.totalBasketPrices;
+      this.paymentData.buyerGsmNumber = this.selectedCountryCode + this.phoneNumber;
 
-    this.orderService.createOrder(dto).subscribe({
-      next: (res) => {
-        this.isSubmitting = false;
-        this.showCheckOutModal = false;
-        alert('Siparişiniz başarıyla alındı');
+      const safeRequest: PaymentRequest = {
+        ...this.paymentData,
+        cardNumber: this.paymentData.cardNumber.replace(/\s+/g, ''),
+      };
 
-        this.basket = null;
-        this.basketService.updateCartCount();
-        this.cdr.detectChanges();
+      this.paymentService.directCheckout(safeRequest).subscribe({
+        next: (res) => {
+          this.handleSuccessfulOrder();
+        },
+        error: (err) => this.handleErrorOrder(err),
+      });
+    }
+  }
+  private handleSuccessfulOrder() {
+    this.isSubmitting = false;
+    this.showCheckOutModal = false;
+    alert('Siparişiniz başarıyla alındı');
+    this.basket = null;
+    this.basketService.updateCartCount();
+    this.cdr.detectChanges();
+    this.router.navigate(['/my-orders']);
+  }
 
-        this.router.navigate(['/my-orders']);
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        const errorMsg = err.error?.message || 'Ödeme Sırasında Hata Oluştu';
-
-        alert('İşlem başarısız:' + errorMsg);
-        this.cdr.detectChanges();
-      },
-    });
+  private handleErrorOrder(err: any) {
+    this.isSubmitting = false;
+    const errorMsg = err.error?.message || 'Ödeme Sırasında Hata Oluştu';
+    alert('İşlem başarısız: ' + errorMsg);
+    this.cdr.detectChanges();
   }
 }

@@ -167,7 +167,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                                     .AnyAsync(o=>o.OrderItems.Any(oi=>oi.ProductId == productId));
         }
 
-        public async Task CreateOrderAsync(Guid buyerId, CreateOrderRequestDto dto)
+        public async Task CreateOrderAsync(Guid buyerId, CreateOrderRequestDto dto, bool isCreditCardPayment = false)
         {
             string lockKey = $"lock:order:create:{buyerId}";
 
@@ -288,23 +288,24 @@ namespace ETicaretProjesiV2._0.Application.Services
                         TransactionType = TransactionType.OrderEarning,
                     });
                 }
-
-                if (buyer.Balance < totalPrice)
-                    throw new Exception($"Yetersiz Bakiye! Toplam: {totalPrice} ₺, Bakiyeniz: {buyer.Balance} ₺");
-
-                buyer.Balance -= totalPrice;
-
-                transactions.Add(new WalletTransaction
+                if (!isCreditCardPayment)
                 {
-                    Id = Guid.NewGuid(),
-                    AppUserId = buyer.Id,
-                    Amount = -totalPrice,
-                    Description = "Sepet Ödemesi Yapıldı",
-                    CreatedDate = DateTime.UtcNow,
-                    TransactionType = TransactionType.OrderPayment,
-                });
-                await _userRepo.UpdateAsync(buyer);
+                    if (buyer.Balance < totalPrice)
+                        throw new Exception($"Yetersiz Bakiye! Toplam: {totalPrice} ₺, Bakiyeniz: {buyer.Balance} ₺");
 
+                    buyer.Balance -= totalPrice;
+
+                    transactions.Add(new WalletTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        AppUserId = buyer.Id,
+                        Amount = -totalPrice,
+                        Description = "Sepet Ödemesi Yapıldı",
+                        CreatedDate = DateTime.UtcNow,
+                        TransactionType = TransactionType.OrderPayment,
+                    });
+                    await _userRepo.UpdateAsync(buyer);
+                }
                 foreach (var seller in sellersToUpdate.Values)
                 {
                     await _userRepo.UpdateAsync(seller);

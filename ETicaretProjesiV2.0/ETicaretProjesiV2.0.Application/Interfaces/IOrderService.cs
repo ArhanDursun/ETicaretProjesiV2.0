@@ -8,7 +8,7 @@ namespace ETicaretProjesiV2._0.Application.Interfaces
 {
     public interface IOrderService
     {
-        Task CreateOrderAsync(Guid buyerId,CreateOrderRequestDto dto);
+        Task CreateOrderAsync(Guid buyerId, CreateOrderRequestDto dto, bool isCreditCardPayment = false);
         Task<Order> GetOrderDetailsAsync(Guid orderId);
         Task<IEnumerable<OrderListResponseDto>> GetUserOrdersAsync(Guid userId);
         Task CancelOrderAsync(Guid orderId);

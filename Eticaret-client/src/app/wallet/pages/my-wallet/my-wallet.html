@@ -1,37 +1,121 @@
-<div class="container mt-5 wallet-container">
+<div class="wallet-wrapper">
+    <div class="wallet-layout">
 
-    <div class="balance-card mb-5 p-4 text-center">
-        <h6>{{ 'WALLET.CURRENT_BALANCE' | translate }}</h6>
-        <h1>{{ currentBalance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h1>
-        <small>{{ 'WALLET.AVAILABLE_AMOUNT' | translate }}</small>
-    </div>
+        <!-- SOL TARAF: Bakiye ve İşlemler -->
+        <div class="wallet-left">
+            <div class="balance-card text-center">
+                <h6>{{ 'WALLET.CURRENT_BALANCE' | translate }}</h6>
+                <h1>{{ currentBalance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h1>
+                <small>{{ 'WALLET.AVAILABLE_AMOUNT' | translate }}</small>
+            </div>
 
-    <h5>{{ 'WALLET.LAST_TRANSACTIONS' | translate }}</h5>
+            <h5 class="section-title">{{ 'WALLET.LAST_TRANSACTIONS' | translate }}</h5>
 
-    <div *ngIf="isLoading" class="text-center py-5">
-        <span class="spinner-border spinner-border-sm me-2"></span> {{ 'WALLET.LOADING' | translate }}
-    </div>
+            <div *ngIf="isLoading" class="loading-state text-center">
+                <span class="loader-dark"></span> {{ 'WALLET.LOADING' | translate }}
+            </div>
 
-    <div *ngIf="!isLoading && transactions.length === 0" class="text-center py-5 text-muted">
-        {{ 'WALLET.EMPTY' | translate }}
-    </div>
+            <div *ngIf="!isLoading && transactions.length === 0" class="empty-state text-center">
+                {{ 'WALLET.EMPTY' | translate }}
+            </div>
 
-    <div class="transaction-list" *ngIf="!isLoading && transactions.length > 0">
-        <div class="transaction-item d-flex justify-content-between align-items-center py-3"
-            *ngFor="let tx of transactions">
-
-            <div class="tx-details">
-                <div class="tx-desc">{{ tx.description }}</div>
-                <div class="tx-date">
-                    {{ tx.createdDate | date:'dd.MM.yyyy HH:mm' }}
-                    <span class="badge tx-badge ms-2">{{ 'WALLET.TX_NO' | translate }} {{ tx.id }}</span>
+            <div class="transaction-list" *ngIf="!isLoading && transactions.length > 0">
+                <div class="transaction-item" *ngFor="let tx of transactions">
+                    <div class="tx-details">
+                        <div class="tx-desc">{{ tx.description }}</div>
+                        <div class="tx-date">
+                            {{ tx.createdDate | date:'dd.MM.yyyy HH:mm' }}
+                            <span class="badge tx-badge">{{ 'WALLET.TX_NO' | translate }} {{ tx.id }}</span>
+                        </div>
+                    </div>
+                    <div class="tx-amount" [ngClass]="{'positive': tx.amount > 0, 'negative': tx.amount <= 0}">
+                        {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | currency:('WALLET.CURRENCY_CODE' |
+                        translate):'symbol-narrow':'1.2-2' }}
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="tx-amount" [ngClass]="{'positive': tx.amount > 0, 'negative': tx.amount <= 0}">
-                {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | currency:('WALLET.CURRENCY_CODE' |
-                translate):'symbol-narrow':'1.2-2' }}
+        <!-- SAĞ TARAF: Bakiye Yükleme Formu -->
+        <div class="wallet-right">
+            <div class="topup-card">
+                <h5 class="card-title">Cüzdana Bakiye Yükle</h5>
+
+                <h6 class="form-section-title">Kişisel Bilgiler</h6>
+                <div class="form-row-2">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerName" placeholder="Ad">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerSurname" placeholder="Soyad">
+                </div>
+                <div class="form-row-1">
+                    <input type="email" class="custom-input" [(ngModel)]="paymentData.buyerEmail"
+                        placeholder="E-Posta Adresi">
+                </div>
+                <div class="form-row-2">
+                    <!-- Ülke Kodu Dropdown ve Telefon Numarası Yan Yana -->
+                    <div class="phone-input-group">
+                        <select class="custom-input country-select" [(ngModel)]="selectedCountryCode">
+                            <option value="+90">🇹🇷 +90</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+49">🇩🇪 +49</option>
+                        </select>
+                        <input type="text" class="custom-input phone-input" [(ngModel)]="phoneNumber"
+                            placeholder="555 123 45 67" maxlength="11">
+                    </div>
+
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerIdentityNumber"
+                        placeholder="TC Kimlik No">
+                </div>
+
+                <h6 class="form-section-title">Adres Bilgileri</h6>
+                <div class="form-row-2">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.city" placeholder="Şehir">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.country" placeholder="Ülke">
+                </div>
+                <div class="form-row-1">
+                    <textarea class="custom-input" rows="2" [(ngModel)]="paymentData.addressDescription"
+                        placeholder="Adres"></textarea>
+                </div>
+                <div class="form-row-1">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.zipCode" placeholder="Posta Kodu">
+                </div>
+
+                <h6 class="form-section-title">Kart Bilgileri</h6>
+                <div class="form-row-1">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.cardHolderName"
+                        placeholder="Kart Üzerindeki İsim">
+                </div>
+                <div class="form-row-1">
+                    <!-- input event'i ile metodu tetikliyoruz -->
+                    <input type="text" class="custom-input" [ngModel]="paymentData.cardNumber"
+                        (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19">
+                </div>
+                <div class="form-row-3">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.expireMonth" placeholder="Ay"
+                        maxlength="2">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.expireYear" placeholder="Yıl"
+                        maxlength="4">
+                    <input type="text" class="custom-input" [(ngModel)]="paymentData.cvc" placeholder="CVC"
+                        maxlength="3">
+                </div>
+
+                <h6 class="form-section-title">Yüklenecek Tutar (TL)</h6>
+                <div class="form-row-1">
+                    <input type="number" class="custom-input price-input" [(ngModel)]="paymentData.price"
+                        placeholder="0.00">
+                </div>
+
+                <button class="topup-btn" (click)="submitPayment()" [disabled]="isPaymentLoading">
+                    <span *ngIf="isPaymentLoading" class="loader-light"></span>
+                    {{ isPaymentLoading ? 'İşleniyor...' : 'Bakiye Yükle' }}
+                </button>
+
+                <!-- İşlem Sonucu Mesajı -->
+                <div class="alert-msg" [ngClass]="{'success': isSuccess, 'error': !isSuccess}" *ngIf="paymentMessage">
+                    {{ paymentMessage }}
+                </div>
             </div>
         </div>
+
     </div>
 </div>

@@ -85,41 +85,118 @@
     </div>
   </div>
 </div>
+<!-- ... SENİN TABLO VE SEPET KODLARIN AYNI KALACAK ... -->
 
 <div class="modal-overlay" *ngIf="showCheckOutModal" (click)="closeCheckOutModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3><i class="fa fa-wallet"></i> {{ 'BASKET.MODAL.TITLE' | translate }}</h3>
       <button class="close-btn" (click)="closeCheckOutModal()">✕</button>
     </div>
 
-    <div class="modal-body">
-      <div class="summary-row">
-        <span>{{ 'BASKET.MODAL.CURRENT_BALANCE' | translate }}</span>
-        <strong>{{ userBalance }} ₺</strong>
+    <div class="modal-body custom-scrollbar">
+
+      <!-- ÖDEME YÖNTEMİ SEÇİCİ -->
+      <div class="payment-method-selector">
+        <div class="method-card"
+          [ngClass]="{'active': paymentMethod === 'wallet', 'disabled': (userBalance - basket.totalBasketPrices) < 0}"
+          (click)="setPaymentMethod('wallet')">
+          <i class="fa fa-coins mb-2 fa-2x"></i>
+          <span>Cüzdan Bakiyesi</span>
+          <small class="text-danger mt-1" *ngIf="(userBalance - basket.totalBasketPrices) < 0">Bakiye Yetersiz</small>
+        </div>
+
+        <div class="method-card" [ngClass]="{'active': paymentMethod === 'card'}" (click)="setPaymentMethod('card')">
+          <i class="fa fa-credit-card mb-2 fa-2x"></i>
+          <span>Kredi Kartı</span>
+        </div>
       </div>
-      <div class="summary-row text-danger mt-2 pb-3 border-bottom">
-        <span>{{ 'BASKET.MODAL.AMOUNT_TO_PAY' | translate }}</span>
-        <strong>- {{ basket.totalBasketPrices }} ₺</strong>
+
+      <!-- 1. CÜZDAN ÖZETİ (Sadece Cüzdan Seçiliyse Görünür) -->
+      <div class="wallet-summary-box" *ngIf="paymentMethod === 'wallet'">
+        <div class="summary-row">
+          <span>{{ 'BASKET.MODAL.CURRENT_BALANCE' | translate }}</span>
+          <strong>{{ userBalance }} ₺</strong>
+        </div>
+        <div class="summary-row text-danger mt-2 pb-3 border-bottom">
+          <span>{{ 'BASKET.MODAL.AMOUNT_TO_PAY' | translate }}</span>
+          <strong>- {{ basket.totalBasketPrices }} ₺</strong>
+        </div>
+        <div class="summary-row mt-3 total-row">
+          <span>{{ 'BASKET.MODAL.REMAINING_BALANCE' | translate }}</span>
+          <strong class="text-success">{{ userBalance - basket.totalBasketPrices }} ₺</strong>
+        </div>
       </div>
-      <div class="summary-row mt-3 total-row">
-        <span>{{ 'BASKET.MODAL.REMAINING_BALANCE' | translate }}</span>
-        <strong
-          [ngClass]="{'text-danger': (userBalance - basket.totalBasketPrices) < 0, 'text-success': (userBalance - basket.totalBasketPrices) >= 0}">
-          {{ userBalance - basket.totalBasketPrices }} ₺
-        </strong>
+
+      <!-- 2. KREDİ KARTI FORMU (Sadece Kart Seçiliyse Görünür) -->
+      <!-- 2. KREDİ KARTI FORMU (Sadece Kart Seçiliyse Görünür) -->
+      <div class="card-form-box" *ngIf="paymentMethod === 'card'">
+        <h6 class="form-title">Teslimat & Kişisel Bilgiler</h6>
+
+        <div class="form-row-2">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerName" placeholder="Ad">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerSurname" placeholder="Soyad">
+        </div>
+
+        <!-- YENİ EKLENEN E-POSTA ALANI -->
+        <div class="form-row-1">
+          <input type="email" class="custom-input" [(ngModel)]="paymentData.buyerEmail" placeholder="E-Posta Adresi">
+        </div>
+
+        <div class="form-row-2">
+          <div class="phone-input-group">
+            <select class="custom-input country-select" [(ngModel)]="selectedCountryCode">
+              <option value="+90">🇹🇷 +90</option>
+              <option value="+1">🇺🇸 +1</option>
+            </select>
+            <input type="text" class="custom-input phone-input" [(ngModel)]="phoneNumber" placeholder="555 123 45 67"
+              maxlength="11">
+          </div>
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerIdentityNumber"
+            placeholder="TC Kimlik No">
+        </div>
+
+        <div class="form-row-2">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.city" placeholder="Şehir (Örn: Ankara)">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.country" placeholder="Ülke (Örn: Turkey)">
+        </div>
+
+        <div class="form-row-2">
+          <textarea class="custom-input" rows="1" [(ngModel)]="paymentData.addressDescription"
+            placeholder="Açık Adres"></textarea>
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.zipCode" placeholder="Posta Kodu">
+        </div>
+
+        <h6 class="form-title mt-3">Kart Bilgileri</h6>
+        <div class="form-row-1 mb-2">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.cardHolderName"
+            placeholder="Kart Üzerindeki İsim">
+        </div>
+        <div class="form-row-1 mb-2">
+          <input type="text" class="custom-input" [ngModel]="paymentData.cardNumber"
+            (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19">
+        </div>
+        <div class="form-row-3">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.expireMonth" placeholder="Ay" maxlength="2">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.expireYear" placeholder="Yıl" maxlength="4">
+          <input type="text" class="custom-input" [(ngModel)]="paymentData.cvc" placeholder="CVC" maxlength="3">
+        </div>
       </div>
-      <div class="alert alert-danger mt-3" *ngIf="(userBalance - basket.totalBasketPrices) < 0">
-        <i class="fa fa-exclamation-triangle"></i> {{ 'BASKET.MODAL.INSUFFICIENT_BALANCE' | translate }}
-      </div>
+
     </div>
 
     <div class="modal-footer mt-4">
-      <button class="btn btn-secondary" (click)="closeCheckOutModal()">{{ 'BASKET.MODAL.CANCEL' | translate }}</button>
-      <button class="btn btn-success" [disabled]="(userBalance - basket.totalBasketPrices) < 0 || isSubmitting"
+      <div class="total-price-indicator" *ngIf="paymentMethod === 'card'">
+        <small>Ödenecek Tutar</small>
+        <strong>{{ basket.totalBasketPrices }} ₺</strong>
+      </div>
+
+      <button class="btn btn-secondary" (click)="closeCheckOutModal()">İptal</button>
+      <button class="btn btn-success"
+        [disabled]="(paymentMethod === 'wallet' && (userBalance - basket.totalBasketPrices) < 0) || isSubmitting"
         (click)="confirmCheckOut()">
         <i class="fa" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-        {{ (isSubmitting ? 'BASKET.MODAL.PROCESSING' : 'BASKET.MODAL.CONFIRM') | translate }}
+        {{ isSubmitting ? 'İşleniyor...' : 'Siparişi Onayla' }}
       </button>
     </div>
   </div>

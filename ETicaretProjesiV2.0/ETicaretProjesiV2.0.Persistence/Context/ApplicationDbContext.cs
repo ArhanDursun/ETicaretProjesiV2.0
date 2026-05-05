@@ -30,6 +30,7 @@ namespace ETicaretProjesiV2._0.Persistence.Context
         public DbSet<TicketMessage> TicketMessages { get; set; }
         public DbSet<DirectMessage> DirectMessages { get; set; }
         public DbSet<UserFavorite> UserFavorites { get; set; }
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

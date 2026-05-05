@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using ETicaretProjesiV2._0.API.Controllers;
 using ETicaretProjesiV2._0.Application.Consumers;
 using ETicaretProjesiV2._0.Application.Interfaces;
@@ -73,6 +74,8 @@ builder.Services.AddScoped<ISupportService, SupportServices>();
 builder.Services.AddScoped<IDirectMessageService, DirectMessageService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<ISignalService,SignalRService>();
+builder.Services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentManager>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
