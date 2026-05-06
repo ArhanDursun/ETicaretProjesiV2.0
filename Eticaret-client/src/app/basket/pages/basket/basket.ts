@@ -106,6 +106,22 @@ export class Basket implements OnInit {
     this.authService.getUserProfile().subscribe({
       next: (res: any) => {
         this.userBalance = res.balance || 0;
+
+        this.paymentData.buyerEmail = res.email || '';
+        this.paymentData.buyerName = res.name || '';
+        this.paymentData.buyerSurname = res.surname || '';
+
+        if (res.phoneNumber) {
+          if (res.phoneNumber.startsWith('+90')) {
+            this.selectedCountryCode = '+90';
+            this.phoneNumber = res.phoneNumber.replace('+90', '').trim();
+          } else if (res.phoneNumber.startsWith('+1')) {
+            this.selectedCountryCode = '+1';
+            this.phoneNumber = res.phoneNumber.replace('+1', '').trim();
+          } else {
+            this.phoneNumber = res.phoneNumber;
+          }
+        }
         this.cdr.detectChanges();
       },
       error: (err) => {

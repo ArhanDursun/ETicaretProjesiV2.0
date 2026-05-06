@@ -149,6 +149,9 @@ namespace ETicaretProjesiV2._0.API.Controllers
                 id = user.Id,
                 email = user.Email,
                 balance = user.Balance,
+                name = user.FirstName,
+                surname = user.LastName,
+                phoneNumber = user.PhoneNumber,
             });
         }
 

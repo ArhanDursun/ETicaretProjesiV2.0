@@ -59,8 +59,8 @@
                             <option value="+44">🇬🇧 +44</option>
                             <option value="+49">🇩🇪 +49</option>
                         </select>
-                        <input type="text" class="custom-input phone-input" [(ngModel)]="phoneNumber"
-                            placeholder="555 123 45 67" maxlength="11">
+                        <input type="text" class="custom-input phone-input" [ngModel]="phoneNumber"
+                            (ngModelChange)="formatPhone($event)" placeholder="555 123 45 67">
                     </div>
 
                     <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerIdentityNumber"

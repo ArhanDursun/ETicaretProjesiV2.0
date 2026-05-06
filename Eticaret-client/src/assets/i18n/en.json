@@ -308,7 +308,8 @@
     "BIO_PLACEHOLDER": "Tell your customers about yourself or your store...",
     "CANCEL": "Cancel",
     "SAVE": "Save",
-    "SAVING": "Saving..."
+    "SAVING": "Saving...",
+    "PHONE":"Phone Number"
   },
   "MODAL_PASS": {
     "TITLE": "Security / Change Password",
@@ -336,7 +337,8 @@
     "CONTINUE_BTN": "Continue",
     "SENDING_CODE": "Sending Code (Please wait)...",
     "HAVE_ACCOUNT": "Already have an account?",
-    "LOGIN": "Login"
+    "LOGIN": "Login",
+    "PHONE":"Phone Number"
   },
   "STEP2": {
     "TITLE": "Check Your Email",

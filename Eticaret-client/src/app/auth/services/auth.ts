@@ -74,7 +74,6 @@ export class Auth {
       sessionStorage.removeItem('token');
     }
 
-    // 3. Durumları güncelle ve Hub'ı durdur
     this.loggedIn.next(false);
     this.signalRService.stopTrafficConnection();
   }

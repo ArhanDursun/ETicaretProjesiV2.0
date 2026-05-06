@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PaymentService } from '../../../core/services/payment.service';
 import { PaymentRequest } from '../../../core/models/payment.model';
+import { Auth } from '../../../auth/services/auth';
 @Component({
   selector: 'app-my-wallet',
   imports: [CommonModule, FormsModule, TranslateModule],
@@ -44,10 +45,12 @@ export class MyWallet implements OnInit {
     private walletService: Walletservice,
     private paymentService: PaymentService,
     private cdr: ChangeDetectorRef,
+    private authService: Auth,
   ) {}
 
   ngOnInit(): void {
     this.loadWalletData();
+    this.loadUserProfile();
   }
 
   formatCardNumber(value: string) {
@@ -86,6 +89,35 @@ export class MyWallet implements OnInit {
     });
   }
 
+  loadUserProfile() {
+    this.authService.getMyProfile().subscribe({
+      next: (res) => {
+        this.paymentData.buyerName = res.firstName || res.name || '';
+        this.paymentData.buyerSurname = res.lastName || res.surname || '';
+        this.paymentData.buyerEmail = res.email;
+        if (res.phoneNumber) {
+          if (res.phoneNumber.startsWith('+90')) {
+            this.selectedCountryCode = '+90';
+            this.phoneNumber = res.phoneNumber.replace('+90', '').trim();
+          } else if (res.phoneNumber.startsWith('+1')) {
+            this.selectedCountryCode = '+1';
+            this.phoneNumber = res.phoneNumber.replace('+90', '').trim();
+          } else if (res.phoneNumber.startsWith('+44')) {
+            this.selectedCountryCode = '+44';
+            this.phoneNumber = res.phoneNumber.replace('+44', '').trim();
+          } else if (res.phoneNumber.startsWith('+49')) {
+            this.selectedCountryCode = '+49';
+            this.phoneNumber = res.phoneNumber.replace('+49', '').trim();
+          } else {
+            this.phoneNumber = res.phoneNumber;
+          }
+        }
+        this.cdr.detectChanges;
+      },
+      error: (err) => console.error('Profil bilgileri çekilemedi', err),
+    });
+  }
+
   submitPayment() {
     this.isPaymentLoading = true;
     this.paymentMessage = '';
@@ -110,5 +142,19 @@ export class MyWallet implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  formatPhone(value: string) {
+    if (!value) return;
+    let digits = value.replace(/\D/g, '');
+    if (digits.length > 10) digits = digits.substring(0, 10); // Sadece numarayı alıyoruz, +90 dropdown'da
+
+    let formatted = '';
+    if (digits.length > 0) formatted += digits.substring(0, 3);
+    if (digits.length > 3) formatted += ' ' + digits.substring(3, 6);
+    if (digits.length > 6) formatted += ' ' + digits.substring(6, 8);
+    if (digits.length > 8) formatted += ' ' + digits.substring(8, 10);
+
+    this.phoneNumber = formatted;
   }
 }

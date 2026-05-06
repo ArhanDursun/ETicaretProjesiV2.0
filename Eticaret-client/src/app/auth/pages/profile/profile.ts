@@ -24,6 +24,7 @@ export class Profile implements OnInit {
     balance: 0,
     profileImageUrl: '',
     description: '',
+    phoneNumber: '',
   };
 
   passwordData = {
@@ -200,5 +201,32 @@ export class Profile implements OnInit {
     } catch (error) {
       return null;
     }
+  }
+  formatPhone(value: string) {
+    if (!value) {
+      this.profileData.phoneNumber = '+90 ';
+      return;
+    }
+
+    let digits = value.replace(/\D/g, '');
+
+    if (digits.startsWith('0')) {
+      digits = digits.substring(1);
+    }
+
+    if (!digits.startsWith('90')) {
+      digits = '90' + digits;
+    }
+
+    if (digits.length > 12) {
+      digits = digits.substring(0, 12);
+    }
+
+    let formatted = '+90';
+    if (digits.length > 2) formatted += ' ' + digits.substring(2, 5);
+    if (digits.length > 5) formatted += ' ' + digits.substring(5, 8);
+    if (digits.length > 8) formatted += ' ' + digits.substring(8, 10);
+    if (digits.length > 10) formatted += ' ' + digits.substring(10, 12);
+    this.profileData.phoneNumber = formatted;
   }
 }

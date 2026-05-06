@@ -153,7 +153,8 @@ namespace ETicaretProjesiV2._0.Application.Services
                 LastName = dto.LastName,
                 EmailConfirmed = false,
                 EmailConfirmationCode = new Random().Next(100000, 999999).ToString(),
-                EmailConfirmationCodeExpire = DateTime.UtcNow.AddMinutes(15)
+                EmailConfirmationCodeExpire = DateTime.UtcNow.AddMinutes(15),
+                PhoneNumber = dto.PhoneNumber,
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -209,7 +210,7 @@ namespace ETicaretProjesiV2._0.Application.Services
             user.NormalizedUserName = dto.UserName.ToUpper();
             user.ProfileImageUrl = dto.ProfileImageUrl;
             user.Description = dto.Description;
-
+            user.PhoneNumber = dto.PhoneNumber;
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded) throw new Exception("Güncelleme hatası: " + result.Errors.FirstOrDefault()?.Description);
         }
@@ -277,6 +278,7 @@ namespace ETicaretProjesiV2._0.Application.Services
                 Balance = user.Balance,
                 ProfileImageUrl = user.ProfileImageUrl,
                 Description = user.Description,
+                PhoneNumber = user.PhoneNumber,
             };
         }
 

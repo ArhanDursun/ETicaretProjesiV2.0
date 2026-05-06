@@ -32,6 +32,7 @@ export class Register implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+      phoneNumber: ['', [Validators.required]],
     });
 
     this.verifyForm = this.fb.group({
@@ -79,5 +80,31 @@ export class Register implements OnInit {
         },
       });
     }
+  }
+
+  onPhoneInput(event: any) {
+    let value = event.target.value;
+    if (!value) {
+      this.registerForm.get('phoneNumber')?.setValue('+90', { emailEvent: false });
+      return;
+    }
+    let digits = value.replace(/\D/g, '');
+
+    if (digits.startsWith('0')) {
+      digits = digits.substring(1);
+    }
+    if (!digits.startsWith('90')) {
+      digits = '90' + digits;
+    }
+
+    if (digits.length > 12) {
+      digits = digits.substring(0, 12);
+    }
+    let formatted = '+90';
+    if (digits.length > 2) formatted += ' ' + digits.substring(2, 5);
+    if (digits.length > 5) formatted += ' ' + digits.substring(5, 8);
+    if (digits.length > 8) formatted += ' ' + digits.substring(8, 10);
+    if (digits.length > 10) formatted += ' ' + digits.substring(10, 12);
+    this.registerForm.get('phoneNumber')?.setValue(formatted, { emitEvent: false });
   }
 }

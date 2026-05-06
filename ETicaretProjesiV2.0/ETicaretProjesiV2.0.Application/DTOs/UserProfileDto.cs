@@ -13,5 +13,6 @@ namespace ETicaretProjesiV2._0.Application.DTOs
         public decimal Balance { get; set; }
         public string? ProfileImageUrl { get; set; }
         public string Description { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }

@@ -307,7 +307,8 @@
     "BIO_PLACEHOLDER": "Müşterilerinize kendinizden veya mağazanızdan bahsedin...",
     "CANCEL": "Vazgeç",
     "SAVE": "Kaydet",
-    "SAVING": "Kaydediliyor..."
+    "SAVING": "Kaydediliyor...",
+    "PHONE":"Telefon numarası"
   },
   "MODAL_PASS": {
     "TITLE": "Güvenlik / Şifre Değiştir",
@@ -335,7 +336,8 @@
     "CONTINUE_BTN": "Devam Et",
     "SENDING_CODE": "Kod Gönderiliyor (Bekleyin)...",
     "HAVE_ACCOUNT": "Zaten bir hesabınız var mı?",
-    "LOGIN": "Giriş Yap"
+    "LOGIN": "Giriş Yap",
+    "PHONE":"Telefon numarası"
   },
   "STEP2": {
     "TITLE": "Mailinizi Kontrol Edin",

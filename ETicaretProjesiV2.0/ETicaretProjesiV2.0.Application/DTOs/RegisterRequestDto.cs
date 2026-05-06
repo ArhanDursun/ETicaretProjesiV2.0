@@ -14,6 +14,7 @@ namespace ETicaretProjesiV2._0.Application.DTOs
         public string ConfirmPassword { get; set; } = string.Empty;
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        
+        public string PhoneNumber { get; set; }
+
     }
 }

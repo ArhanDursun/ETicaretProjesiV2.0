@@ -29,6 +29,12 @@
         <input type="email" id="email" formControlName="email">
       </div>
 
+      <div class="auth-form__group">
+        <label for="phoneNumber">{{'REGISTER.STEP1.PHONE' | translate}}</label>
+        <input type="text" id="phoneNumber" formControlName="phoneNumber" (input)="onPhoneInput($event)"
+          placeholder="+90 555 123 45 67">
+      </div>
+
       <div style="display: flex; gap: 1rem;">
         <div class="auth-form__group" style="flex: 1;">
           <label for="password">{{ 'REGISTER.STEP1.PASSWORD' | translate }}</label>

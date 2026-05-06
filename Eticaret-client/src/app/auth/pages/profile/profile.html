@@ -118,6 +118,11 @@
                 <input type="text" [(ngModel)]="profileData.lastName">
             </div>
         </div>
+        <div class="input-group">
+            <label>{{ 'PROFILE.MODAL_PROFILE.PHONE' | translate }}</label>
+            <input type="text" [ngModel]="profileData.phoneNumber" (ngModelChange)="formatPhone($event)"
+                placeholder="+90 555 123 45 67">
+        </div>
 
         <div class="input-group">
             <label>{{ 'PROFILE.MODAL_PROFILE.BIO_LABEL' | translate }}</label>
