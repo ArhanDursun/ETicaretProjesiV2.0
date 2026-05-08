@@ -53,12 +53,14 @@ export class Offer implements OnInit {
     this.selectedOfferIdForCounter = offerId;
     this.counterPriceInput = null;
     this.showCounterModal = true;
+    this.cdr.detectChanges();
   }
 
   closeCounterModal() {
     this.showCounterModal = false;
     this.counterPriceInput = null;
     this.selectedOfferIdForCounter = null;
+    this.cdr.detectChanges();
   }
 
   submitCounterOffer() {

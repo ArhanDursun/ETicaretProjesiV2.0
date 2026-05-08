@@ -1,58 +1,70 @@
 <div class="product-add-container">
-  <div class="form-card">
-    <div class="form-header">
-      <h2>{{ 'PRODUCT_ADD.TITLE' | translate }}</h2>
-      <p>{{ 'PRODUCT_ADD.SUBTITLE' | translate }}</p>
+    <div class="add-card">
+        <div class="add-card__header">
+            <h1>{{ 'PRODUCT_ADD.TITLE' | translate }}</h1>
+            <p>{{ 'PRODUCT_ADD.SUBTITLE' | translate }}</p>
+        </div>
+
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="add-card__form">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_ADD.NAME_LABEL' | translate }}</label>
+                    <input type="text" formControlName="name" [placeholder]="'PRODUCT_ADD.NAME_PLACEHOLDER' | translate">
+                </div>
+
+                <div class="form-group">
+                    <label>{{ 'PRODUCT_ADD.CATEGORY_LABEL' | translate }}</label>
+                    <select formControlName="categoryId">
+                        <option value="" disabled selected>{{ 'PRODUCT_ADD.CATEGORY_SELECT' | translate }}</option>
+                        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>{{ 'PRODUCT_ADD.STOCK_LABEL' | translate }}</label>
+                    <input type="number" formControlName="stockQuantity" placeholder="0">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_ADD.PRICE_LABEL' | translate }}</label>
+                    <div class="price-input-wrapper">
+                        <input type="number" formControlName="price" placeholder="0.00">
+                        <span class="currency-tag">₺</span>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_ADD.DESC_LABEL' | translate }}</label>
+                    <textarea formControlName="description" rows="5"
+                        [placeholder]="'PRODUCT_ADD.DESC_PLACEHOLDER' | translate"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_ADD.IMAGE_LABEL' | translate }}</label>
+                    <div class="image-upload-zone" [class.has-files]="selectedFiles.length > 0">
+                        <input type="file" id="fileInput" multiple (change)="onFileSelected($event)" accept="image/*"
+                            hidden #fileInput>
+                        <div class="upload-placeholder" (click)="fileInput.click()">
+                            <i class="bi bi-cloud-arrow-up" *ngIf="selectedFiles.length === 0"></i>
+                            <i class="bi bi-check2-all text-success" *ngIf="selectedFiles.length > 0"></i>
+                            <p *ngIf="selectedFiles.length === 0">{{ 'PRODUCT_ADD.IMAGE_REQUIRED' | translate }}</p>
+                            <p *ngIf="selectedFiles.length > 0"><strong>{{ selectedFiles.length }}</strong> {{
+                                'COMMON.ITEMS' | translate }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn--secondary" routerLink="/home" [disabled]="isLoading">
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button type="submit" class="btn btn--primary" [disabled]="productForm.invalid || isLoading">
+                    <i class="bi bi-rocket-takeoff" *ngIf="!isLoading"></i>
+                    <i class="bi bi-arrow-repeat spin" *ngIf="isLoading"></i>
+                    {{ (isLoading ? 'PRODUCT_ADD.LOADING' : 'PRODUCT_ADD.SUBMIT_BTN') | translate }}
+                </button>
+            </div>
+        </form>
     </div>
-
-    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-
-      <div class="form-group">
-        <label>{{ 'PRODUCT_ADD.NAME_LABEL' | translate }}</label>
-        <input type="text" formControlName="name" [placeholder]="'PRODUCT_ADD.NAME_PLACEHOLDER' | translate"
-          class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>{{ 'PRODUCT_ADD.CATEGORY_LABEL' | translate }}</label>
-        <select formControlName="categoryId" class="form-control">
-          <option value="" disabled selected>{{ 'PRODUCT_ADD.CATEGORY_SELECT' | translate }}</option>
-          <option *ngFor="let cat of categories" [value]="cat.id">
-            {{ cat.name }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group half-width">
-          <label>{{ 'PRODUCT_ADD.PRICE_LABEL' | translate }}</label>
-          <input type="number" formControlName="price" placeholder="0.00" class="form-control">
-        </div>
-
-        <div class="form-group half-width">
-          <label>{{ 'PRODUCT_ADD.STOCK_LABEL' | translate }}</label>
-          <input type="number" formControlName="stockQuantity" placeholder="1" class="form-control">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>{{ 'PRODUCT_ADD.DESC_LABEL' | translate }}</label>
-        <textarea formControlName="description" rows="4" class="form-control"
-          [placeholder]="'PRODUCT_ADD.DESC_PLACEHOLDER' | translate"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>{{ 'PRODUCT_ADD.IMAGE_LABEL' | translate }}</label>
-        <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="form-control">
-        <small class="text-danger" *ngIf="!selectedFiles && productForm.touched">
-          {{ 'PRODUCT_ADD.IMAGE_REQUIRED' | translate }}
-        </small>
-      </div>
-
-      <button type="submit" class="btn-primary full-width" [disabled]="productForm.invalid || isLoading">
-        {{ (isLoading ? 'PRODUCT_ADD.LOADING' : 'PRODUCT_ADD.SUBMIT_BTN') | translate }}
-      </button>
-
-    </form>
-  </div>
 </div>

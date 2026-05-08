@@ -13,6 +13,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [AdminLayout, Dashboard, AdminCategory, UserList, UserDetail],
-  imports: [CommonModule, AdminRoutingModule, FormsModule, Products, TranslateModule],
+  imports: [CommonModule, AdminRoutingModule, FormsModule, Products, TranslateModule.forChild()],
 })
 export class AdminModule {}

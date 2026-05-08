@@ -1,129 +1,89 @@
-<div class="user-list-page">
-    <div class="page-header">
-        <div class="page-header__titles">
-            <h1>{{ 'ADMIN_PROD.TITLE' | translate }}</h1>
+<div class="admin-panel-container">
+    <div class="panel-header">
+        <div class="header-titles">
+            <h2>{{ 'ADMIN_PROD.TITLE' | translate }}</h2>
             <p>{{ 'ADMIN_PROD.SUBTITLE' | translate }}</p>
         </div>
     </div>
-
-    <div class="card-container">
+    
+    <div class="table-container">
         <div class="product-grid">
-
-            <div *ngIf="isLoading"
-                style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6c757d; font-size: 1.1rem;">
+            <div *ngIf="isLoading" class="empty-state">
                 {{ 'ADMIN_PROD.LOADING' | translate }}
             </div>
-
-            <div *ngIf="!isLoading && filteredProducts.length === 0"
-                style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #dc3545; font-weight: bold;">
+            
+            <div *ngIf="!isLoading && filteredProducts.length === 0" class="empty-state text-danger">
                 {{ 'ADMIN_PROD.NOT_FOUND' | translate }}
             </div>
-
+            
             <div class="product-card" *ngFor="let product of filteredProducts">
-
-                <div class="product-card__image"
-                    style="position: relative; width: 100%; height: 200px; overflow: hidden; border-radius: 8px 8px 0 0;">
-
-                    <swiper-container *ngIf="product.images && product.images.length > 0" navigation="true"
-                        pagination="true" loop="true" style="width: 100%; height: 100%; 
-               --swiper-navigation-size: 20px; 
-               --swiper-navigation-color: blue; 
-               --swiper-pagination-color: blue; 
-               --swiper-pagination-bullet-inactive-color: rgba(255,255,255,0.5);">
-
+                <div class="product-card__image">
+                    <swiper-container *ngIf="product.images && product.images.length > 0" navigation="true" pagination="true" loop="true">
                         <swiper-slide *ngFor="let img of product.images">
-                            <img [src]="img.includes('http') ? img : 'https://localhost:7185' + img"
-                                [alt]="product.name" style="width: 100%; height: 100%; object-fit: fill;">
+                            <img [src]="img.includes('http') ? img : 'https://localhost:7185' + img" [alt]="product.name">
                         </swiper-slide>
-
                     </swiper-container>
-
-                    <img *ngIf="!product.images || product.images.length === 0" src="assets/default-product.png"
-                        [alt]="product.name" style="width: 100%; height: 100%; object-fit: cover;">
-
-                    <span class="status-badge" [ngClass]="{'active': product.status === 'Aktif'}"
-                        style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                    <img *ngIf="!product.images || product.images.length === 0" src="assets/default-product.png" [alt]="product.name">
+                    <span class="badge" [ngClass]="product.status === 'Aktif' ? 'badge--success' : 'badge--neutral'">
                         {{ 'ADMIN_PROD.STATUS' | translate}}
                     </span>
                 </div>
-
+                
                 <div class="product-card__content">
                     <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
-                    <p class="seller-name">🏪 {{ product.sellerName }}</p>
-
-                    <div class="product-details"
-                        style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
-
+                    <p class="seller-name"><i class="bi bi-shop"></i> {{ product.sellerName }}</p>
+                    
+                    <div class="product-details">
                         <div class="price-area">
-                            <ng-container
-                                *ngIf="product.discountPercentage && product.discountPercentage > 0; else noDiscount">
-                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                    <span
-                                        style="background-color: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">
-                                        %{{ product.discountPercentage }} İndirim
-                                    </span>
-                                    <del style="color: #94a3b8; font-size: 0.85rem;">
-                                        {{ product.price | currency:('WALLET.CURRENCY_CODE' |
-                                        translate):'symbol-narrow':'1.0-0' }}
-                                    </del>
+                            <ng-container *ngIf="product.discountPercentage && product.discountPercentage > 0; else noDiscount">
+                                <div class="discount-info">
+                                    <span class="badge badge--danger">%{{ product.discountPercentage }} İndirim</span>
+                                    <del class="old-price">{{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</del>
                                 </div>
-                                <span class="price" style="color: #ef4444; font-weight: bold; font-size: 1.2rem; display: flex; 
-                                align-items: center;">
-                                    {{ product.discountedPrice | currency:('WALLET.CURRENCY_CODE' |
-                                    translate):'symbol-narrow':'1.0-0' }}
+                                <span class="price offer-price">
+                                    {{ product.discountedPrice | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
                                 </span>
                             </ng-container>
-
                             <ng-template #noDiscount>
-                                <span class="price" style="font-weight: bold; font-size: 1.2rem; color: #2c3e50;">
-                                    {{ product.price | currency:('WALLET.CURRENCY_CODE' |
-                                    translate):'symbol-narrow':'1.0-0' }}
+                                <span class="price">
+                                    {{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
                                 </span>
                             </ng-template>
                         </div>
-
-                        <span class="stock" style="font-size: 0.9rem; color: #6c757d;">
-                            <i class="fa fa-box"></i> {{ 'ADMIN_PROD.STOCK' | translate }} <strong
-                                style="color: #10b981;">{{ product.stock }}</strong>
+                        <span class="stock">
+                            <i class="bi bi-box-seam"></i> {{ 'ADMIN_PROD.STOCK' | translate }} <strong>{{ product.stock }}</strong>
                         </span>
                     </div>
                 </div>
-
+                
                 <div class="product-card__actions">
-                    <button class="action-btn action-btn--delete" (click)="openDeleteModal(product)">
-                        {{ 'ADMIN_PROD.REMOVE_BTN' | translate }}
+                    <button class="btn btn--danger" style="width: 100%;" (click)="openDeleteModal(product)">
+                        <i class="bi bi-trash3"></i> {{ 'ADMIN_PROD.REMOVE_BTN' | translate }}
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-<div class="custom-modal-overlay" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
-    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
-        <div class="custom-modal__header">
-            <h2 style="color: #dc3545;">{{ 'ADMIN_PROD.MODAL.TITLE' | translate }}</h2>
-            <button class="close-btn" (click)="closeDeleteModal()">&times;</button>
-        </div>
-        <div class="custom-modal__body">
+<div class="modal-overlay" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h3 class="text-danger"><i class="bi bi-exclamation-triangle"></i> {{ 'ADMIN_PROD.MODAL.TITLE' | translate }}</h3>
+        
+        <div class="modal-body">
             <p [innerHTML]="'ADMIN_PROD.MODAL.DESC' | translate:{name: selectedProduct?.name}"></p>
-            <p style="font-size: 0.9rem; color: #6c757d; margin-bottom: 10px;">
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 12px;">
                 {{ 'ADMIN_PROD.MODAL.INFO' | translate }}
             </p>
-
-            <textarea class="reason-textarea" [(ngModel)]="deleteReason"
-                [placeholder]="'ADMIN_PROD.MODAL.PLACEHOLDER' | translate" rows="4">
-      </textarea>
+            
+            <div class="input-group">
+                <textarea class="form-input" [(ngModel)]="deleteReason" [placeholder]="'ADMIN_PROD.MODAL.PLACEHOLDER' | translate" rows="4" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem; outline: none; resize: vertical;"></textarea>
+            </div>
         </div>
-        <div class="custom-modal__footer"
-            style="padding: 1.5rem; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee;">
-            <button
-                style="padding: 0.5rem 1rem; border: none; background: #e9ecef; border-radius: 6px; cursor: pointer;"
-                (click)="closeDeleteModal()">{{ 'ADMIN_PROD.MODAL.CANCEL' | translate }}</button>
-            <button
-                style="padding: 0.5rem 1rem; border: none; background: #dc3545; color: white; border-radius: 6px; cursor: pointer; font-weight: bold;"
-                (click)="confirmDelete()">{{ 'ADMIN_PROD.MODAL.CONFIRM' | translate }}</button>
+        
+        <div class="modal-btns">
+            <button class="btn btn--secondary" (click)="closeDeleteModal()">{{ 'ADMIN_PROD.MODAL.CANCEL' | translate }}</button>
+            <button class="btn btn--danger" (click)="confirmDelete()">{{ 'ADMIN_PROD.MODAL.CONFIRM' | translate }}</button>
         </div>
     </div>
 </div>

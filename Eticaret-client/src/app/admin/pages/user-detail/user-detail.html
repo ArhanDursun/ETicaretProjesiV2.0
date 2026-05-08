@@ -1,68 +1,72 @@
-<div class="user-list-page">
-    <div class="page-header" style="display: flex; align-items: center; gap: 15px;">
-        <a routerLink="/admin/users"
-            style="padding: 8px 15px; background: #e9ecef; border-radius: 6px; color: #333; text-decoration: none; font-weight: bold;">
-            &larr; {{ 'ADMIN_USER_DETAIL.BACK' | translate }}
+<div class="user-detail-page">
+    <div class="page-header">
+        <a routerLink="/admin/users" class="btn btn--secondary">
+            <i class="bi bi-arrow-left"></i> {{ 'ADMIN_USER_DETAIL.BACK' | translate }}
         </a>
         <div class="page-header__titles">
             <h1>{{ 'ADMIN_USER_DETAIL.TITLE' | translate }}</h1>
             <p>{{ 'ADMIN_USER_DETAIL.SUBTITLE' | translate }}</p>
         </div>
     </div>
-
-    <div *ngIf="isLoading" style="text-align: center; padding: 50px;">
+    
+    <div *ngIf="isLoading" class="loading-state">
         {{ 'ADMIN_USER_DETAIL.LOADING' | translate }}
     </div>
-
-    <div *ngIf="!isLoading && userInfo" style="display: flex; gap: 20px; flex-wrap: wrap;">
-
-        <div class="card-container" style="flex: 1; min-width: 300px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <div
-                    style="width: 80px; height: 80px; background: #ff9800; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold;">
+    
+    <div *ngIf="!isLoading && userInfo" class="user-detail-layout">
+        <!-- Sol: Kullanıcı Profili Kartı -->
+        <div class="card profile-card">
+            <div class="profile-header">
+                <div class="avatar">
                     {{ userInfo.firstName.charAt(0) }}{{ userInfo.lastName.charAt(0) }}
                 </div>
-                <h2 style="margin: 10px 0 5px 0;">{{ userInfo.firstName }} {{ userInfo.lastName }}</h2>
+                <h2>{{ userInfo.firstName }} {{ userInfo.lastName }}</h2>
                 <span class="badge badge--info">{{ userInfo.role }}</span>
             </div>
-
-            <ul style="list-style: none; padding: 0; line-height: 2;">
-                <li><strong>{{ 'ADMIN_USER_DETAIL.INFO_CARDS.EMAIL' | translate }}</strong> {{ userInfo.email }}</li>
-                <li><strong>{{ 'ADMIN_USER_DETAIL.INFO_CARDS.BALANCE' | translate }}</strong> {{ userInfo.balance |
-                    currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</li>
-                <li><strong>{{ 'ADMIN_USER_DETAIL.INFO_CARDS.JOIN_DATE' | translate }}</strong> {{ userInfo.joinDate |
-                    date:'dd.MM.yyyy' }}</li>
+            
+            <ul class="info-list">
+                <li>
+                    <span class="label">{{ 'ADMIN_USER_DETAIL.INFO_CARDS.EMAIL' | translate }}</span>
+                    <span class="value">{{ userInfo.email }}</span>
+                </li>
+                <li>
+                    <span class="label">{{ 'ADMIN_USER_DETAIL.INFO_CARDS.BALANCE' | translate }}</span>
+                    <span class="value">{{ userInfo.balance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</span>
+                </li>
+                <li>
+                    <span class="label">{{ 'ADMIN_USER_DETAIL.INFO_CARDS.JOIN_DATE' | translate }}</span>
+                    <span class="value">{{ userInfo.joinDate | date:'dd.MM.yyyy' }}</span>
+                </li>
             </ul>
         </div>
-
-        <div class="card-container" style="flex: 2; min-width: 500px;">
-            <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{
-                'ADMIN_USER_DETAIL.INFO_CARDS.STORE_PRODUCTS' | translate }}</h3>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>{{ 'ADMIN_USER_DETAIL.TABLE.NAME' | translate }}</th>
-                        <th>{{ 'ADMIN_USER_DETAIL.TABLE.PRICE' | translate }}</th>
-                        <th>{{ 'ADMIN_USER_DETAIL.TABLE.STOCK' | translate }}</th>
-                        <th>{{ 'ADMIN_USER_DETAIL.TABLE.STATUS' | translate }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngIf="userProducts.length === 0">
-                        <td colspan="4" style="text-align: center; padding: 20px;">{{ 'ADMIN_USER_DETAIL.TABLE.EMPTY' |
-                            translate }}</td>
-                    </tr>
-                    <tr *ngFor="let product of userProducts">
-                        <td><strong>{{ product.name }}</strong></td>
-                        <td>{{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
-                        </td>
-                        <td>{{ product.stock }}</td>
-                        <td><span class="badge badge--success">{{ product.status }}</span></td>
-                    </tr>
-                </tbody>
-            </table>
+        
+        <!-- Sağ: Kullanıcının Ürünleri -->
+        <div class="card products-card">
+            <h3 class="card-title">{{ 'ADMIN_USER_DETAIL.INFO_CARDS.STORE_PRODUCTS' | translate }}</h3>
+            
+            <div class="table-responsive">
+                <table class="mono-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'ADMIN_USER_DETAIL.TABLE.NAME' | translate }}</th>
+                            <th>{{ 'ADMIN_USER_DETAIL.TABLE.PRICE' | translate }}</th>
+                            <th>{{ 'ADMIN_USER_DETAIL.TABLE.STOCK' | translate }}</th>
+                            <th>{{ 'ADMIN_USER_DETAIL.TABLE.STATUS' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="userProducts.length === 0">
+                            <td colspan="4" class="empty-row">{{ 'ADMIN_USER_DETAIL.TABLE.EMPTY' | translate }}</td>
+                        </tr>
+                        <tr *ngFor="let product of userProducts">
+                            <td><strong>{{ product.name }}</strong></td>
+                            <td>{{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td><span class="badge badge--success">{{ product.status }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
     </div>
 </div>

@@ -1,0 +1,61 @@
+<div class="card-mockup-container" *ngIf="isActive">
+  <div class="credit-card" [ngClass]="[cardType, isFlipped ? 'flipped' : '']">
+    <div class="card-inner">
+      <!-- FRONT SIDE -->
+      <div class="card-side front">
+        <div class="card-waves"></div>
+        
+        <div class="card-top-row">
+          <div class="brand-logo" [ngClass]="cardType">
+            <i *ngIf="cardType !== 'troy'" [class]="cardLogoClass"></i>
+            <span *ngIf="cardType === 'troy'" class="troy-logo">troy</span>
+          </div>
+          <div class="bank-name">{{ displayBankName }}</div>
+        </div>
+
+        <div class="card-chip-row">
+          <div class="gold-chip">
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+          </div>
+        </div>
+
+        <div class="card-number-row">
+          {{ formattedCardNumber || '0000 0000 0000 0000' }}
+        </div>
+
+        <div class="card-bottom-row">
+          <div class="holder-info">
+            <div class="name">{{ formattedName || 'NAME SURNAME' }}</div>
+          </div>
+          <div class="expiry-info">
+            <div class="exp-label">MONTH/YEAR</div>
+            <div class="exp-value">EXP <span>{{ formattedExpiry || '00/00' }}</span></div>
+          </div>
+          <div class="hologram"></div>
+        </div>
+      </div>
+
+      <!-- BACK SIDE -->
+      <div class="card-side back">
+        <div class="card-waves"></div>
+        <div class="magnetic-strip"></div>
+        <div class="signature-section">
+          <div class="signature-label">AUTHORIZED SIGNATURE</div>
+          <div class="signature-bar">
+            <div class="sig-lines"></div>
+            <div class="cvc-box">{{ cvc || '***' }}</div>
+          </div>
+        </div>
+        <div class="back-footer">
+          <div class="disclaimer">
+            This card is property of Bank Name. If found, please return to any branch.
+          </div>
+          <div class="electronic-use">ELECTRONIC USE ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

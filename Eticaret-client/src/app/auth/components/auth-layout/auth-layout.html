@@ -1,6 +1,6 @@
 <div class="split-layout">
-
   <div class="split-left">
+    <canvas #particleCanvas class="particles-bg"></canvas>
     <div class="brand-box">
       <div class="logo-box" routerLink="/auth/login" style="cursor: pointer;">
         <h1>E-</h1>
@@ -9,7 +9,6 @@
       <p>{{ 'AUTH.SLOGAN' | translate }}</p>
     </div>
   </div>
-
   <div class="split-right">
     <div class="form-card">
       <router-outlet></router-outlet>

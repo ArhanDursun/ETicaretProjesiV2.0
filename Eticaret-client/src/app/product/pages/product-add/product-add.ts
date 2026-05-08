@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Product } from '../../services/product';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-add',
@@ -12,15 +13,14 @@ import { Router } from '@angular/router';
 export class ProductAdd implements OnInit {
   productForm!: FormGroup;
   isLoading: boolean = false;
-
   categories: any[] = [];
-
   selectedFiles: File[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productService: Product,
     private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -39,9 +39,10 @@ export class ProductAdd implements OnInit {
       next: (data) => {
         this.categories = this.flattenCategories(data);
       },
-      error: (err) => console.error('Kategoriler çekilemedi', err),
+      error: (err) => {},
     });
   }
+
   flattenCategories(categories: any[], level: number = 0): any[] {
     let result: any[] = [];
     categories.forEach((c) => {
@@ -62,7 +63,7 @@ export class ProductAdd implements OnInit {
 
   onSubmit(): void {
     if (this.productForm.invalid || !this.selectedFiles || this.selectedFiles.length === 0) {
-      alert('Lütfen tüm alanları doldurun ve en az bir ürün görseli seçin.');
+      alert(this.translate.instant('PRODUCT_ADD.MESSAGES.VALIDATION_ERROR'));
       return;
     }
 
@@ -80,15 +81,12 @@ export class ProductAdd implements OnInit {
 
     this.productService.addProduct(formData).subscribe({
       next: () => {
-        alert('Ürün başarıyla eklendi 🚀');
+        alert(this.translate.instant('PRODUCT_ADD.MESSAGES.SUCCESS'));
         this.isLoading = false;
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        alert(
-          'Hata oluştu: ' +
-            (err.error?.message || err.error?.Message || 'Ürün eklenirken hata oluştu'),
-        );
+        alert(`${this.translate.instant('WALLET.TOPUP.MESSAGES.ERROR_PREFIX')} ${err.error?.message || err.error?.Message || ''}`);
         this.isLoading = false;
       },
     });

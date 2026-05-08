@@ -1,89 +1,89 @@
-<div class="update-container"
-    style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-
-    <h2 style="margin-bottom: 1.5rem; color: #1e293b;">Ürünü Güncelle</h2>
-
-    <div *ngIf="isLoading" style="text-align: center; padding: 2rem;">
-        <div class="spinner">Yükleniyor...</div>
-    </div>
-
-    <form *ngIf="!isLoading" (ngSubmit)="onSubmit()" #updateForm="ngForm">
-
-        <div class="form-group mb-3">
-            <label style="font-weight: 500;">Ürün Adı *</label>
-            <input type="text" class="form-control" name="name" [(ngModel)]="productData.name" required
-                style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+<div class="product-update-container" *ngIf="!isLoading; else loadingState">
+    <div class="update-card">
+        <div class="update-card__header">
+            <h1><i class="bi bi-pencil-square"></i> {{ 'PRODUCT_UPDATE.TITLE' | translate }}</h1>
+            <p>{{ 'PRODUCT_UPDATE.SUBTITLE' | translate }}</p>
         </div>
 
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-            <div class="form-group" style="flex: 1;">
-                <label style="font-weight: 500;">Kategori *</label>
-                <select class="form-control" name="categoryId" [(ngModel)]="productData.categoryId" required
-                    style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px; background-color: #fff;">
-                    <option value="" disabled>Seçiniz</option>
-                    <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
-                </select>
-            </div>
-
-            <div class="form-group" style="flex: 1;">
-                <label style="font-weight: 500;">Stok Adedi *</label>
-                <input type="number" class="form-control" name="stockQuantity" [(ngModel)]="productData.stockQuantity"
-                    required
-                    style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-            </div>
-        </div>
-
-        <div
-            style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px dashed #cbd5e1;">
-            <h4 style="margin-bottom: 1rem; color: #334155; font-size: 1.1rem; margin-top: 0;">Fiyat ve Flaş İndirim
-            </h4>
-
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 1; min-width: 150px;">
-                    <label style="font-weight: 500;">Normal Fiyat (₺) *</label>
-                    <input type="number" class="form-control" name="price" [(ngModel)]="productData.price" required
-                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+        <div class="update-card__body">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_UPDATE.NAME_LABEL' | translate }}</label>
+                    <input type="text" [(ngModel)]="product.name" class="form-input" [placeholder]="'PRODUCT_UPDATE.NAME_PH' | translate">
                 </div>
 
-                <div class="form-group" style="flex: 1; min-width: 150px;">
-                    <label style="color: #ef4444; font-weight: 500;">İndirim Oranı (%)</label>
-                    <input type="number" class="form-control" name="discountPercentage"
-                        [(ngModel)]="productData.discountPercentage" min="1" max="99" placeholder="Örn: 30"
-                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #fca5a5; border-radius: 6px; outline-color: #ef4444;">
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_UPDATE.DESC_LABEL' | translate }}</label>
+                    <textarea rows="4" [(ngModel)]="product.description" class="form-input" [placeholder]="'PRODUCT_UPDATE.DESC_PH' | translate"></textarea>
                 </div>
 
-                <div class="form-group" style="flex: 1; min-width: 150px;">
-                    <label style="color: #ef4444; font-weight: 500;">Ne Kadar Sürsün?</label>
-                    <select class="form-control" name="selectedDuration" [(ngModel)]="selectedDuration"
-                        [disabled]="!productData.discountPercentage"
-                        style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #fca5a5; border-radius: 6px; outline-color: #ef4444; background-color: #fff;">
-                        <option value="" disabled selected>Süre Seçin</option>
-                        <option value="1">1 Gün (Flaş İndirim)</option>
-                        <option value="3">3 Gün</option>
-                        <option value="7">1 Hafta</option>
-                        <option value="14">2 Hafta</option>
-                        <option value="30">1 Ay</option>
+                <div class="form-group">
+                    <label>{{ 'PRODUCT_UPDATE.PRICE_LABEL' | translate }} (₺)</label>
+                    <input type="number" [(ngModel)]="product.price" class="form-input" [placeholder]="'0.00'">
+                </div>
+
+                <div class="form-group">
+                    <label>{{ 'PRODUCT_UPDATE.STOCK_LABEL' | translate }}</label>
+                    <input type="number" [(ngModel)]="product.stock" class="form-input" [placeholder]="'0'">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>{{ 'PRODUCT_UPDATE.CATEGORY_LABEL' | translate }}</label>
+                    <select class="form-input" [(ngModel)]="product.categoryId">
+                        <option value="">{{ 'PRODUCT_UPDATE.SELECT_CATEGORY' | translate }}</option>
+                        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
                     </select>
                 </div>
+
+                <div class="discount-section full-width">
+                    <h3><i class="bi bi-percent"></i> {{ 'PRODUCT_UPDATE.DISCOUNT_TITLE' | translate }}</h3>
+                    <div class="discount-grid">
+                        <div class="form-group">
+                            <label>{{ 'PRODUCT_UPDATE.DISCOUNT_PERCENT' | translate }} (%)</label>
+                            <input type="number" [(ngModel)]="product.discountPercentage" class="form-input" [placeholder]="'0'">
+                        </div>
+                        <div class="form-group">
+                            <label>{{ 'PRODUCT_UPDATE.DISCOUNT_DURATION' | translate }}</label>
+                            <select class="form-input" [(ngModel)]="discountDuration">
+                                <option value="">{{ 'PRODUCT_UPDATE.SELECT_DURATION' | translate }}</option>
+                                <option value="1h">1 {{ 'PRODUCT_UPDATE.HOURS' | translate }}</option>
+                                <option value="3h">3 {{ 'PRODUCT_UPDATE.HOURS' | translate }}</option>
+                                <option value="6h">6 {{ 'PRODUCT_UPDATE.HOURS' | translate }}</option>
+                                <option value="12h">12 {{ 'PRODUCT_UPDATE.HOURS' | translate }}</option>
+                                <option value="1d">1 {{ 'PRODUCT_UPDATE.DAYS' | translate }}</option>
+                                <option value="3d">3 {{ 'PRODUCT_UPDATE.DAYS' | translate }}</option>
+                                <option value="7d">7 {{ 'PRODUCT_UPDATE.DAYS' | translate }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group discount-btn-wrap">
+                            <button class="btn btn--secondary btn--full" (click)="startDiscount()" [disabled]="!product.discountPercentage || !discountDuration">
+                                <i class="bi bi-clock-history"></i> {{ 'PRODUCT_UPDATE.START_DISCOUNT' | translate }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="discount-info" *ngIf="product.discountEndDate">
+                        <i class="bi bi-info-circle"></i>
+                        {{ 'PRODUCT_UPDATE.ENDS_AT' | translate }}: <strong>{{ product.discountEndDate | date:'dd.MM.yyyy HH:mm' }}</strong>
+                    </div>
+                </div>
             </div>
-            <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.75rem;">
-                İndirimi kaldırmak için yüzde kutusunu boş bırakın. Süre seçimi, indirim oranı girildiğinde aktif olur.
-            </small>
-        </div>
 
-        <div class="form-group mb-3">
-            <label style="font-weight: 500;">Ürün Açıklaması</label>
-            <textarea class="form-control" name="description" [(ngModel)]="productData.description" rows="4"
-                style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+            <div class="actions">
+                <button class="btn btn--secondary" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+                <button class="btn btn--primary" (click)="onSubmit()" [disabled]="isSaving">
+                    <i class="bi" [ngClass]="isSaving ? 'bi-arrow-repeat spin' : 'bi-check-lg'"></i>
+                    {{ (isSaving ? 'COMMON.SAVING' : 'COMMON.SAVE') | translate }}
+                </button>
+            </div>
         </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
-            <button type="button" (click)="router.navigate(['/product/detay', productId])"
-                style="padding: 0.6rem 1.5rem; background: #e2e8f0; color: #475569; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">İptal</button>
-            <button type="submit" [disabled]="!updateForm.form.valid"
-                style="padding: 0.6rem 1.5rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);">Değişiklikleri
-                Kaydet</button>
-        </div>
-
-    </form>
+    </div>
 </div>
+
+<ng-template #loadingState>
+    <div class="loading-full">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p>{{ 'COMMON.LOADING' | translate }}</p>
+        </div>
+    </div>
+</ng-template>

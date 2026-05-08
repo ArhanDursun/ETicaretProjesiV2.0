@@ -8,6 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [ProductAdd],
-  imports: [CommonModule, ReactiveFormsModule, ProductRoutingModule, FormsModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, ProductRoutingModule, FormsModule, TranslateModule.forChild()],
 })
 export class ProductModule {}

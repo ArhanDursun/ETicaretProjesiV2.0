@@ -36,10 +36,11 @@ export class Home implements OnInit {
   };
   pagedProducts: any = null;
   currentPage: number = 1;
-  pageSize: number = 10; // Test için 2'de bıraktık, istersen 10 yaparsın
+  pageSize: number = 10;
   pageNumbers: number[] = [];
   showTrendingOnly: boolean = false;
   trendingProducts: any[] = [];
+
   constructor(
     private product: Product,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -50,9 +51,7 @@ export class Home implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       this.isLoggedIn = !!token;
-
       this.loadCategories();
-      // Çift yüklemeyi engellemek için SADECE loadShowCase çağırıyoruz
       this.loadShowCase();
     } else {
       this.isLoading = false;
@@ -65,7 +64,7 @@ export class Home implements OnInit {
         this.categories = this.flattenCategories(data);
         this.cdr.detectChanges();
       },
-      error: (err) => console.error(err),
+      error: (err) => {},
     });
   }
 
@@ -82,26 +81,21 @@ export class Home implements OnInit {
   }
 
   applyFilter(): void {
-    // 🌟 1. KORUMA: Eğer tüm filtreler boşaltıldıysa (örn: Tüm Kategoriler seçildiyse)
-    // Backend'i yorma, direkt ekranı temizleyip vitrine dön.
     const isSearchEmpty = !this.filters.searchTerm || this.filters.searchTerm.trim() === '';
     const isCategoryEmpty = !this.filters.categoryId || this.filters.categoryId === '';
     const isMinPriceEmpty = this.filters.minPrice === null || this.filters.minPrice === undefined;
     const isMaxPriceEmpty = this.filters.maxPrice === null || this.filters.maxPrice === undefined;
 
     if (isSearchEmpty && isCategoryEmpty && isMinPriceEmpty && isMaxPriceEmpty) {
-      this.clearFilter(); // Vitrine döner ve arama sonuçlarını (this.products) temizler
+      this.clearFilter();
       return;
     }
 
     this.isLoading = true;
-
-    // 🌟 2. SAYFA SIFIRLAMA: Yeni filtre uygulandığında 1. sayfadan başla
     if (this.currentPage !== 1) {
       this.currentPage = 1;
     }
 
-    // 🌟 3. VERİ TEMİZLİĞİ: Backend'deki Guid? tipinin patlamaması için boş stringleri null yapıyoruz
     const cleanFilters = {
       searchTerm: isSearchEmpty ? null : this.filters.searchTerm.trim(),
       categoryId: isCategoryEmpty ? null : this.filters.categoryId,
@@ -109,14 +103,12 @@ export class Home implements OnInit {
       maxPrice: isMaxPriceEmpty ? null : this.filters.maxPrice,
     };
 
-    // DİKKAT: this.filters yerine "cleanFilters" gönderiyoruz!
     this.product.getFilteredProducts(cleanFilters, this.currentPage, this.pageSize).subscribe({
       next: (response: any) => {
         try {
           const total = response.totalPages ?? response.TotalPages ?? 0;
           const current = response.pageNumber ?? response.currentPage ?? response.currentPages ?? 1;
 
-          // PagedProducts'ı güvenli şekilde güncelle
           this.pagedProducts = {
             ...response,
             totalPages: total,
@@ -136,10 +128,8 @@ export class Home implements OnInit {
             return;
           }
 
-          // Resim URL'lerini garantiye alıyoruz (4200'e gitmesini engeller)
           this.products = items.map((p: any) => {
             let finalImages: string[] = [];
-
             if (p.images && p.images.length > 0) {
               finalImages = p.images.map((img: string) => {
                 if (img.startsWith('http')) return img;
@@ -149,7 +139,6 @@ export class Home implements OnInit {
             } else {
               finalImages = ['assets/no-image.png'];
             }
-
             return { ...p, images: finalImages };
           });
 
@@ -158,17 +147,14 @@ export class Home implements OnInit {
           } else {
             this.pageNumbers = [];
           }
-
           this.isLoading = false;
           this.cdr.detectChanges();
         } catch (error) {
-          console.error('Map Hatası:', error);
           this.isLoading = false;
           this.cdr.detectChanges();
         }
       },
       error: (err) => {
-        console.error('🚨 İstek Patladı:', err);
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -183,12 +169,10 @@ export class Home implements OnInit {
 
   loadShowCase(): void {
     this.isLoading = true;
-
     this.product.getShowCaseProducts(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
         const mappedItems = res.items.map((p: any) => {
           let finalImages: string[] = [];
-
           if (p.images && p.images.length > 0) {
             finalImages = p.images.map((img: string) => {
               if (img.startsWith('http')) return img;
@@ -198,28 +182,22 @@ export class Home implements OnInit {
           } else {
             finalImages = ['assets/no-image.png'];
           }
-
           return { ...p, images: finalImages };
         });
-
         this.pagedProducts = {
           ...res,
           items: mappedItems,
         };
-
         this.products = [];
-
         if (res && res.totalPages) {
           this.pageNumbers = Array.from({ length: res.totalPages }, (_, i) => i + 1);
         } else {
           this.pageNumbers = [];
         }
-
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('🚨 Vitrin İstek Patladı:', err);
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -228,14 +206,10 @@ export class Home implements OnInit {
 
   changePage(page: number): void {
     const total = this.pagedProducts?.totalPages || this.pagedProducts?.TotalPages || 0;
-
     if (page < 1 || (total > 0 && page > total)) {
-      console.warn('Geçersiz sayfa:', page, 'Toplam:', total);
       return;
     }
-
     this.currentPage = page;
-
     if (
       this.filters.searchTerm ||
       this.filters.categoryId ||
@@ -246,7 +220,6 @@ export class Home implements OnInit {
     } else {
       this.loadShowCase();
     }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -269,11 +242,11 @@ export class Home implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Trend Çekilemedi:', err);
         this.isLoading = false;
       },
     });
   }
+
   onTrendChange() {
     if (this.showTrendingOnly) {
       this.loadTrending();
@@ -281,6 +254,7 @@ export class Home implements OnInit {
       this.loadShowCase();
     }
   }
+
   isDiscountActive(endDate: string | Date | null | undefined): boolean {
     if (!endDate) return false;
     return new Date(endDate).getTime() > new Date().getTime();

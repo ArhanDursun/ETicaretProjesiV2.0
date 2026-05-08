@@ -1,134 +1,204 @@
-.ticket-list-wrapper {
-  max-width: 1500px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.ticket-list-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 24px;
 }
 
-.page-header {
+.ticket-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
 
-  h2 { margin: 0; color: #1e293b; font-size: 1.8rem; }
-  p { margin: 5px 0 0 0; color: #64748b; }
+  .header-content {
+    h2 {
+      margin: 0 0 6px 0;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--color-text);
+    }
+    p {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+    }
+  }
 
-  .btn-new-ticket {
-    background-color: #0984e3; color: white;
-    border: none; padding: 10px 20px;
-    border-radius: 8px; font-weight: bold; cursor: pointer;
-    transition: 0.2s;
-    &:hover { background-color: #0773c5; transform: translateY(-2px); }
+  .btn-create {
+    background: var(--color-text);
+    color: var(--color-surface);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+    &:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
   }
 }
 
-.table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--color-border-dark);
+  color: var(--color-text-muted);
+
+  i { font-size: 3rem; margin-bottom: 16px; display: block; opacity: 0.3; }
+  h3 { margin: 0 0 8px 0; color: var(--color-text); font-weight: 800; }
+  p { margin: 0; font-size: 0.95rem; }
+}
+
+.ticket-table-wrapper {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+}
 
-  .custom-table {
-    width: 100%;
-    border-collapse: collapse;
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
 
-    th {
-      background: #f8fafc; color: #475569;
-      padding: 15px; text-align: left; font-size: 0.9rem;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    td {
-      padding: 15px; border-bottom: 1px solid #e2e8f0;
-      color: #334155; vertical-align: middle;
-      &.fw-bold { font-weight: 600; color: #0f172a; }
-    }
-
-    tr:last-child td { border-bottom: none; }
-    tr:hover { background-color: #f8fafc; }
+  th {
+    background: var(--color-bg-secondary);
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
   }
+
+  td {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--color-bg-secondary);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    vertical-align: middle;
+
+    &.subject-cell { font-weight: 700; }
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(17, 17, 17, 0.02); }
 }
 
-// Durum Rozetleri (Status Badges)
-.status-badge {
-  padding: 5px 12px;
-  border-radius: 20px;
+.category-badge {
+  background: var(--color-bg-secondary);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
   font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
 
-  // Backend'den dönen Enum stringlerine göre renkler (Küçük harfe çevrilmiş haliyle eşleşir)
-  &.pending { background: #fef08a; color: #854d0e; } // Sarı
-  &.active { background: #bbf7d0; color: #166534; }  // Yeşil
-  &.closed { background: #e2e8f0; color: #475569; }  // Gri
-  &.rejected { background: #fecaca; color: #991b1b; } // Kırmızı
+  &.status-1 { background: #eee; color: #666; } // Pending
+  &.status-2 { background: var(--color-text); color: var(--color-surface); } // Active
+  &.status-3 { background: var(--color-danger-light); color: var(--color-danger); } // Rejected
+  &.status-4 { background: var(--color-bg-secondary); color: var(--color-text-muted); border: 1px solid var(--color-border); } // Closed
 }
 
-.btn-chat {
-  background: #f1f5f9; color: #0984e3;
-  border: 1px solid #cbd5e1; padding: 8px 16px;
-  border-radius: 6px; font-weight: bold; cursor: pointer;
-  transition: 0.2s;
-  &:hover { background: #0984e3; color: white; border-color: #0984e3; }
+.btn-view {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text);
+  &:hover { background: var(--color-text); color: var(--color-surface); border-color: var(--color-text); }
 }
 
-.empty-state, .loading-state {
-  text-align: center; padding: 4rem 1rem;
-  background: white; border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  color: #64748b;
-  h3 { color: #334155; margin-bottom: 10px; }
-}
-
-
+/* MODAL TWEAKS */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
+  background: rgba(17, 17, 17, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-card {
-  background: white;
-  width: 90%; max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-  animation: modalScale 0.3s ease-out;
+  background: var(--color-surface);
+  width: 90%;
+  max-width: 500px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
 
   .modal-header {
-    padding: 1.5rem; border-bottom: 1px solid #f1f5f9;
-    display: flex; justify-content: space-between; align-items: center;
-    h3 { margin: 0; font-size: 1.25rem; color: #1e293b; }
-    .close-x { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; }
+    padding: 24px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg-secondary);
+
+    h3 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--color-text-muted); &:hover { color: var(--color-text); } }
   }
 
   .modal-body {
-    padding: 1.5rem;
-    .input-group {
-      margin-bottom: 1.25rem;
-      label { display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.9rem; }
-      input, select, textarea {
-        width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;
-        font-family: inherit; outline: none; transition: 0.2s;
-        &:focus { border-color: #0984e3; box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1); }
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      label { font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; }
+      .form-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-family: inherit;
+        font-size: 0.95rem;
+        background: var(--color-surface);
+        &:focus { outline: none; border-color: var(--color-text); box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.05); }
       }
     }
   }
 
   .modal-footer {
-    padding: 1rem 1.5rem; border-top: 1px solid #f1f5f9;
-    display: flex; justify-content: flex-end; gap: 10px;
-    .btn-cancel { background: #f1f5f9; border: none; padding: 10px 20px; border-radius: 8px; color: #64748b; cursor: pointer; }
-    .btn-submit { background: #0984e3; border: none; padding: 10px 20px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;
-      &:disabled { background: #cbd5e1; cursor: not-allowed; }
-    }
-  }
-}
+    padding: 20px 24px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: var(--color-bg-secondary);
 
-@keyframes modalScale {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+    button { padding: 10px 24px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: all var(--transition-fast); }
+    .btn-cancel { background: transparent; border: 1px solid var(--color-border); color: var(--color-text-muted); &:hover { background: var(--color-border); color: var(--color-text); } }
+    .btn-submit { background: var(--color-text); color: var(--color-surface); border: none; &:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); } }
+  }
 }

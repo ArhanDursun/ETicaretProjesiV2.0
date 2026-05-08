@@ -13,7 +13,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class MyOrders implements OnInit {
   orders: any[] = [];
   isLoading: boolean = true;
-
   selectedOrderDetails: any = null;
   showDetailsModal: boolean = false;
   isDetailsLoading: boolean = false;
@@ -27,99 +26,59 @@ export class MyOrders implements OnInit {
   ngOnInit(): void {
     this.loadMyOrders();
   }
+
   getStatusText(status: any): string {
     let key = 'STATUS.UNKNOWN';
-
     if (typeof status === 'string') {
       switch (status) {
-        case 'Pending':
-          key = 'STATUS.PENDING';
-          break;
-        case 'Confirmed':
-          key = 'STATUS.CONFIRMED';
-          break;
-        case 'Processing':
-          key = 'STATUS.PROCESSING';
-          break;
-        case 'Shipped':
-          key = 'STATUS.SHIPPED';
-          break;
-        case 'Delivered':
-          key = 'STATUS.DELIVERED';
-          break;
-        case 'Cancelled':
-          key = 'STATUS.CANCELLED';
-          break;
-        case 'Refunded':
-          key = 'STATUS.REFUNDED';
-          break;
+        case 'Pending': key = 'STATUS.PENDING'; break;
+        case 'Confirmed': key = 'STATUS.CONFIRMED'; break;
+        case 'Processing': key = 'STATUS.PROCESSING'; break;
+        case 'Shipped': key = 'STATUS.SHIPPED'; break;
+        case 'Delivered': key = 'STATUS.DELIVERED'; break;
+        case 'Cancelled': key = 'STATUS.CANCELLED'; break;
+        case 'Refunded': key = 'STATUS.REFUNDED'; break;
       }
     } else {
       switch (status) {
-        case 0:
-          key = 'STATUS.PENDING';
-          break;
-        case 1:
-          key = 'STATUS.CONFIRMED';
-          break;
-        case 2:
-          key = 'STATUS.PROCESSING';
-          break;
-        case 3:
-          key = 'STATUS.SHIPPED';
-          break;
-        case 4:
-          key = 'STATUS.DELIVERED';
-          break;
-        case 5:
-          key = 'STATUS.CANCELLED';
-          break;
-        case 6:
-          key = 'STATUS.REFUNDED';
-          break;
+        case 0: key = 'STATUS.PENDING'; break;
+        case 1: key = 'STATUS.CONFIRMED'; break;
+        case 2: key = 'STATUS.PROCESSING'; break;
+        case 3: key = 'STATUS.SHIPPED'; break;
+        case 4: key = 'STATUS.DELIVERED'; break;
+        case 5: key = 'STATUS.CANCELLED'; break;
+        case 6: key = 'STATUS.REFUNDED'; break;
       }
     }
-
     return key;
   }
 
   getStatusColor(status: number): string {
     if (typeof status === 'string') {
       switch (status) {
-        case 'Pending':
-          return 'status-warning';
+        case 'Pending': return 'status-warning';
         case 'Confirmed':
         case 'Processing':
-        case 'Shipped':
-          return 'status-info';
-        case 'Delivered':
-          return 'status-success';
-        case 'Cancelled':
-          return 'status-danger';
-        case 'Refunded':
-          return 'status-secondary';
-        default:
-          return 'status-secondary';
+        case 'Shipped': return 'status-info';
+        case 'Delivered': return 'status-success';
+        case 'Cancelled': return 'status-danger';
+        case 'Refunded': return 'status-secondary';
+        default: return 'status-secondary';
       }
     } else {
       switch (status) {
-        case 0:
-          return 'status-warning';
+        case 0: return 'status-warning';
         case 1:
         case 2:
-        case 3:
-          return 'status-info';
-        case 4:
-          return 'status-success';
-        case 5:
-          return 'status-danger';
-        case 6:
-          return 'status-secondary';
-        default:
-          return 'status-secondary';
+        case 3: return 'status-info';
+        case 4: return 'status-success';
+        case 5: return 'status-danger';
+        case 6: return 'status-secondary';
+        default: return 'status-secondary';
       }
     }
   }
+
   loadMyOrders() {
     this.isLoading = true;
     this.orderService.getMyOrders().subscribe({
@@ -129,21 +88,21 @@ export class MyOrders implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Siparişler çekilirken hata:', err);
         this.isLoading = false;
         this.cdr.detectChanges();
       },
     });
   }
+
   cancelOrder(orderId: string) {
-    const isConfirmed = confirm('Siparişi iptal etmek istediğinize emin misiniz?');
+    const isConfirmed = confirm(this.translate.instant('ORDERS.MESSAGES.CANCEL_CONFIRM'));
     if (isConfirmed) {
       this.orderService.cancelOrder(orderId).subscribe({
         next: (res) => {
-          alert('Sipariş başarıyla iptal edildi!');
+          alert(this.translate.instant('ORDERS.MESSAGES.CANCEL_SUCCESS'));
           this.loadMyOrders();
         },
-        error: (err) => alert('İptal işlemi başarısız oldu!'),
+        error: (err) => alert(this.translate.instant('ORDERS.MESSAGES.CANCEL_ERROR')),
       });
     }
   }
@@ -152,7 +111,6 @@ export class MyOrders implements OnInit {
     this.showDetailsModal = true;
     this.isDetailsLoading = true;
     this.cdr.detectChanges();
-
     this.orderService.getOrderDetails(orderId).subscribe({
       next: (res) => {
         this.selectedOrderDetails = res;
@@ -160,10 +118,9 @@ export class MyOrders implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Detaylar çekilemedi' + err);
         this.isLoading = false;
         this.showDetailsModal = false;
-        alert('Sipariş detayları alınamadı');
+        alert(this.translate.instant('ORDERS.MESSAGES.DETAILS_ERROR'));
         this.cdr.detectChanges();
       },
     });
@@ -177,29 +134,21 @@ export class MyOrders implements OnInit {
 
   isCancelDisabled(status: any): boolean {
     if (status === null || status === undefined) return true;
-
     const s = status.toString().toLowerCase();
-
     return (
-      s === 'shipped' ||
-      s === '3' ||
-      s === 'delivered' ||
-      s === '4' ||
-      s === 'cancelled' ||
-      s === '5' ||
-      s === 'refunded' ||
-      s === '6'
+      s === 'shipped' || s === '3' ||
+      s === 'delivered' || s === '4' ||
+      s === 'cancelled' || s === '5' ||
+      s === 'refunded' || s === '6'
     );
   }
 
   getImageUrl(images: any[]): string {
     if (!images || images.length === 0) return '';
-
     const firstImage = images[0];
     if (firstImage.startsWith('http')) {
       return firstImage;
     }
-
     const slash = firstImage.startsWith('/') ? '' : '/';
     return 'https://localhost:7185' + slash + firstImage;
   }

@@ -1,9 +1,8 @@
 <div class="admin-panel-container">
     <div class="panel-header">
         <h2>{{ 'ADMIN_CAT.TITLE' | translate }}</h2>
-        <button class="btn-primary" (click)="openAddModal()">{{ 'ADMIN_CAT.ADD_NEW' | translate }}</button>
+        <button class="btn btn--primary" (click)="openAddModal()"><i class="bi bi-plus-lg"></i> {{ 'ADMIN_CAT.ADD_NEW' | translate }}</button>
     </div>
-
     <div class="table-container">
         <table class="admin-table">
             <thead>
@@ -22,11 +21,11 @@
                     <td class="action-btns">
                         <button class="btn-icon edit" [title]="'ADMIN_CAT.TABLE.EDIT' | translate"
                             (click)="openEditModal(cat)">
-                            {{ 'ADMIN_CAT.TABLE.EDIT' | translate }}
+                            <i class="bi bi-pencil-square"></i> {{ 'ADMIN_CAT.TABLE.EDIT' | translate }}
                         </button>
                         <button class="btn-icon delete" [title]="'ADMIN_CAT.TABLE.DELETE' | translate"
                             (click)="deleteCategory(cat.id)">
-                            {{ 'ADMIN_CAT.TABLE.DELETE' | translate }}
+                            <i class="bi bi-trash3"></i> {{ 'ADMIN_CAT.TABLE.DELETE' | translate }}
                         </button>
                     </td>
                 </tr>
@@ -37,21 +36,17 @@
         </div>
     </div>
 </div>
-
-<div class="modal-overlay" *ngIf="showModal">
-    <div class="modal-card">
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+    <div class="modal-card" (click)="$event.stopPropagation()">
         <h3>{{ (isEditMode ? 'ADMIN_CAT.MODAL.TITLE_EDIT' : 'ADMIN_CAT.MODAL.TITLE_NEW') | translate }}</h3>
-
         <div class="input-group">
             <label>{{ 'ADMIN_CAT.MODAL.NAME_LABEL' | translate }}</label>
             <input type="text" [(ngModel)]="formData.name" [placeholder]="'ADMIN_CAT.MODAL.NAME_PH' | translate">
         </div>
-
         <div class="input-group">
             <label>{{ 'ADMIN_CAT.MODAL.DESC_LABEL' | translate }}</label>
             <input type="text" [(ngModel)]="formData.description" [placeholder]="'ADMIN_CAT.MODAL.DESC_PH' | translate">
         </div>
-
         <div class="input-group">
             <label>{{ 'ADMIN_CAT.MODAL.PARENT_LABEL' | translate }}</label>
             <select [(ngModel)]="formData.parentCategoryId">
@@ -63,7 +58,6 @@
                 </ng-container>
             </select>
         </div>
-
         <div class="modal-btns">
             <button class="btn-cancel" (click)="showModal = false">{{ 'ADMIN_CAT.MODAL.CANCEL' | translate }}</button>
             <button class="btn-save" (click)="saveCategory()">{{ 'ADMIN_CAT.MODAL.SAVE' | translate }}</button>

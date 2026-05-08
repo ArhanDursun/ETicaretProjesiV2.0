@@ -1,49 +1,58 @@
 <div class="offers-container">
-  <h2>{{ 'OFFERS.TITLE' | translate }}</h2>
-
-  <div class="tabs">
-    <button [class.active]="activeTab === 'sent'" (click)="activeTab = 'sent'">
-      {{ 'OFFERS.TABS.SENT' | translate }} ({{ sentOffers.length || 0}})
+  <div class="header-section" style="margin-bottom: 24px;">
+    <h2>{{ 'OFFERS.TITLE' | translate }}</h2>
+  </div>
+  
+  <div class="tabs-header">
+    <button class="tab-btn" [class.active]="activeTab === 'sent'" (click)="activeTab = 'sent'">
+      <i class="bi bi-arrow-up-right-circle"></i> {{ 'OFFERS.TABS.SENT' | translate }} ({{ sentOffers.length || 0}})
     </button>
-    <button [class.active]="activeTab === 'received'" (click)="activeTab = 'received'">
-      {{ 'OFFERS.TABS.RECEIVED' | translate }} ({{ receivedOffers.length || 0 }})
+    <button class="tab-btn" [class.active]="activeTab === 'received'" (click)="activeTab = 'received'">
+      <i class="bi bi-arrow-down-left-circle"></i> {{ 'OFFERS.TABS.RECEIVED' | translate }} ({{ receivedOffers.length || 0 }})
     </button>
   </div>
-
+  
   <div class="offer-list" *ngIf="!isLoading; else loader">
-
+    
+    <!-- SENT OFFERS -->
     <div *ngIf="activeTab === 'sent'">
       <div class="offer-card" *ngFor="let offer of sentOffers">
         <div class="offer-info">
           <h4>{{ offer.productName || ('OFFERS.INFO.NO_NAME' | translate) }}</h4>
-
-          <p class="mb-1"><strong>{{ offer.quantity }}</strong> Adet</p>
-          <p>
-            {{ 'OFFERS.INFO.YOUR_OFFER' | translate }} <strong>{{ offer.offeredPrice }} ₺</strong>
-            <br>
-            <span class="text-success">{{ 'OFFERS.INFO.TOTAL_AMOUNT' | translate }} <strong>{{ (offer.offeredPrice *
-                offer.quantity) }} ₺</strong></span>
-          </p>
-
-          <div *ngIf="offer.status === 3" class="counter-alert">
-            {{ 'OFFERS.INFO.SELLER_NEW_PRICE' | translate }} <strong>{{ offer.counterPrice }} ₺</strong>
-            <br>
-            <span class="text-danger">{{ 'OFFERS.INFO.NEW_TOTAL' | translate }} <strong>{{ (offer.counterPrice *
-                offer.quantity) }} ₺</strong></span>
+          
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="label">Miktar:</span>
+              <span class="value"><strong>{{ offer.quantity }}</strong> Adet</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="label">{{ 'OFFERS.INFO.YOUR_OFFER' | translate }}:</span>
+              <span class="value"><strong>{{ offer.offeredPrice }} ₺</strong></span>
+            </div>
+            
+            <div class="detail-item text-success">
+              <span class="label">{{ 'OFFERS.INFO.TOTAL_AMOUNT' | translate }}:</span>
+              <span class="value"><strong>{{ (offer.offeredPrice * offer.quantity) }} ₺</strong></span>
+            </div>
           </div>
-
-          <small>{{ 'OFFERS.INFO.DATE_LABEL' | translate }} {{ offer.createdTime | date:'dd.MM.yyyy HH:mm' }}</small>
+          
+          <div *ngIf="offer.status === 3" class="counter-alert">
+            <div class="alert-content">
+              <span>{{ 'OFFERS.INFO.SELLER_NEW_PRICE' | translate }} <strong>{{ offer.counterPrice }} ₺</strong></span>
+              <span class="text-danger">{{ 'OFFERS.INFO.NEW_TOTAL' | translate }} <strong>{{ (offer.counterPrice * offer.quantity) }} ₺</strong></span>
+            </div>
+          </div>
+          
+          <small class="text-muted" style="margin-top: 12px; display: block;"><i class="bi bi-clock"></i> {{ offer.createdTime | date:'dd.MM.yyyy HH:mm' }}</small>
         </div>
-
+        
         <div class="offer-actions" *ngIf="offer.status === 3; else normalSentStatus">
-          <button class="btn-accept" (click)="handleOfferResponse(offer.id, true)">{{ 'OFFERS.ACTIONS.ACCEPT' |
-            translate }}</button>
-          <button class="btn-reject" (click)="handleOfferResponse(offer.id, false)">{{ 'OFFERS.ACTIONS.REJECT' |
-            translate }}</button>
-          <button class="btn-counter" (click)="openCounterModal(offer.id)">{{ 'OFFERS.ACTIONS.COUNTER' | translate
-            }}</button>
+          <button class="btn btn--primary btn--sm" (click)="handleOfferResponse(offer.id, true)"><i class="bi bi-check-lg"></i> {{ 'OFFERS.ACTIONS.ACCEPT' | translate }}</button>
+          <button class="btn btn--danger btn--sm" (click)="handleOfferResponse(offer.id, false)"><i class="bi bi-x-lg"></i> {{ 'OFFERS.ACTIONS.REJECT' | translate }}</button>
+          <button class="btn btn--secondary btn--sm" (click)="openCounterModal(offer.id)"><i class="bi bi-arrow-repeat"></i> {{ 'OFFERS.ACTIONS.COUNTER' | translate }}</button>
         </div>
-
+        
         <ng-template #normalSentStatus>
           <div class="offer-status" [ngClass]="getStatusClass(offer.status)">
             {{ offer.status === 0 ? ('OFFERS.STATUS.WAITING' | translate) :
@@ -52,40 +61,55 @@
           </div>
         </ng-template>
       </div>
-      <p class="empty-msg" *ngIf="sentOffers.length === 0">{{ 'OFFERS.EMPTY.SENT' | translate }}</p>
+      
+      <p class="empty-state text-muted" *ngIf="sentOffers.length === 0">
+        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+        {{ 'OFFERS.EMPTY.SENT' | translate }}
+      </p>
     </div>
-
+    
+    <!-- RECEIVED OFFERS -->
     <div *ngIf="activeTab === 'received'">
       <div class="offer-card" *ngFor="let offer of receivedOffers">
         <div class="offer-info">
           <h4>{{ offer.productName || ('OFFERS.INFO.NO_NAME' | translate) }}</h4>
-          <p>{{ 'OFFERS.INFO.BUYER' | translate }} <strong>{{ offer.buyerName }}</strong></p>
-
-          <p class="mb-1"><strong>{{ offer.quantity }}</strong> Adet</p>
-          <p>
-            {{ 'OFFERS.INFO.BUYER_FIRST_OFFER' | translate }} <span class="price-tag">{{ offer.offeredPrice }} ₺</span>
-            <br>
-            <span class="text-success">{{ 'OFFERS.INFO.TOTAL_AMOUNT' | translate }} <strong>{{ (offer.offeredPrice *
-                offer.quantity) }} ₺</strong></span>
-          </p>
-
-          <div *ngIf="offer.status === 3" class="counter-alert">
-            {{ 'OFFERS.INFO.YOUR_NEW_PRICE' | translate }} <strong>{{ offer.counterPrice }} ₺</strong>
-            <br>
-            <span class="text-primary">{{ 'OFFERS.INFO.NEW_TOTAL' | translate }} <strong>{{ (offer.counterPrice *
-                offer.quantity) }} ₺</strong></span>
+          
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="label">{{ 'OFFERS.INFO.BUYER' | translate }}:</span>
+              <span class="value"><strong><i class="bi bi-person"></i> {{ offer.buyerName }}</strong></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="label">Miktar:</span>
+              <span class="value"><strong>{{ offer.quantity }}</strong> Adet</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="label">{{ 'OFFERS.INFO.BUYER_FIRST_OFFER' | translate }}:</span>
+              <span class="value"><strong>{{ offer.offeredPrice }} ₺</strong></span>
+            </div>
+            
+            <div class="detail-item text-success">
+              <span class="label">{{ 'OFFERS.INFO.TOTAL_AMOUNT' | translate }}:</span>
+              <span class="value"><strong>{{ (offer.offeredPrice * offer.quantity) }} ₺</strong></span>
+            </div>
+          </div>
+          
+          <div *ngIf="offer.status === 3" class="counter-alert bg-primary-light border-primary">
+            <div class="alert-content">
+              <span>{{ 'OFFERS.INFO.YOUR_NEW_PRICE' | translate }} <strong>{{ offer.counterPrice }} ₺</strong></span>
+              <span class="text-primary">{{ 'OFFERS.INFO.NEW_TOTAL' | translate }} <strong>{{ (offer.counterPrice * offer.quantity) }} ₺</strong></span>
+            </div>
           </div>
         </div>
-
+        
         <div class="offer-actions" *ngIf="offer.status === 0; else repliedStatus">
-          <button class="btn-accept" (click)="handleOfferResponse(offer.id, true)">{{ 'OFFERS.ACTIONS.ACCEPT' |
-            translate }}</button>
-          <button class="btn-reject" (click)="handleOfferResponse(offer.id, false)">{{ 'OFFERS.ACTIONS.REJECT' |
-            translate }}</button>
-          <button class="btn-counter" (click)="openCounterModal(offer.id)">{{ 'OFFERS.ACTIONS.COUNTER_SHORT' | translate
-            }}</button>
+          <button class="btn btn--primary btn--sm" (click)="handleOfferResponse(offer.id, true)"><i class="bi bi-check-lg"></i> {{ 'OFFERS.ACTIONS.ACCEPT' | translate }}</button>
+          <button class="btn btn--danger btn--sm" (click)="handleOfferResponse(offer.id, false)"><i class="bi bi-x-lg"></i> {{ 'OFFERS.ACTIONS.REJECT' | translate }}</button>
+          <button class="btn btn--secondary btn--sm" (click)="openCounterModal(offer.id)"><i class="bi bi-arrow-repeat"></i> {{ 'OFFERS.ACTIONS.COUNTER_SHORT' | translate }}</button>
         </div>
-
+        
         <ng-template #repliedStatus>
           <div class="offer-status" [ngClass]="getStatusClass(offer.status)">
             {{ offer.status === 1 ? ('OFFERS.STATUS.ACCEPTED' | translate) :
@@ -94,29 +118,38 @@
           </div>
         </ng-template>
       </div>
-      <p class="empty-msg" *ngIf="receivedOffers.length === 0">{{ 'OFFERS.EMPTY.RECEIVED' | translate }}</p>
+      
+      <p class="empty-state text-muted" *ngIf="receivedOffers.length === 0">
+        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+        {{ 'OFFERS.EMPTY.RECEIVED' | translate }}
+      </p>
     </div>
-
   </div>
-
+  
   <ng-template #loader>
-    <div class="spinner">{{ 'OFFERS.LOADING' | translate }}</div>
+    <div class="loading-state">
+      <i class="bi bi-arrow-repeat" style="font-size: 2rem; display: block; margin-bottom: 10px; animation: spin 1s linear infinite;"></i>
+      <p>{{ 'OFFERS.LOADING' | translate }}</p>
+    </div>
   </ng-template>
 </div>
 
-<div class="modal-overlay" *ngIf="showCounterModal">
-  <div class="modal-content">
+<!-- COUNTER MODAL -->
+<div class="modal-overlay" *ngIf="showCounterModal" (click)="closeCounterModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
     <h3>{{ 'OFFERS.MODAL.TITLE' | translate }}</h3>
-    <p>{{ 'OFFERS.MODAL.DESC' | translate }}</p>
-    <div class="form-group">
-      <input type="number" [(ngModel)]="counterPriceInput" [placeholder]="'OFFERS.MODAL.PLACEHOLDER' | translate"
-        class="price-input">
-      <span>₺</span>
+    <p class="text-muted" style="margin-bottom: 20px;">{{ 'OFFERS.MODAL.DESC' | translate }}</p>
+    
+    <div class="modal-body">
+      <div class="input-group" style="position: relative;">
+        <input type="number" [(ngModel)]="counterPriceInput" [placeholder]="'OFFERS.MODAL.PLACEHOLDER' | translate" class="form-input" style="padding-right: 30px;">
+        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-weight: 700;">₺</span>
+      </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" (click)="closeCounterModal()" [disabled]="isSubmittingCounter">{{ 'OFFERS.MODAL.CANCEL'
-        | translate }}</button>
-      <button class="btn-submit" (click)="submitCounterOffer()" [disabled]="isSubmittingCounter">
+    
+    <div class="modal-btns" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
+      <button class="btn btn--secondary" (click)="closeCounterModal()" [disabled]="isSubmittingCounter">{{ 'OFFERS.MODAL.CANCEL' | translate }}</button>
+      <button class="btn btn--primary" (click)="submitCounterOffer()" [disabled]="isSubmittingCounter">
         {{ (isSubmittingCounter ? 'OFFERS.MODAL.SUBMITTING' : 'OFFERS.MODAL.SUBMIT') | translate }}
       </button>
     </div>

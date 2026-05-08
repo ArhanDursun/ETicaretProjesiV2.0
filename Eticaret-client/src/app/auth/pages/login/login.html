@@ -1,101 +1,110 @@
-<div class="auth-page">
-  <div class="auth-container">
-
-    <div class="auth-box" *ngIf="!needsVerification && !isForgotPasswordMode">
-      <div class="auth-box__header">
-        <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
-        <p>{{ 'LOGIN.SUBTITLE' | translate }}</p>
+<div class="auth-page-content">
+  <!-- LOGIN SECTION -->
+  <div *ngIf="!needsVerification && !isForgotPasswordMode">
+    <div class="auth-header">
+      <div class="brand-icon">
+        <i class="bi bi-shield-lock-fill"></i>
       </div>
-
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label>{{ 'LOGIN.EMAIL' | translate }}</label>
-          <input type="email" formControlName="email" placeholder="ornek@mail.com" class="form-control">
-          <span class="error-text"
-            *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')">
-            {{ 'LOGIN.ERRORS.EMAIL_REQ' | translate }}
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label>{{ 'LOGIN.PASSWORD' | translate }}</label>
-          <input type="password" formControlName="password" placeholder="••••••••" class="form-control">
-        </div>
-
-        <div class="remember-me-container" style="display: flex; align-items: center; gap: 8px; margin: 15px 0;">
-          <input type="checkbox" id="rememberMe" formControlName="rememberMe">
-          <label for="rememberMe">{{ 'LOGIN.REMEMBER_ME' | translate }}</label>
-        </div>
-
-        <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading">
-          {{ (isLoading ? 'LOGIN.LOADING' : 'LOGIN.SUBMIT') | translate }}
-        </button>
-      </form>
-
-      <div class="auth-box__footer">
-        <p>{{ 'LOGIN.NO_ACCOUNT' | translate }} <a routerLink="/auth/register">{{ 'LOGIN.REGISTER' | translate }}</a>
-        </p>
-      </div>
+      <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+      <p>{{ 'LOGIN.SUBTITLE' | translate }}</p>
     </div>
 
-    <div class="auth-box verification-box" *ngIf="needsVerification && !isForgotPasswordMode">
-      <div class="icon-wrapper">...</div>
-      <h2>{{ 'VERIFY.TITLE' | translate }}</h2>
-      <p [innerHTML]="'VERIFY.DESC' | translate:{email: unconfirmedEmail}"></p>
-
-      <div class="form-group code-group">
-        <input type="text" [placeholder]="'VERIFY.PLACEHOLDER' | translate" maxlength="6" [(ngModel)]="verificationCode"
-          class="form-control code-input">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-field">
+        <label>{{ 'LOGIN.EMAIL' | translate }}</label>
+        <div class="input-wrap">
+          <i class="bi bi-envelope"></i>
+          <input type="email" formControlName="email" placeholder="name@company.com">
+        </div>
+        <span class="error-msg" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')">
+          {{ 'LOGIN.ERRORS.EMAIL_REQ' | translate }}
+        </span>
       </div>
 
-      <button class="btn-primary" (click)="onVerifyCode()">{{ 'VERIFY.SUBMIT' | translate }}</button>
-
-      <div class="resend-action">
-        <p>{{ 'VERIFY.NOT_RECEIVED' | translate }}</p>
-        <button class="btn-primary" [disabled]="isResending" (click)="onResendCode()">
-          {{ (isResending ? 'VERIFY.SENDING' : 'VERIFY.RESEND') | translate }}
-        </button>
+      <div class="form-field">
+        <label>{{ 'LOGIN.PASSWORD' | translate }}</label>
+        <div class="input-wrap">
+          <i class="bi bi-lock"></i>
+          <input [type]="isPasswordVisible ? 'text' : 'password'" formControlName="password" placeholder="••••••••">
+          <button type="button" class="btn-toggle-pass" (click)="isPasswordVisible = !isPasswordVisible">
+            <i class="bi" [ngClass]="isPasswordVisible ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="auth-box verification-box" *ngIf="isForgotPasswordMode">
-      <div class="icon-wrapper">...</div>
+      <div class="form-meta">
+        <label class="custom-checkbox">
+          <input type="checkbox" formControlName="rememberMe">
+          <span class="checkmark"></span>
+          <span class="label-text">{{ 'LOGIN.REMEMBER_ME' | translate }}</span>
+        </label>
+        <a href="javascript:void(0)" class="link-forgot" (click)="toggleForgotPasswordMode(true)">{{
+          'LOGIN.FORGOT_PASSWORD' | translate }}</a>
+      </div>
+
+      <button type="submit" class="btn btn--accent btn--lg w-full" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">{{ 'LOGIN.SUBMIT' | translate }}</span>
+        <div class="loader-dots" *ngIf="isLoading">
+          <span></span><span></span><span></span>
+        </div>
+      </button>
+    </form>
+  </div>
+
+  <!-- FORGOT PASSWORD SECTION -->
+  <div *ngIf="isForgotPasswordMode">
+    <div class="auth-header">
+      <div class="brand-icon">
+        <i class="bi bi-key-fill"></i>
+      </div>
       <h2>{{ 'RESET.TITLE' | translate }}</h2>
 
       <div *ngIf="!isResetCodeSend">
         <p>{{ 'RESET.DESC_1' | translate }}</p>
-        <div class="form-group">
+        <div class="form-field text-left">
           <label>{{ 'LOGIN.EMAIL' | translate }}</label>
-          <input type="email" [(ngModel)]="resetEmail" class="form-control">
+          <div class="input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input type="email" [(ngModel)]="resetEmail">
+          </div>
         </div>
-        <button class="btn-primary" [disabled]="isSendingReset" (click)="onSendResetLink()">
+        <button class="btn btn--accent btn--lg w-full" [disabled]="isSendingReset" (click)="onSendResetLink()">
           {{ (isSendingReset ? 'VERIFY.SENDING' : 'RESET.SEND_CODE') | translate }}
         </button>
       </div>
 
       <div *ngIf="isResetCodeSend">
         <p [innerHTML]="'RESET.DESC_2' | translate:{email: resetEmail}"></p>
-        <div class="form-group code-group">
-          <input type="text" maxlength="6" [(ngModel)]="resetCode" class="form-control code-input">
+        <div class="form-field">
+          <div class="input-wrap centered">
+            <input type="text" maxlength="6" [(ngModel)]="resetCode" class="otp-input-sm" placeholder="000000">
+          </div>
         </div>
-        <div class="form-group">
+        <div class="form-field text-left">
           <label>{{ 'RESET.NEW_PASS' | translate }}</label>
-          <input type="password" [(ngModel)]="newPassword" class="form-control">
+          <div class="input-wrap">
+            <i class="bi bi-shield-lock"></i>
+            <input [type]="isPasswordVisible ? 'text' : 'password'" [(ngModel)]="newPassword">
+            <button type="button" class="btn-toggle-pass" (click)="isPasswordVisible = !isPasswordVisible">
+              <i class="bi" [ngClass]="isPasswordVisible ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
         </div>
-        <div class="form-group">
+        <div class="form-field text-left">
           <label>{{ 'RESET.CONFIRM_PASS' | translate }}</label>
-          <input type="password" [(ngModel)]="confirmPassword" class="form-control">
+          <div class="input-wrap">
+            <i class="bi bi-shield-check"></i>
+            <input [type]="isPasswordVisible ? 'text' : 'password'" [(ngModel)]="confirmPassword">
+          </div>
         </div>
-        <button class="btn-primary" [disabled]="isResetting" (click)="onResetPassword()">
+        <button class="btn btn--accent btn--lg w-full" [disabled]="isResetting" (click)="onResetPassword()">
           {{ (isResetting ? 'RESET.UPDATING' : 'RESET.UPDATE_BTN') | translate }}
         </button>
       </div>
 
-      <div class="resend-action">
-        <button class="btn-primary" (click)="toggleForgotPasswordMode(false)">
-          {{ 'RESET.BACK' | translate }}
-        </button>
-      </div>
+      <button class="btn-back" (click)="toggleForgotPasswordMode(false)">
+        <i class="bi bi-arrow-left"></i> {{ 'RESET.BACK' | translate }}
+      </button>
     </div>
   </div>
 </div>

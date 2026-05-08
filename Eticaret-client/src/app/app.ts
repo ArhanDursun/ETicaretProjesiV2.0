@@ -8,9 +8,9 @@ import { BasketService } from './basket/services/basket';
 import { NotificationService, NotificationDto } from './services/notification';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DirectMessageService } from './direct-message/direct-message-service';
-import { FactoryTarget } from '@angular/compiler';
 import { NotificationSignalR } from './core/signalr/notification';
 import { Signalr } from './core/signalr/signalr';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -20,30 +20,26 @@ import { Signalr } from './core/signalr/signalr';
 })
 export class App implements OnInit {
   title = 'E-Ticaret';
-
   trendMessage: string = '';
   showToast: boolean = false;
   private timeoutId: any;
-
   isMenuOpen: boolean = false;
   isLoggedIn: boolean = false;
   showNavbar: boolean = true;
   pendingOfferCount: number = 0;
   cartItemCount: number = 0;
-
+  activeLang: string = 'tr';
   searchSubject = new Subject<string>();
   searchResults: any[] = [];
   showDropdown: boolean = false;
   isSearching: boolean = false;
-
   unreadNotifications: NotificationDto[] = [];
   showModal: boolean = false;
-
   isMessageDrawerOpen: boolean = false;
   recentChats: any[] = [];
   unreadMessageTotal: number = 0;
-
   currentAlertProductId: string = '';
+
   constructor(
     private authService: Auth,
     private router: Router,
@@ -71,20 +67,27 @@ export class App implements OnInit {
       });
 
     this.translate.addLangs(['tr', 'en']);
+    const browserLang = localStorage.getItem('lang') || 'tr';
+    this.activeLang = browserLang;
     this.translate.setDefaultLang('tr');
-    this.translate.use('tr');
+    this.translate.use(browserLang);
+  }
+
+  public changeLanguage(lang: string) {
+    this.activeLang = lang;
+    this.translate.use(lang);
+    localStorage.setItem('lang', lang);
+    this.cdr.detectChanges();
   }
 
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe((status) => {
       this.isLoggedIn = status;
-
       if (status) {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
           this.directMessageService.createHubConnection(token);
         }
-
         this.offerService.updatePendingOfferCount();
         this.basketService.updateCartCount();
         this.directMessageService.loadRecentChats();
@@ -154,7 +157,6 @@ export class App implements OnInit {
       setTimeout(() => {
         this.trendMessage = message;
         this.showToast = true;
-
         if (this.timeoutId) {
           clearTimeout(this.timeoutId);
         }
@@ -163,21 +165,19 @@ export class App implements OnInit {
         }, 4000);
       }, 0);
     });
+
     this.signalRService.priceAlert$.subscribe((data: any) => {
       setTimeout(() => {
         this.trendMessage = data.message;
         this.currentAlertProductId = data.productId;
         this.showToast = true;
-
         if (this.timeoutId) {
           clearTimeout(this.timeoutId);
         }
-
         this.timeoutId = setTimeout(() => {
           this.showToast = false;
           this.cdr.detectChanges();
         }, 5000);
-
         this.cdr.detectChanges();
       }, 0);
     });
@@ -189,13 +189,10 @@ export class App implements OnInit {
 
   onLogout() {
     this.authService.logout();
-
     this.isMenuOpen = false;
     this.directMessageService.stopHubConnection();
-
     const logoutMessage = this.translate.instant('MESSAGES.LOGOUT_SUCCESS');
     alert(logoutMessage);
-
     this.router.navigate(['/auth/login']);
   }
 
@@ -224,7 +221,7 @@ export class App implements OnInit {
           this.cdr.detectChanges();
         }
       },
-      error: (err) => console.error('Bildirimler alınırken hata oluştu:', err),
+      error: (err) => {},
     });
   }
 
@@ -232,13 +229,12 @@ export class App implements OnInit {
     this.notificationService.markAsRead(id).subscribe({
       next: () => {
         this.unreadNotifications = this.unreadNotifications.filter((n) => n.id !== id);
-
         if (this.unreadNotifications.length === 0) {
           this.showModal = false;
         }
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Bildirim kapatılamadı:', err),
+      error: (err) => {},
     });
   }
 

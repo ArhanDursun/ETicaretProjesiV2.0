@@ -1,95 +1,80 @@
-<div class="ticket-list-wrapper">
-
-    <div class="page-header">
-        <div>
-            <h2>Destek Taleplerim</h2>
-            <p>Müşteri hizmetleri ile yaptığınız tüm görüşmeler.</p>
+<div class="ticket-list-container">
+    <div class="ticket-header">
+        <div class="header-content">
+            <h2>{{ 'SUPPORT.TITLE' | translate }}</h2>
+            <p>{{ 'SUPPORT.SUBTITLE' | translate }}</p>
         </div>
-        <button class="btn-new-ticket" (click)="openNewTicketModal()">
-            + Yeni Talep Aç
+        <button class="btn-create" (click)="showCreateModal = true">
+            <i class="bi bi-plus-lg"></i> {{ 'SUPPORT.NEW_TICKET' | translate }}
         </button>
     </div>
 
-    <div class="loading-state" *ngIf="isLoading">
-        Biletleriniz yükleniyor...
-    </div>
-
     <div class="empty-state" *ngIf="!isLoading && tickets.length === 0">
-        <img src="assets/no-data.png" alt="No Ticket" style="width: 100px; opacity: 0.5;">
-        <h3>Henüz bir destek talebiniz bulunmuyor.</h3>
-        <p>Bir sorun yaşarsanız sağ üstteki butondan yeni talep oluşturabilirsiniz.</p>
+        <i class="bi bi-chat-left-text"></i>
+        <h3>{{ 'SUPPORT.EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'SUPPORT.EMPTY_DESC' | translate }}</p>
     </div>
 
-    <div class="table-container" *ngIf="!isLoading && tickets.length > 0">
-        <table class="custom-table">
+    <div class="ticket-table-wrapper" *ngIf="!isLoading && tickets.length > 0">
+        <table class="ticket-table">
             <thead>
                 <tr>
-                    <th>Konu</th>
-                    <th>Kategori</th>
-                    <th>Durum</th>
-                    <th>Tarih</th>
-                    <th style="text-align: right;">İşlem</th>
+                    <th>{{ 'SUPPORT.TABLE.SUBJECT' | translate }}</th>
+                    <th>{{ 'SUPPORT.TABLE.CATEGORY' | translate }}</th>
+                    <th>{{ 'SUPPORT.TABLE.STATUS' | translate }}</th>
+                    <th>{{ 'SUPPORT.TABLE.DATE' | translate }}</th>
+                    <th style="text-align: right;">{{ 'SUPPORT.TABLE.ACTION' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let ticket of tickets">
-                    <td class="fw-bold">{{ ticket.subject }}</td>
-                    <td>{{ ticket.categoryName }}</td>
+                <tr *ngFor="let t of tickets">
+                    <td class="subject-cell">{{t.subject}}</td>
+                    <td><span class="category-badge">{{t.categoryName}}</span></td>
                     <td>
-                        <span class="status-badge" [ngClass]="ticket.statusName?.toLowerCase()">
-                            {{ ticket.statusName }}
+                        <span class="status-badge" [ngClass]="'status-' + t.status">
+                            {{ ('STATUS.' + getStatusKey(t.status)) | translate }}
                         </span>
                     </td>
-                    <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                    <td>{{t.createdDate | date:'dd.MM.yyyy'}}</td>
                     <td style="text-align: right;">
-                        <button class="btn-chat" [routerLink]="['/support/chat', ticket.id]">
-                            Sohbete Git ➔
+                        <button class="btn-view" [routerLink]="['/ticket/chat', t.id]">
+                            <i class="bi bi-chat-dots"></i>
                         </button>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-
 </div>
 
 <div class="modal-overlay" *ngIf="showCreateModal" (click)="showCreateModal = false">
     <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3>Yeni Destek Talebi Oluştur</h3>
-            <button class="close-x" (click)="showCreateModal = false">✕</button>
+            <h3>{{ 'SUPPORT.CREATE_MODAL.TITLE' | translate }}</h3>
+            <button class="close-btn" (click)="showCreateModal = false"><i class="bi bi-x-lg"></i></button>
         </div>
-
         <div class="modal-body">
-            <div class="input-group">
-                <label>Kategori</label>
-                <select [(ngModel)]="newTicket.category">
-
-                    <option *ngFor="let cat of categoryOptions" [value]="cat.id">
-                        {{ cat.name }}
-                    </option>
-
+            <div class="form-group">
+                <label>{{ 'SUPPORT.CREATE_MODAL.CATEGORY' | translate }}</label>
+                <select class="form-input" [(ngModel)]="newTicket.categoryId">
+                    <option value="1">Ürün & Sipariş Sorunları</option>
+                    <option value="2">Ödeme & İade İşlemleri</option>
+                    <option value="3">Teknik Sorunlar</option>
+                    <option value="4">Diğer</option>
                 </select>
             </div>
-
-            <div class="input-group">
-                <label>Konu Başlığı</label>
-                <input type="text" [(ngModel)]="newTicket.subject" placeholder="Örn: Ürünüm hasarlı geldi">
+            <div class="form-group">
+                <label>{{ 'SUPPORT.CREATE_MODAL.SUBJECT' | translate }}</label>
+                <input type="text" class="form-input" [(ngModel)]="newTicket.subject" placeholder="Lütfen kısa bir başlık yazın">
             </div>
-
-            <div class="input-group">
-                <label>Sorununuzun Detayı</label>
-                <textarea [(ngModel)]="newTicket.initialMessage" rows="4"
-                    placeholder="Lütfen detaylı bilgi verin..."></textarea>
+            <div class="form-group">
+                <label>{{ 'SUPPORT.CREATE_MODAL.DETAIL' | translate }}</label>
+                <textarea class="form-input" rows="4" [(ngModel)]="newTicket.message" placeholder="Yaşadığınız sorunu detaylandırın..."></textarea>
             </div>
         </div>
-
         <div class="modal-footer">
-            <button class="btn-cancel" (click)="showCreateModal = false">Vazgeç</button>
-            <button class="btn-submit" (click)="createTicket()"
-                [disabled]="isSubmitting || !newTicket.subject || !newTicket.initialMessage">
-                {{ isSubmitting ? 'Gönderiliyor...' : 'Talebi Oluştur' }}
-            </button>
+            <button class="btn-cancel" (click)="showCreateModal = false">{{ 'SUPPORT.CREATE_MODAL.CANCEL' | translate }}</button>
+            <button class="btn-submit" (click)="createTicket()">{{ 'SUPPORT.CREATE_MODAL.SUBMIT' | translate }}</button>
         </div>
     </div>
 </div>

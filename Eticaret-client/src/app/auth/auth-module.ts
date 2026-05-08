@@ -11,6 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [AuthLayout, Login, Register],
-  imports: [CommonModule, AuthRoutingModule, ReactiveFormsModule, FormsModule, TranslateModule],
+  imports: [CommonModule, AuthRoutingModule, ReactiveFormsModule, FormsModule, TranslateModule.forChild()],
 })
 export class AuthModule {}

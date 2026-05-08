@@ -1,64 +1,46 @@
-<div class="chat-container">
-
+<div class="chat-container" *ngIf="ticket">
     <div class="chat-header">
-        <div class="header-info">
-            <h3>Destek Talebi</h3>
-            <small>Bilet No: {{ ticketId | slice:0:8 }}...</small>
+        <button class="back-btn" routerLink="/ticket/list"><i class="bi bi-chevron-left"></i></button>
+        <div class="ticket-info">
+            <h3>{{ 'SUPPORT.CHATS.TITLE' | translate }} #{{ticket.id}}</h3>
+            <span class="subject">{{ticket.subject}}</span>
+        </div>
+        <div class="status-wrap">
+            <span class="status-badge" [ngClass]="'status-' + ticket.status">
+                {{ ('STATUS.' + getStatusKey(ticket.status)) | translate }}
+            </span>
         </div>
     </div>
 
-    <div class="chat-messages" #scrollMe>
-
-        <div *ngFor="let msg of messages$ | async" class="message-wrapper"
-            [ngClass]="{'is-mine': msg.senderId === currentUserId, 'is-other': msg.senderId !== currentUserId}">
-
+    <div class="chat-messages" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+        <div class="message-wrapper" *ngFor="let msg of messages" [ngClass]="{'own': !msg.isAdmin, 'admin': msg.isAdmin}">
             <div class="message-bubble">
-                <div class="sender-name">
-                    {{ msg.senderName }}
-                    <span class="admin-badge" *ngIf="msg.isAdmin">Yetkili</span>
+                <div class="bubble-header">
+                    <span class="sender">{{msg.senderName}}</span>
+                    <span class="admin-badge" *ngIf="msg.isAdmin">{{ 'SUPPORT.CHATS.ADMIN_BADGE' | translate }}</span>
                 </div>
-
-                <div class="message-image" *ngIf="msg.messageType === 'image'">
-                    <a [href]="msg.messageBody" target="_blank">
-                        <img [src]="msg.messageBody" alt="Destek Görseli">
-                    </a>
-                </div>
-
-                <p class="text" *ngIf="msg.messageType === 'text' || !msg.messageType">
-                    {{ msg.messageBody }}
-                </p>
-
-                <span class="time">{{ msg.sentAt | date:'HH:mm' }}</span>
+                <div class="content">{{msg.message}}</div>
+                <div class="time">{{msg.createdDate | date:'HH:mm'}}</div>
             </div>
+        </div>
+    </div>
 
+    <div class="chat-footer">
+        <div class="closed-notice" *ngIf="ticket.status === 4">
+            <i class="bi bi-lock-fill"></i>
+            <span>{{ 'SUPPORT.CHATS.CLOSED_MSG' | translate }}</span>
         </div>
 
-    </div>
+        <div class="closed-notice rejected" *ngIf="ticket.status === 5">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span>{{ 'SUPPORT.CHATS.REJECTED_MSG' | translate }}</span>
+        </div>
 
-    <div class="chat-input-area" *ngIf="ticketStatus !== 4 && ticketStatus !== 3">
-
-        <input type="file" #fileInput multiple (change)="onFilesSelected($event)" accept="image/*"
-            style="display: none;">
-
-        <button class="btn-attach" (click)="fileInput.click()" title="Dosya Ekle">
-            <i class="bi bi-paperclip"></i>
-        </button>
-
-        <input type="text" [(ngModel)]="messageText" (keyup.enter)="sendMessage()" placeholder="Mesajınızı yazın...">
-
-        <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
-            <i class="bi bi-send"></i> Gönder
-        </button>
-    </div>
-
-    <div class="ticket-closed-banner" *ngIf="ticketStatus === 4">
-        <i class="fa fa-lock"></i>
-        <span>Bu destek talebi kapatılmıştır. Artık yeni mesaj gönderemezsiniz.</span>
-    </div>
-
-    <div class="ticket-closed-banner" *ngIf="ticketStatus === 3"
-        style="background-color: #fef2f2; color: #dc2626; border-top: 1px solid #f87171;">
-        <i class="fa fa-ban"></i>
-        <span>Bu destek talebi asılsız/kuraldışı bulunduğu için reddedilmiştir.</span>
+        <div class="input-area" *ngIf="ticket.status !== 4 && ticket.status !== 5">
+            <textarea [(ngModel)]="newMessage" [placeholder]="'PRODUCT_DETAIL.QUESTION_SECTION.REPLY_PLACEHOLDER' | translate" (keyup.enter)="sendMessage()"></textarea>
+            <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
     </div>
 </div>

@@ -5,12 +5,10 @@
       <p>{{ 'ADMIN_USERS.SUBTITLE' | translate }}</p>
     </div>
   </div>
-
   <div class="card-container">
     <div class="filter-bar">
       <input type="text" class="search-input" [placeholder]="'ADMIN_USERS.SEARCH_PH' | translate"
         [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()">
-
       <div class="status-toggle">
         <button [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
           {{ 'HEPSİ' }}
@@ -23,7 +21,6 @@
         </button>
       </div>
     </div>
-
     <div class="table-responsive">
       <table class="data-table">
         <thead>
@@ -36,13 +33,11 @@
           </tr>
         </thead>
         <tbody>
-
           <tr *ngIf="isLoading">
-            <td colspan="5" style="text-align: center; padding: 3rem; color: #6c757d; font-size: 1.1rem;">
+            <td colspan="5" style="text-align: center; padding: 3rem; color: var(--color-text-muted); font-size: 1rem;">
               {{ 'ADMIN_USERS.LOADING' | translate }}
             </td>
           </tr>
-
           <tr *ngFor="let user of filteredUsers">
             <td><strong>{{user.id}}</strong></td>
             <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
@@ -51,25 +46,21 @@
                 <span class="status-dot"
                   [ngClass]="(signalr.onlineUsers$ | async)?.includes(user.id) ? 'online' : 'offline'">
                 </span>
-
                 <strong>{{ user.userName }}</strong>
               </div>
             </td>
-            <td style="color: #6c757d;">{{ user.email }}</td>
-
+            <td style="color: var(--color-text-muted);">{{ user.email }}</td>
             <td class="text-right">
               <button class="action-btn action-btn--delete" (click)="deleteUser(user.id)">
-                🗑️ {{ 'ADMIN_USERS.TABLE.DELETE' | translate }}
+                <i class="bi bi-trash3"></i> {{ 'ADMIN_USERS.TABLE.DELETE' | translate }}
               </button>
             </td>
           </tr>
-
           <tr *ngIf="!isLoading && filteredUsers.length === 0">
-            <td colspan="5" style="text-align: center; padding: 3rem; color: #dc3545; font-weight: bold;">
+            <td colspan="5" style="text-align: center; padding: 3rem; color: var(--color-danger); font-weight: bold;">
               {{ 'ADMIN_USERS.NOT_FOUND' | translate }}
             </td>
           </tr>
-
         </tbody>
       </table>
     </div>

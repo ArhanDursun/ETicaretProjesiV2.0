@@ -1,34 +1,60 @@
-<div class="wallet-wrapper">
+<div class="wallet-page">
+    <div class="header-section" style="margin-bottom: 32px;">
+        <h2 style="margin: 0; font-size: 1.8rem; font-weight: 800;"><i class="bi bi-wallet2"></i> {{ 'WALLET.TITLE' |
+            translate }}</h2>
+    </div>
+
     <div class="wallet-layout">
-
-        <!-- SOL TARAF: Bakiye ve İşlemler -->
+        <!-- LEFT: BALANCE & TRANSACTIONS -->
         <div class="wallet-left">
-            <div class="balance-card text-center">
-                <h6>{{ 'WALLET.CURRENT_BALANCE' | translate }}</h6>
-                <h1>{{ currentBalance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h1>
-                <small>{{ 'WALLET.AVAILABLE_AMOUNT' | translate }}</small>
+            <div class="balance-card">
+                <div class="balance-icon"><i class="bi bi-currency-exchange"></i></div>
+                <div class="balance-info">
+                    <p class="text-muted"
+                        style="margin: 0 0 4px 0; font-weight: 600; text-transform: uppercase; font-size: 0.85rem;">{{
+                        'WALLET.CURRENT_BALANCE' | translate }}</p>
+                    <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800; color: var(--color-text);">{{
+                        currentBalance | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h1>
+                    <small class="text-success" style="font-weight: 600;"><i class="bi bi-check-circle-fill"></i> {{
+                        'WALLET.AVAILABLE_AMOUNT' | translate }}</small>
+                </div>
             </div>
 
-            <h5 class="section-title">{{ 'WALLET.LAST_TRANSACTIONS' | translate }}</h5>
+            <h3
+                style="margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 800; border-bottom: 1px solid var(--color-border); padding-bottom: 12px;">
+                {{ 'WALLET.LAST_TRANSACTIONS' | translate }}</h3>
 
-            <div *ngIf="isLoading" class="loading-state text-center">
-                <span class="loader-dark"></span> {{ 'WALLET.LOADING' | translate }}
+            <div *ngIf="isLoading" class="loading-state">
+                <i class="bi bi-arrow-repeat spin" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                <p>{{ 'WALLET.LOADING' | translate }}</p>
             </div>
 
-            <div *ngIf="!isLoading && transactions.length === 0" class="empty-state text-center">
-                {{ 'WALLET.EMPTY' | translate }}
+            <div *ngIf="!isLoading && transactions.length === 0" class="empty-state">
+                <i class="bi bi-receipt"
+                    style="font-size: 2rem; display: block; margin-bottom: 12px; color: var(--color-border-dark);"></i>
+                <p>{{ 'WALLET.EMPTY' | translate }}</p>
             </div>
 
             <div class="transaction-list" *ngIf="!isLoading && transactions.length > 0">
                 <div class="transaction-item" *ngFor="let tx of transactions">
+                    <div class="tx-icon"
+                        [ngClass]="{'bg-success-light text-success': tx.amount > 0, 'bg-danger-light text-danger': tx.amount <= 0}">
+                        <i class="bi" [ngClass]="tx.amount > 0 ? 'bi-arrow-down-left' : 'bi-arrow-up-right'"></i>
+                    </div>
+
                     <div class="tx-details">
-                        <div class="tx-desc">{{ tx.description }}</div>
-                        <div class="tx-date">
-                            {{ tx.createdDate | date:'dd.MM.yyyy HH:mm' }}
-                            <span class="badge tx-badge">{{ 'WALLET.TX_NO' | translate }} {{ tx.id }}</span>
+                        <div class="tx-desc" style="font-weight: 700; color: var(--color-text); margin-bottom: 4px;">{{
+                            tx.description }}</div>
+                        <div class="tx-meta"
+                            style="font-size: 0.85rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 8px;">
+                            <span><i class="bi bi-calendar3"></i> {{ tx.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+                            <span>•</span>
+                            <span class="badge badge--neutral">{{ 'WALLET.TX_NO' | translate }} #{{ tx.id }}</span>
                         </div>
                     </div>
-                    <div class="tx-amount" [ngClass]="{'positive': tx.amount > 0, 'negative': tx.amount <= 0}">
+
+                    <div class="tx-amount" [ngClass]="{'text-success': tx.amount > 0, 'text-danger': tx.amount <= 0}"
+                        style="font-weight: 800; font-size: 1.1rem; text-align: right;">
                         {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | currency:('WALLET.CURRENCY_CODE' |
                         translate):'symbol-narrow':'1.2-2' }}
                     </div>
@@ -36,86 +62,121 @@
             </div>
         </div>
 
-        <!-- SAĞ TARAF: Bakiye Yükleme Formu -->
+        <!-- RIGHT: TOPUP FORM -->
         <div class="wallet-right">
-            <div class="topup-card">
-                <h5 class="card-title">Cüzdana Bakiye Yükle</h5>
+            <div class="topup-card"
+                style="background: var(--color-surface); padding: 32px; border-radius: var(--radius-xl); border: 1px solid var(--color-border); box-shadow: var(--shadow-md);">
+                <h3
+                    style="margin: 0 0 24px 0; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-plus-circle"></i> {{ 'WALLET.TOPUP.TITLE' | translate }}
+                </h3>
 
-                <h6 class="form-section-title">Kişisel Bilgiler</h6>
-                <div class="form-row-2">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerName" placeholder="Ad">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerSurname" placeholder="Soyad">
+                <h6
+                    style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">
+                    {{ 'WALLET.TOPUP.PERSONAL_INFO' | translate }}</h6>
+                <div class="form-row-2" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.buyerName"
+                        [placeholder]="'REGISTER.STEP1.FIRST_NAME' | translate" style="flex: 1;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.buyerSurname"
+                        [placeholder]="'REGISTER.STEP1.LAST_NAME' | translate" style="flex: 1;">
                 </div>
-                <div class="form-row-1">
-                    <input type="email" class="custom-input" [(ngModel)]="paymentData.buyerEmail"
-                        placeholder="E-Posta Adresi">
-                </div>
-                <div class="form-row-2">
-                    <!-- Ülke Kodu Dropdown ve Telefon Numarası Yan Yana -->
-                    <div class="phone-input-group">
-                        <select class="custom-input country-select" [(ngModel)]="selectedCountryCode">
+                <input type="email" class="form-input" [(ngModel)]="paymentData.buyerEmail"
+                    [placeholder]="'LOGIN.EMAIL' | translate" style="width: 100%; margin-bottom: 12px;">
+
+                <div class="form-row-2" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <div style="display: flex; gap: 8px; flex: 1;">
+                        <select class="form-input" [(ngModel)]="selectedCountryCode"
+                            style="width: 80px; flex-shrink: 0;">
                             <option value="+90">🇹🇷 +90</option>
                             <option value="+1">🇺🇸 +1</option>
                             <option value="+44">🇬🇧 +44</option>
                             <option value="+49">🇩🇪 +49</option>
                         </select>
-                        <input type="text" class="custom-input phone-input" [ngModel]="phoneNumber"
-                            (ngModelChange)="formatPhone($event)" placeholder="555 123 45 67">
+                        <input type="text" class="form-input" [ngModel]="phoneNumber"
+                            (ngModelChange)="formatPhone($event)" placeholder="555 123 45 67" style="flex: 1;">
                     </div>
-
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerIdentityNumber"
-                        placeholder="TC Kimlik No">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.buyerIdentityNumber"
+                        [placeholder]="'WALLET.TOPUP.FIELDS.IDENTITY_NO' | translate" style="flex: 1;">
                 </div>
 
-                <h6 class="form-section-title">Adres Bilgileri</h6>
-                <div class="form-row-2">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.city" placeholder="Şehir">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.country" placeholder="Ülke">
+                <h6
+                    style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">
+                    {{ 'WALLET.TOPUP.ADDRESS_INFO' | translate }}</h6>
+                <div class="form-row-2" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.city" [placeholder]="'WALLET.TOPUP.FIELDS.CITY' | translate"
+                        style="flex: 1;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.country" [placeholder]="'WALLET.TOPUP.FIELDS.COUNTRY' | translate"
+                        style="flex: 1;">
                 </div>
-                <div class="form-row-1">
-                    <textarea class="custom-input" rows="2" [(ngModel)]="paymentData.addressDescription"
-                        placeholder="Adres"></textarea>
+                <textarea class="form-input" rows="2" [(ngModel)]="paymentData.addressDescription" [placeholder]="'WALLET.TOPUP.FIELDS.ADDRESS' | translate"
+                    style="width: 100%; margin-bottom: 12px; resize: vertical;"></textarea>
+                <input type="text" class="form-input" [(ngModel)]="paymentData.zipCode" [placeholder]="'WALLET.TOPUP.FIELDS.ZIP_CODE' | translate"
+                    style="width: 100%; margin-bottom: 24px;">
+
+                <h6
+                    style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">
+                    {{ 'WALLET.TOPUP.CARD_INFO' | translate }}</h6>
+
+                <!-- DYNAMIC CREDIT CARD MOCKUP -->
+                <app-credit-card 
+                    [cardNumber]="paymentData.cardNumber"
+                    [cardHolderName]="paymentData.cardHolderName"
+                    [expireMonth]="paymentData.expireMonth"
+                    [expireYear]="paymentData.expireYear"
+                    [cvc]="paymentData.cvc"
+                    [isActive]="isMockupActive"
+                    [isFlipped]="isCvcFocused">
+                </app-credit-card>
+
+                <input type="text" class="form-input" [(ngModel)]="paymentData.cardHolderName"
+                    (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"
+                    [placeholder]="'WALLET.TOPUP.FIELDS.CARD_HOLDER' | translate" style="width: 100%; margin-bottom: 12px;">
+                <div style="position: relative; margin-bottom: 12px;">
+                    <input type="text" class="form-input" [ngModel]="paymentData.cardNumber"
+                        (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"
+                        (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19"
+                        style="width: 100%; padding-right: 45px;">
+                    <i [ngClass]="cardLogo" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--color-text-muted);"></i>
                 </div>
-                <div class="form-row-1">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.zipCode" placeholder="Posta Kodu">
+                <div class="form-row-3" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.expireMonth" 
+                        (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"
+                        [placeholder]="'WALLET.TOPUP.FIELDS.MONTH' | translate"
+                        maxlength="2" style="flex: 1; text-align: center;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.expireYear" 
+                        (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"
+                        [placeholder]="'WALLET.TOPUP.FIELDS.YEAR' | translate"
+                        maxlength="4" style="flex: 1; text-align: center;">
+                    <input type="text" class="form-input" [(ngModel)]="paymentData.cvc" 
+                        (focus)="isMockupActive = true; isCvcFocused = true" (blur)="isMockupActive = false; isCvcFocused = false"
+                        [placeholder]="'WALLET.TOPUP.FIELDS.CVC' | translate" maxlength="3"
+                        style="flex: 1; text-align: center;">
                 </div>
 
-                <h6 class="form-section-title">Kart Bilgileri</h6>
-                <div class="form-row-1">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.cardHolderName"
-                        placeholder="Kart Üzerindeki İsim">
-                </div>
-                <div class="form-row-1">
-                    <!-- input event'i ile metodu tetikliyoruz -->
-                    <input type="text" class="custom-input" [ngModel]="paymentData.cardNumber"
-                        (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19">
-                </div>
-                <div class="form-row-3">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.expireMonth" placeholder="Ay"
-                        maxlength="2">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.expireYear" placeholder="Yıl"
-                        maxlength="4">
-                    <input type="text" class="custom-input" [(ngModel)]="paymentData.cvc" placeholder="CVC"
-                        maxlength="3">
+                <h6
+                    style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">
+                    {{ 'WALLET.TOPUP.AMOUNT_LABEL' | translate }}</h6>
+                <div style="position: relative; margin-bottom: 24px;">
+                    <input type="number" class="form-input" [(ngModel)]="paymentData.price" placeholder="0.00"
+                        style="width: 100%; font-size: 1.5rem; font-weight: 800; padding: 16px; padding-left: 40px; background: var(--color-bg-secondary);">
+                    <i class="bi bi-currency-lira"
+                        style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.5rem; color: var(--color-text-muted);"></i>
                 </div>
 
-                <h6 class="form-section-title">Yüklenecek Tutar (TL)</h6>
-                <div class="form-row-1">
-                    <input type="number" class="custom-input price-input" [(ngModel)]="paymentData.price"
-                        placeholder="0.00">
-                </div>
-
-                <button class="topup-btn" (click)="submitPayment()" [disabled]="isPaymentLoading">
-                    <span *ngIf="isPaymentLoading" class="loader-light"></span>
-                    {{ isPaymentLoading ? 'İşleniyor...' : 'Bakiye Yükle' }}
+                <button class="btn btn--primary"
+                    style="width: 100%; justify-content: center; padding: 16px; font-size: 1.1rem;"
+                    (click)="submitPayment()" [disabled]="isPaymentLoading">
+                    <i class="bi" [ngClass]="isPaymentLoading ? 'bi-arrow-repeat spin' : 'bi-safe'"></i>
+                    {{ (isPaymentLoading ? 'WALLET.TOPUP.PROCESSING' : 'WALLET.TOPUP.SUBMIT') | translate }}
                 </button>
 
-                <!-- İşlem Sonucu Mesajı -->
-                <div class="alert-msg" [ngClass]="{'success': isSuccess, 'error': !isSuccess}" *ngIf="paymentMessage">
+                <div class="alert-msg"
+                    [ngClass]="{'bg-success-light text-success border-success': isSuccess, 'bg-danger-light text-danger border-danger': !isSuccess}"
+                    *ngIf="paymentMessage"
+                    style="margin-top: 16px; padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid transparent; font-weight: 600; text-align: center;">
                     {{ paymentMessage }}
                 </div>
             </div>
         </div>
-
     </div>
 </div>

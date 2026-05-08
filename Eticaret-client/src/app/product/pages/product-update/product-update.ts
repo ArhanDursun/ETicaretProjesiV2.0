@@ -1,28 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Product } from '../../services/product';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-update',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslateModule, RouterModule],
   templateUrl: './product-update.html',
   styleUrl: './product-update.scss',
 })
 export class ProductUpdate implements OnInit {
   productId: string = '';
   isLoading: boolean = true;
+  isSaving: boolean = false;
   categories: any[] = [];
-  selectedDuration: string = '';
-  productData: any = {
+  discountDuration: string = '';
+  
+  product: any = {
     name: '',
     description: '',
     price: null,
     discountedPrice: null,
-    stockQuantity: null,
+    stock: null,
     categoryId: '',
-    dicountPercentage: null,
+    discountPercentage: null,
     discountEndDate: null,
   };
 
@@ -31,10 +35,14 @@ export class ProductUpdate implements OnInit {
     private cdr: ChangeDetectorRef,
     public router: Router,
     private productService: Product,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
-    this.productService.getCategories().subscribe((res) => (this.categories = res));
+    this.productService.getCategories().subscribe((res) => {
+        this.categories = res;
+        this.cdr.detectChanges();
+    });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -46,52 +54,77 @@ export class ProductUpdate implements OnInit {
   }
 
   loadProductDetails(id: string) {
+    this.isLoading = true;
     this.productService.getProductById(id).subscribe({
       next: (data) => {
-        this.productData = {
+        this.product = {
           name: data.name,
           description: data.description,
           price: data.price,
           discountedPrice: data.discountedPrice,
-          stockQuantity: data.stockQuantity,
+          stock: data.stockQuanity || data.stockQuantity || data.stock,
           categoryId: data.categoryId,
+          discountPercentage: data.discountPercentage,
+          discountEndDate: data.discountEndDate
         };
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Ürün yüklenemedi', err);
         this.isLoading = false;
         this.cdr.detectChanges();
       },
     });
   }
 
+  startDiscount() {
+    if (!this.product.discountPercentage || !this.discountDuration) {
+      alert(this.translate.instant('PRODUCT_UPDATE.MESSAGES.DISCOUNT_REQUIRED'));
+      return;
+    }
+    
+    let endDate = new Date();
+    const duration = this.discountDuration;
+    
+    if (duration.endsWith('m')) {
+        endDate.setMinutes(endDate.getMinutes() + parseInt(duration));
+    } else if (duration.endsWith('h')) {
+        endDate.setHours(endDate.getHours() + parseInt(duration));
+    } else if (duration.endsWith('d')) {
+        endDate.setDate(endDate.getDate() + parseInt(duration));
+    }
+    
+    this.product.discountEndDate = endDate.toISOString();
+    alert(this.translate.instant('PRODUCT_UPDATE.MESSAGES.DISCOUNT_SET'));
+    this.cdr.detectChanges();
+  }
+
   onSubmit() {
-    if (!this.productData.name || !this.productData.price) {
-      alert('Lütfen zorunlu alanları doldurun.');
+    if (!this.product.name || !this.product.price) {
+      alert(this.translate.instant('PRODUCT_UPDATE.MESSAGES.REQUIRED_FIELDS'));
       return;
     }
 
-    if (this.productData.discountPercentage && this.selectedDuration) {
-      let endDate = new Date();
-      endDate.setDate(endDate.getDate() + Number(this.selectedDuration));
-      this.productData.discountEndDate = endDate.toISOString();
-    } else {
-      this.productData.discountEndDate = null;
-      this.productData.discountPercentage = null;
-    }
-    this.isLoading = true;
-    this.productService.updateProduct(this.productId, this.productData).subscribe({
+    this.isSaving = true;
+    const updateData = {
+        ...this.product,
+        stockQuantity: this.product.stock
+    };
+
+    this.productService.updateProduct(this.productId, updateData).subscribe({
       next: () => {
-        alert('Ürün başarıyla güncellendi');
+        alert(this.translate.instant('PRODUCT_UPDATE.MESSAGES.UPDATE_SUCCESS'));
         this.router.navigate(['/product/detay', this.productId]);
       },
       error: (err) => {
-        console.error('Güncelleme hatası', err);
-        alert('Bir hata oluştu.');
-        this.isLoading = false;
+        alert(`${this.translate.instant('WALLET.TOPUP.MESSAGES.ERROR_PREFIX')} ${err.error?.message || ''}`);
+        this.isSaving = false;
+        this.cdr.detectChanges();
       },
     });
+  }
+
+  onCancel() {
+    this.router.navigate(['/product/detay', this.productId]);
   }
 }

@@ -23,9 +23,9 @@ export class AdminLayout implements OnInit {
     });
   }
 
-  switchLanguage(lang: string) {
+  public changeLanguage(lang: string) {
     this.translate.use(lang);
-    localStorage.setItem('language', lang);
+    localStorage.setItem('lang', lang);
   }
   logout() {
     localStorage.removeItem('token');

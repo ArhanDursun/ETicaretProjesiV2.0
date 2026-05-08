@@ -1,16 +1,19 @@
-<div class="admin-tickets-container">
-
-    <div class="header">
-        <h2>Yönetim Paneli - Destek Talepleri</h2>
+<div class="admin-panel-container">
+    <div class="panel-header">
+        <div class="header-titles">
+            <h2>Yönetim Paneli - Destek Talepleri</h2>
+        </div>
     </div>
-
-    <div *ngIf="isLoading" class="loading">Veriler yükleniyor...</div>
-
+    
+    <div *ngIf="isLoading" class="loading-state">
+        Veriler yükleniyor...
+    </div>
+    
     <ng-container *ngIf="!isLoading">
-
-        <div class="section-card">
-            <h3 class="text-warning">⏳ Havuzdaki Bekleyen Talepler</h3>
-            <table class="table" *ngIf="pendingTickets.length > 0">
+        <div class="table-container mb-4">
+            <h3 class="section-title"><i class="bi bi-hourglass-split"></i> Havuzdaki Bekleyen Talepler</h3>
+            
+            <table class="mono-table" *ngIf="pendingTickets.length > 0">
                 <thead>
                     <tr>
                         <th>Kullanıcı</th>
@@ -23,12 +26,16 @@
                 <tbody>
                     <tr *ngFor="let ticket of pendingTickets">
                         <td>{{ ticket.userName }}</td>
-                        <td class="fw-bold">{{ ticket.subject }}</td>
-                        <td>{{ ticket.categoryName }}</td>
-                        <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                        <td><strong>{{ ticket.subject }}</strong></td>
+                        <td><span class="badge badge--neutral">{{ ticket.categoryName }}</span></td>
+                        <td class="text-muted">{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
                         <td class="text-right">
-                            <button class="btn-assign" (click)="assignTicket(ticket.id)">Bileti Üstlen</button>
-                            <button class="btn-reject" (click)="rejectTicket(ticket.id)">Bileti Reddet</button>
+                            <button class="btn btn--secondary btn--sm" (click)="assignTicket(ticket.id)">
+                                <i class="bi bi-person-plus"></i> Üstlen
+                            </button>
+                            <button class="btn btn--danger btn--sm" style="margin-left: 8px;" (click)="rejectTicket(ticket.id)">
+                                <i class="bi bi-x-lg"></i> Reddet
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -38,9 +45,10 @@
             </div>
         </div>
 
-        <div class="section-card mt-4">
-            <h3 class="text-success">✅ Benim İlgilendiğim Talepler</h3>
-            <table class="table" *ngIf="myActiveTickets.length > 0">
+        <div class="table-container">
+            <h3 class="section-title"><i class="bi bi-check2-circle"></i> Benim İlgilendiğim Talepler</h3>
+            
+            <table class="mono-table" *ngIf="myActiveTickets.length > 0">
                 <thead>
                     <tr>
                         <th>Konu</th>
@@ -51,13 +59,16 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let ticket of myActiveTickets">
-                        <td class="fw-bold">{{ ticket.subject }}</td>
-                        <td><span class="badge badge-active">{{ ticket.statusName }}</span></td>
-                        <td>{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
+                        <td><strong>{{ ticket.subject }}</strong></td>
+                        <td><span class="badge badge--success">{{ ticket.statusName }}</span></td>
+                        <td class="text-muted">{{ ticket.createdDate | date:'dd.MM.yyyy HH:mm' }}</td>
                         <td class="text-right">
-                            <button class="btn-chat" [routerLink]="['/admin/support/chat', ticket.id]">Sohbete
-                                Git</button>
-                            <button class="btn-close-ticket" (click)="closeTicket(ticket.id)">Kapat</button>
+                            <button class="btn btn--primary btn--sm" [routerLink]="['/admin/support/chat', ticket.id]">
+                                <i class="bi bi-chat-dots"></i> Sohbete Git
+                            </button>
+                            <button class="btn btn--danger btn--sm" style="margin-left: 8px;" (click)="closeTicket(ticket.id)">
+                                <i class="bi bi-x-circle"></i> Kapat
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -66,6 +77,5 @@
                 Üzerinize aldığınız aktif bir talep bulunmuyor.
             </div>
         </div>
-
     </ng-container>
 </div>

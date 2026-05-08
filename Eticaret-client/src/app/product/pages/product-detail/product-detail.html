@@ -1,136 +1,106 @@
-<div class="container">
+<div class="product-detail-page">
   <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
+    <i class="bi bi-arrow-repeat" style="font-size: 2rem; display: block; margin-bottom: 10px; animation: spin 1s linear infinite;"></i>
     <p>{{ 'PRODUCT_DETAIL.LOADING' | translate }}</p>
   </div>
-
+  
   <div class="product-card-wrapper" *ngIf="!isLoading && product">
-
-    <div class="image-section" style="overflow: hidden; border-radius: 8px;">
-      <swiper-container *ngIf="product.images && product.images.length > 0" navigation="true" pagination="true"
-        loop="true" css-mode="true" style="width: 100%; height: 100%;">
-        <swiper-slide *ngFor="let img of product.images">
-          <img [src]="img" [alt]="product.name"
-            style="width: 100%; height:500px; object-fit: fill; border-radius: 8px;">
-        </swiper-slide>
-      </swiper-container>
-      <img *ngIf="!product.images || product.images.length === 0" src="assets/no-image.png"
-        style="width: 100%; height:500px; object-fit: cover; border-radius: 8px;">
-    </div>
-
-    <div class="info-section">
-      <span class="category-tag">{{ product.categoryName }}</span>
-      <h1>{{ product.name }}</h1>
-
-      <div class="card-rating-container" style="margin-top: 5px; margin-bottom: 15px; cursor: pointer;"
-        (click)="switchTab('comments')">
-        <ng-container *ngIf="comments.length > 0; else noCommentsTop">
-          <div class="mini-stars">
-            <span class="star-filled" style="color: #f59e0b !important; font-size: 1.2rem;"><i
-                class="bi bi-star-fill"></i></span>
-            <span class="rating-value" style="font-weight: bold; margin-left: 4px;">{{ averageRating }}</span>
-          </div>
-          <span class="comment-count" style="margin-left: 6px; color: #64748b;">({{ comments.length }}
-            Değerlendirme)</span>
-        </ng-container>
-        <ng-template #noCommentsTop>
-          <div class="card-rating-container no-rating" style="margin: 0; opacity: 0.7;">
-            <span class="star-empty" style="color: #cbd5e1 !important; font-size: 1.2rem;"><i
-                class="bi bi-star-fill"></i></span>
-            <span class="no-rating-text" style="margin-left: 4px; color: #94a3b8;">Henüz değerlendirilmedi</span>
-          </div>
-        </ng-template>
+    <div class="product-detail-layout">
+      <div class="image-section">
+        <swiper-container *ngIf="product.images && product.images.length > 0" navigation="true" pagination="true" loop="true" css-mode="true" class="detail-swiper">
+          <swiper-slide *ngFor="let img of product.images">
+            <img [src]="img" [alt]="product.name">
+          </swiper-slide>
+        </swiper-container>
+        <div class="no-image-placeholder" *ngIf="!product.images || product.images.length === 0">
+          <img src="assets/no-image.png" alt="No image">
+        </div>
       </div>
-
-      <p class="seller-info">
-        {{ 'PRODUCT_DETAIL.SELLER' | translate }}
-        <strong [routerLink]="['/seller-profile', product.sellerId]" style="cursor: pointer; color: #0984e3;">
-          {{ product.sellerName }}
-        </strong>
-      </p>
-
-      <div class="favorite-button">
-        <h3> Favorilere Ekle</h3>
-        <button class="btn-favorite" (click)="onToggleFavorite(product.id)" [class.active]="isFavorited"
-          title="Favorilere Ekle / Çıkar">
-          <i class="bi" [ngClass]="isFavorited ? 'bi-heart-fill' : 'bi-heart'"></i>
-        </button>
-      </div>
-
-      <div class="price-tag" style="margin: 1.5rem 0;">
-        <ng-container *ngIf="product.discountPercentage && product.discountPercentage > 0; else normalPrice">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <span
-              style="background-color: #ef4444; color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 1rem;">
-              %{{ product.discountPercentage }} İndirim
-            </span>
-            <del class="old-price" style="color: #94a3b8; font-size: 1.3rem;">{{ product.price }} ₺</del>
-          </div>
-          <span class="new-discount-price" style="color: #ef4444; font-weight: bold; font-size: 2.5rem;">
-            {{ product.discountedPrice }} <span class="currency" style="font-size: 1.5rem;">₺</span>
-          </span>
-        </ng-container>
-        <ng-template #normalPrice>
-          <span class="standard-price" style="font-weight: bold; font-size: 2.5rem; color: #2c3e50;">
-            {{ product.price }} <span class="currency" style="font-size: 1.5rem;">₺</span>
-          </span>
-        </ng-template>
-      </div>
-
-      <div class="description-box">
-        <h4>{{ 'PRODUCT_DETAIL.DESCRIPTION_TITLE' | translate }}</h4>
-        <p>{{ product.description }}</p>
-      </div>
-
-      <div class="stock-status">
-        <span class="dot" [style.background]="product.stockQuantity > 0 ? '#10b981' : '#ef4444'"></span>
-        <span [style.color]="product.stockQuantity > 0 ? '#10b981' : '#ef4444'">
-          {{ product.stockQuantity > 0 ? ('PRODUCT_DETAIL.IN_STOCK' | translate:{value: product.stockQuantity}) :
-          ('PRODUCT_DETAIL.OUT_OF_STOCK' | translate) }}
-        </span>
-      </div>
-
-      <div class="action-buttons">
-        <div class="quantity-selector mb-3" *ngIf="product.stockQuantity > 0 && currentUserId !== product.sellerId">
-          <span class="qty-label">{{ 'PRODUCT_DETAIL.QUANTITY_LABEL' | translate }}</span>
-          <button class="btn-qty" (click)="decreaseQuantity()" [disabled]="selectedQuantity <= 1">-</button>
-          <input type="text" class="qty-input" [value]="selectedQuantity" readonly>
-          <button class="btn-qty" (click)="increaseQuantity()"
-            [disabled]="selectedQuantity >= product.stockQuantity">+</button>
+      
+      <div class="info-section">
+        <span class="badge badge--neutral category-tag">{{ product.categoryName }}</span>
+        <h1 class="product-title">{{ product.name }}</h1>
+        
+        <div class="card-rating-container" (click)="switchTab('comments')">
+          <ng-container *ngIf="comments.length > 0; else noCommentsTop">
+            <div class="mini-stars text-accent">
+              <i class="bi bi-star-fill"></i>
+              <span class="rating-value">{{ averageRating }}</span>
+            </div>
+            <span class="comment-count text-muted">({{ comments.length }} {{ 'PRODUCT_DETAIL.RATING.REVIEWS' | translate }})</span>
+          </ng-container>
+          <ng-template #noCommentsTop>
+            <div class="no-rating text-muted">
+              <i class="bi bi-star-fill" style="color: var(--color-border-dark);"></i>
+              <span class="no-rating-text">{{ 'PRODUCT_DETAIL.RATING.NONE' | translate }}</span>
+            </div>
+          </ng-template>
         </div>
 
-        <button class="btn-add-cart" [disabled]="currentUserId === product.sellerId || product.stockQuantity <= 0"
-          (click)="addToBasket(product)">
-          <i class="fa fa-shopping-cart"></i>
-          <ng-container *ngIf="currentUserId === product.sellerId">{{ 'PRODUCT_DETAIL.OWN_PRODUCT' | translate
-            }}</ng-container>
-          <ng-container *ngIf="currentUserId !== product.sellerId">
-            {{ product.stockQuantity > 0 ? ('PRODUCT_DETAIL.ADD_TO_CART' | translate) : ('PRODUCT_DETAIL.OUT_OF_STOCK' |
-            translate) }}
-          </ng-container>
-        </button>
+        <div class="price-box">
+          <div class="price-tag">{{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</div>
+          <div class="stock-info" [ngClass]="product.stockQuantity < 10 ? 'text-danger' : 'text-success'">
+            <i class="bi" [ngClass]="product.stockQuantity < 10 ? 'bi-exclamation-triangle' : 'bi-check-circle'"></i>
+            {{ 'PRODUCT_DETAIL.STOCK_LABEL' | translate }}: {{ product.stockQuantity }}
+          </div>
+        </div>
 
-        <button class="btn-offer" *ngIf="currentUserId !== product.sellerId" (click)="openOfferModal()">
-          {{ 'PRODUCT_DETAIL.MAKE_OFFER' | translate }}
-        </button>
-        <a routerLink="/" class="btn-back">{{ 'PRODUCT_DETAIL.BACK_BTN' | translate }}</a>
+        <div class="seller-info-card">
+          <div class="seller-header">
+            <div class="seller-avatar">{{ (product.sellerName ? product.sellerName.charAt(0) : 'S') | uppercase }}</div>
+            <div class="seller-details">
+              <span class="label">{{ 'PRODUCT_DETAIL.SELLER_LABEL' | translate }}</span>
+              <a [routerLink]="['/profile', product.sellerId]" class="seller-name">{{ product.sellerName }}</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="description-box">
+          <p>{{ product.description }}</p>
+        </div>
+
+        <div class="action-grid" *ngIf="currentUserId !== product.sellerId">
+          <div class="qty-selector">
+            <button (click)="decreaseQuantity()" class="qty-btn"><i class="bi bi-dash"></i></button>
+            <span class="qty-value">{{ selectedQuantity }}</span>
+            <button (click)="increaseQuantity()" class="qty-btn"><i class="bi bi-plus"></i></button>
+          </div>
+          
+          <div class="main-actions">
+            <button class="btn btn--primary btn-basket" (click)="addToBasket(product)" [disabled]="product.stockQuantity === 0">
+              <i class="bi bi-cart-plus"></i> {{ 'PRODUCT_DETAIL.ADD_TO_BASKET' | translate }}
+            </button>
+            <button class="btn-fav" (click)="onToggleFavorite(product.id)">
+              <i class="bi" [ngClass]="isFavorited ? 'bi-heart-fill text-danger' : 'bi-heart'"></i>
+            </button>
+          </div>
+          
+          <div class="btn-group-secondary">
+            <button class="btn btn--secondary btn-offer" *ngIf="currentUserId !== product.sellerId" (click)="openOfferModal()">
+              <i class="bi bi-tag"></i> {{ 'PRODUCT_DETAIL.MAKE_OFFER' | translate }}
+            </button>
+            <a routerLink="/" class="btn btn--secondary btn-back">
+               <i class="bi bi-arrow-left"></i> {{ 'PRODUCT_DETAIL.BACK_BTN' | translate }}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="interaction-section mt-5" *ngIf="!isLoading && product">
+  
+  <div class="interaction-section" *ngIf="!isLoading && product">
     <div class="tabs-header">
       <button class="tab-btn" [class.active]="activeTab === 'comments'" (click)="switchTab('comments')">
-        <i class="fa fa-comments"></i> {{ 'PRODUCT_DETAIL.TABS.COMMENTS' | translate }} ({{ comments.length }})
+        <i class="bi bi-chat-left-text"></i> {{ 'PRODUCT_DETAIL.TABS.COMMENTS' | translate }} ({{ comments.length }})
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'questions'" (click)="switchTab('questions')">
-        <i class="fa fa-question-circle"></i> {{ 'PRODUCT_DETAIL.TABS.QUESTIONS' | translate }} ({{ questions.length }})
+        <i class="bi bi-question-circle"></i> {{ 'PRODUCT_DETAIL.TABS.QUESTIONS' | translate }} ({{ questions.length }})
       </button>
     </div>
-
+    
     <div class="tab-content">
       <div *ngIf="activeTab === 'comments'">
-        <div class="rating-summary-box mb-4" *ngIf="comments.length > 0">
+        <div class="rating-summary-box" *ngIf="comments.length > 0">
           <div class="average-score-area">
             <h2 class="score-text">{{ averageRating }}</h2>
             <span class="text-muted">{{ comments.length }} {{ 'PRODUCT_DETAIL.RATING.REVIEWS' | translate }}</span>
@@ -139,48 +109,36 @@
             <button class="filter-btn" [class.active]="selectedFilter === 0" (click)="setFilter(0)">
               {{ 'PRODUCT_DETAIL.RATING.ALL_FILTERS' | translate }} ({{ comments.length }})
             </button>
-            <button *ngFor="let i of [5,4,3,2,1]" class="filter-btn" [class.active]="selectedFilter === i"
-              (click)="setFilter(i)">
-              {{ i }} {{ 'PRODUCT_DETAIL.RATING.POINTS_SUFFIX' | translate }} ({{ getCommentCountByStar(i) }})
+            <button *ngFor="let i of [5,4,3,2,1]" class="filter-btn" [class.active]="selectedFilter === i" (click)="setFilter(i)">
+              {{ i }} <i class="bi bi-star-fill text-accent" style="font-size: 0.8rem;"></i> ({{ getCommentCountByStar(i) }})
             </button>
           </div>
         </div>
-
-        <div class="add-interaction-box mb-4" *ngIf="currentUserId && currentUserId !== product.sellerId">
-
+        
+        <div class="add-interaction-box" *ngIf="currentUserId && currentUserId !== product.sellerId">
           <ng-container *ngIf="canComment; else noPurchaseWarning">
             <h4>{{ 'PRODUCT_DETAIL.COMMENT_SECTION.ADD_TITLE' | translate }}</h4>
-
             <div class="interactive-star-rating">
-              <span class="rating-label">Puanınız:</span>
+              <span class="rating-label">{{ 'PRODUCT_DETAIL.RATING.YOUR_RATING' | translate }}</span>
               <div class="stars">
-                <span *ngFor="let star of [1, 2, 3, 4, 5]" (click)="newComment.starCount = star"
-                  [class.filled]="star <= newComment.starCount" class="star"><i class="bi bi-star-fill"></i></span>
+                <span *ngFor="let star of [1, 2, 3, 4, 5]" (click)="newComment.starCount = star" [class.filled]="star <= newComment.starCount" class="star"><i class="bi bi-star-fill"></i></span>
               </div>
               <span class="rating-number">{{ newComment.starCount || 0 }} / 5</span>
             </div>
-
-            <textarea class="form-control mb-2" rows="3"
-              [placeholder]="'PRODUCT_DETAIL.COMMENT_SECTION.PLACEHOLDER' | translate" [(ngModel)]="newComment.content"
-              [disabled]="isSubmittingInteraction"></textarea>
-
-            <button class="btn btn-primary" (click)="submitContent()"
-              [disabled]="isSubmittingInteraction || !newComment.starCount || newComment.starCount === 0">
+            <textarea class="form-input mb-3" rows="3" [placeholder]="'PRODUCT_DETAIL.COMMENT_SECTION.PLACEHOLDER' | translate" [(ngModel)]="newComment.content" [disabled]="isSubmittingInteraction"></textarea>
+            <button class="btn btn--primary" (click)="submitContent()" [disabled]="isSubmittingInteraction || !newComment.starCount || newComment.starCount === 0">
               {{ 'PRODUCT_DETAIL.COMMENT_SECTION.SUBMIT' | translate }}
             </button>
           </ng-container>
-
           <ng-template #noPurchaseWarning>
-            <div class="purchase-lock-notice"
-              style="text-align: center; padding: 20px; background: #fff5f5; border: 1px dashed #feb2b2; border-radius: 8px;">
-              <i class="fa fa-lock" style="font-size: 1.5rem; color: #f56565; margin-bottom: 10px; display: block;"></i>
-              <p style="margin: 0; color: #c53030; font-weight: 600;">Sadece bu ürünü satın alan kullanıcılar yorum
-                yapabilir.</p>
-              <small style="color: #e53e3e;">Ürünü satın aldıysanız siparişinizin tamamlanmasını bekleyiniz.</small>
+            <div class="purchase-lock-notice">
+              <i class="bi bi-lock-fill"></i>
+              <p>{{ 'PRODUCT_DETAIL.COMMENT_SECTION.LOCK_TITLE' | translate }}</p>
+              <small>{{ 'PRODUCT_DETAIL.COMMENT_SECTION.LOCK_DESC' | translate }}</small>
             </div>
           </ng-template>
         </div>
-
+        
         <div class="comments-list" *ngIf="getfilteredComments().length > 0">
           <div class="interaction-card comment-card" *ngFor="let c of getfilteredComments()">
             <div class="comment-header">
@@ -189,88 +147,92 @@
                 <div class="details">
                   <strong>{{ c.userName }}</strong>
                   <div class="comment-stars">
-                    <span *ngFor="let s of [1,2,3,4,5]" [style.color]="s <= c.starCount ? '#f59e0b' : '#e2e8f0'"
-                      style="font-size: 0.9rem;"><i class="bi bi-star-fill"></i></span>
+                    <span *ngFor="let s of [1,2,3,4,5]" [style.color]="s <= c.starCount ? 'var(--color-accent)' : 'var(--color-border-dark)'" style="font-size: 0.9rem;"><i class="bi bi-star-fill"></i></span>
                   </div>
                 </div>
               </div>
-              <span class="comment-date">{{ c.createdDate | date:'dd.MM.yyyy' }}</span>
+              <span class="comment-date text-muted">{{ c.createdDate | date:'dd.MM.yyyy' }}</span>
             </div>
             <p class="comment-text">{{ c.content }}</p>
           </div>
         </div>
-        <div class="alert alert-warning mt-4" *ngIf="comments.length > 0 && getfilteredComments().length === 0">
-          <strong>Tüh!</strong> Bu puan türüne ait henüz hiç değerlendirme yapılmamış.
+        
+        <div class="empty-state text-muted" *ngIf="comments.length > 0 && getfilteredComments().length === 0">
+          {{ 'PRODUCT_DETAIL.COMMENT_SECTION.FILTER_EMPTY' | translate }}
         </div>
-        <div class="alert alert-info mt-4" *ngIf="comments.length === 0">
+        <div class="empty-state text-muted" *ngIf="comments.length === 0">
           {{ 'PRODUCT_DETAIL.COMMENT_SECTION.EMPTY' | translate }}
         </div>
       </div>
-
+      
       <div *ngIf="activeTab === 'questions'">
-        <div class="add-interaction-box mb-4" *ngIf="currentUserId && currentUserId !== product.sellerId">
+        <div class="add-interaction-box" *ngIf="currentUserId && currentUserId !== product.sellerId">
           <h4>{{ 'PRODUCT_DETAIL.QUESTION_SECTION.ADD_TITLE' | translate }}</h4>
-          <textarea class="form-control mb-2" rows="2"
-            [placeholder]="'PRODUCT_DETAIL.QUESTION_SECTION.PLACEHOLDER' | translate" [(ngModel)]="newQuestion.content"
-            [disabled]="isSubmittingInteraction"></textarea>
-          <button class="btn btn-warning" (click)="submitQuestion()" [disabled]="isSubmittingInteraction">
+          <textarea class="form-input mb-3" rows="2" [placeholder]="'PRODUCT_DETAIL.QUESTION_SECTION.PLACEHOLDER' | translate" [(ngModel)]="newQuestion.content" [disabled]="isSubmittingInteraction"></textarea>
+          <button class="btn btn--primary" (click)="submitQuestion()" [disabled]="isSubmittingInteraction">
             {{ 'PRODUCT_DETAIL.QUESTION_SECTION.SUBMIT' | translate }}
           </button>
         </div>
-
+        
         <div class="questions-list" *ngIf="questions.length > 0">
-          <div class="interaction-card question-card mb-3" *ngFor="let q of questions">
+          <div class="interaction-card question-card" *ngFor="let q of questions">
             <div class="question-main">
               <div class="interaction-header">
-                <strong><i class="fa fa-question-circle"></i> {{ q.userName }}</strong>
-                <span class="question-date">{{ q.createdDate | date:'dd.MM.yyyy' }}</span>
+                <strong><i class="bi bi-question-circle"></i> {{ q.userName }}</strong>
+                <span class="question-date text-muted">{{ q.createdDate | date:'dd.MM.yyyy' }}</span>
               </div>
               <p class="question-content">{{ q.questionContent }}</p>
             </div>
-
             <div class="answer-section" *ngIf="q.answerContent">
-              <strong><i class="fa fa-check-circle"></i> Satıcı Cevabı:</strong>
+              <strong><i class="bi bi-check-circle-fill text-success"></i> {{ 'PRODUCT_DETAIL.QUESTION_SECTION.REPLY_LABEL' | translate }}</strong>
               <p>{{ q.answerContent }}</p>
             </div>
-
             <div class="reply-box" *ngIf="!q.answerContent && currentUserId === product.sellerId">
-              <textarea class="form-control mb-2" [(ngModel)]="q.replyText" placeholder="Cevabınızı yazın..."
-                rows="2"></textarea>
-              <button class="btn btn-sm btn-success" (click)="submitAnswer(q)">Cevapla</button>
+              <textarea class="form-input mb-2" [(ngModel)]="q.replyText" [placeholder]="'PRODUCT_DETAIL.QUESTION_SECTION.REPLY_PLACEHOLDER' | translate" rows="2"></textarea>
+              <button class="btn btn--primary btn--sm" (click)="submitAnswer(q)">{{ 'PRODUCT_DETAIL.QUESTION_SECTION.REPLY_BTN' | translate }}</button>
             </div>
           </div>
         </div>
-        <div class="alert alert-info" *ngIf="questions.length === 0">
+        
+        <div class="empty-state text-muted" *ngIf="questions.length === 0">
           {{ 'PRODUCT_DETAIL.QUESTION_SECTION.EMPTY' | translate }}
         </div>
-      </div>
     </div>
   </div>
 </div>
+</div>
 
-<div class="modal-overlay offer-overlay" *ngIf="showOfferModal" (click)="closeOfferModal()">
-  <div class="modal-content offer-content" (click)="$event.stopPropagation()">
+<div class="modal-overlay" *ngIf="showOfferModal" (click)="closeOfferModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
     <h3>{{ 'PRODUCT_DETAIL.OFFER_MODAL.TITLE' | translate }}</h3>
-    <p class="price-info">
-      {{ 'PRODUCT_DETAIL.OFFER_MODAL.NORMAL_PRICE' | translate }}
-      <strong>{{ product.price | currency:'TRY':'symbol-narrow':'1.0-0' }}</strong>
-    </p>
-    <div class="input-field">
-      <label>{{ 'PRODUCT_DETAIL.OFFER_MODAL.QTY_PROMPT' | translate }}</label>
-      <input type="number" [(ngModel)]="offerQuantity" [disabled]="isSubmittingOffer">
+    
+    <div class="modal-body">
+      <div class="info-banner">
+        {{ 'PRODUCT_DETAIL.OFFER_MODAL.NORMAL_PRICE' | translate }}
+        <strong>{{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</strong>
+      </div>
+      
+      <div class="input-group">
+        <label>{{ 'PRODUCT_DETAIL.OFFER_MODAL.QTY_PROMPT' | translate }}</label>
+        <input type="number" [(ngModel)]="offerQuantity" [disabled]="isSubmittingOffer" class="form-input">
+      </div>
+      
+      <div class="input-group">
+        <label>{{ 'PRODUCT_DETAIL.OFFER_MODAL.YOUR_PRICE' | translate }}</label>
+        <input type="number" [(ngModel)]="offerPrice" [placeholder]="'PRODUCT_DETAIL.OFFER_MODAL.PRICE_PLACEHOLDER' | translate" [disabled]="isSubmittingOffer" class="form-input">
+      </div>
+      
+      <div class="calc-box">
+        <span>{{ 'PRODUCT_DETAIL.OFFER_MODAL.TOTAL_CALC' | translate }}</span>
+        <h3 class="text-primary">{{ (offerQuantity * offerPrice) || 0 | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}</h3>
+      </div>
     </div>
-    <div class="input-field">
-      <label>{{ 'PRODUCT_DETAIL.OFFER_MODAL.YOUR_PRICE' | translate }}</label>
-      <input type="number" [(ngModel)]="offerPrice"
-        [placeholder]="'PRODUCT_DETAIL.OFFER_MODAL.PRICE_PLACEHOLDER' | translate" [disabled]="isSubmittingOffer">
+    
+    <div class="modal-btns">
+      <button class="btn btn--secondary" (click)="closeOfferModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button class="btn btn--primary" (click)="submitOffer()" [disabled]="isSubmittingOffer || !offerPrice || offerPrice <= 0">
+        {{ (isSubmittingOffer ? 'PRODUCT_DETAIL.OFFER_MODAL.SENDING' : 'PRODUCT_DETAIL.OFFER_MODAL.SUBMIT') | translate }}
+      </button>
     </div>
-    <div class="calc-box">
-      <span>{{ 'PRODUCT_DETAIL.OFFER_MODAL.TOTAL_CALC' | translate }}</span>
-      <h3>{{ (offerQuantity * offerPrice) || 0 | currency:'TRY':'symbol-narrow':'1.2-2' }}</h3>
-    </div>
-    <button class="btn-submit-offer" (click)="submitOffer()"
-      [disabled]="isSubmittingOffer || !offerPrice || offerPrice <= 0">
-      {{ (isSubmittingOffer ? 'PRODUCT_DETAIL.OFFER_MODAL.SENDING' : 'PRODUCT_DETAIL.OFFER_MODAL.SUBMIT') | translate }}
-    </button>
   </div>
 </div>

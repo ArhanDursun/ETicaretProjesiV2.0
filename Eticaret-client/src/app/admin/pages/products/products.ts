@@ -62,10 +62,12 @@ export class Products implements OnInit {
     this.selectedProduct = product;
     this.deleteReason = '';
     this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
   }
   closeDeleteModal() {
     this.isDeleteModalOpen = false;
     this.selectedProduct = null;
+    this.cdr.detectChanges();
   }
   confirmDelete() {
     if (!this.deleteReason || this.deleteReason.trim().length < 5) {

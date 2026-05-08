@@ -7,67 +7,92 @@ import {
   ElementRef,
   AfterViewChecked,
 } from '@angular/core';
-import { Observable } from 'rxjs';
-import { MessageDto, Signalr } from '../../core/signalr/signalr';
-import { ActivatedRoute } from '@angular/router';
+import { Signalr } from '../../core/signalr/signalr';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { form } from '@angular/forms/signals';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ticket-chat',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslateModule, RouterModule],
   templateUrl: './ticket-chat.html',
   styleUrl: './ticket-chat.scss',
 })
 export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
+  
+  ticket: any = null;
   ticketId: string = '';
-  messageText: string = '';
-  messages$: any;
+  newMessage: string = '';
+  messages: any[] = [];
   currentUserId: string = '';
-  ticketStatus: number = 0;
-  @ViewChild('fileInput') fileInput!: ElementRef;
+  
+  private messagesSubscription: Subscription | null = null;
+
   constructor(
     private signalRService: Signalr,
     private route: ActivatedRoute,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-  ) {
-    this.messages$ = this.signalRService.messages$;
-  }
+  ) {}
 
   ngOnInit(): void {
     this.ticketId = this.route.snapshot.paramMap.get('id') || '';
     this.currentUserId = this.getMyIdFromToken() || '';
 
     if (this.ticketId) {
-      this.http.get<any>(`https://localhost:7185/api/support/${this.ticketId}/messages`).subscribe({
-        next: (res) => {
-          this.ticketStatus = res.status;
-
-          const mesajlar = res.messages || [];
-
-          this.signalRService.loadInitialMessage(mesajlar);
-          this.signalRService.startConnection(this.ticketId);
-
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Veriler çekilemedi', err);
-        },
+      // Subscribe to messages from SignalR service
+      this.messagesSubscription = this.signalRService.messages$.subscribe(msgs => {
+        this.messages = msgs;
+        this.cdr.detectChanges();
       });
+
+      this.loadTicketDetails();
     }
-    this.cdr.detectChanges();
+  }
+
+  loadTicketDetails() {
+    this.http.get<any>(`https://localhost:7185/api/support/${this.ticketId}/messages`).subscribe({
+      next: (res) => {
+        this.ticket = {
+            id: res.id || this.ticketId,
+            status: res.status,
+            subject: res.subject || 'Destek Talebi'
+        };
+
+        const initialMsgs = res.messages || [];
+        this.signalRService.loadInitialMessage(initialMsgs);
+        this.signalRService.startConnection(this.ticketId);
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Veriler çekilemedi', err);
+      },
+    });
+  }
+
+  getStatusKey(status: number): string {
+    switch (status) {
+      case 1: return 'PENDING';
+      case 2: return 'CONFIRMED';
+      case 3: return 'PROCESSING';
+      case 4: return 'DELIVERED';
+      case 5: return 'CANCELLED';
+      default: return 'UNKNOWN';
+    }
   }
 
   sendMessage() {
-    if (!this.messageText.trim()) return;
+    if (!this.newMessage.trim()) return;
 
-    this.signalRService.sendMessage(this.ticketId, this.messageText, 'text');
+    this.signalRService.sendMessage(this.ticketId, this.newMessage, 'text');
+    this.newMessage = '';
     this.cdr.detectChanges();
-    this.messageText = '';
   }
 
   ngAfterViewChecked() {
@@ -80,9 +105,13 @@ export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
         this.myScrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
   }
+
   ngOnDestroy(): void {
     if (this.ticketId) {
       this.signalRService.stopConnection(this.ticketId);
+    }
+    if (this.messagesSubscription) {
+        this.messagesSubscription.unsubscribe();
     }
   }
 
@@ -100,31 +129,5 @@ export class TicketChat implements OnInit, OnDestroy, AfterViewChecked {
     } catch {
       return null;
     }
-  }
-  onFilesSelected(event: any) {
-    const files: FileList = event.target.files;
-    if (files.length === 0) return;
-
-    const formData = new FormData();
-
-    for (let i = 0; i < files.length; i++) {
-      formData.append('files', files[i]);
-    }
-
-    this.http
-      .post<{ urls: string[] }>(`https://localhost:7185/api/support/upload-support-file`, formData)
-      .subscribe({
-        next: (res) => {
-          res.urls.forEach((url) => {
-            this.signalRService.sendMessage(this.ticketId, url, 'image');
-          });
-          event.target.value = '';
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Dosya yüklenemedi', err);
-          alert('resimler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
-        },
-      });
   }
 }

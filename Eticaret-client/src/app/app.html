@@ -1,25 +1,20 @@
 <ng-container *ngIf="showNavbar">
   <div class="top-navbar">
-
     <div class="nav-left">
       <button class="hamburger-btn" (click)="toggleMenu()">☰</button>
       <span class="brand-logo" routerLink="/home">{{ 'NAVBAR.BRAND' | translate }}</span>
     </div>
-
     <div class="navbar-search-container">
       <div class="search-box">
         <input type="text" [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate" (input)="onSearchInput($event)"
           (blur)="closeSearch()" class="search-input">
         <span class="search-icon"><i class="bi bi-search"></i></span>
       </div>
-
       <div class="search-results-dropdown" *ngIf="showDropdown">
         <div class="loading-text" *ngIf="isSearching">{{ 'NAVBAR.SEARCHING' | translate }}</div>
-
         <div class="no-results" *ngIf="!isSearching && searchResults.length === 0">
           {{ 'NAVBAR.USER_NOT_FOUND' | translate }}
         </div>
-
         <div class="result-item" *ngFor="let user of searchResults" (click)="goToProfile(user.id)">
           <img [src]="user.profileImageUrl ? 'https://localhost:7185' + user.profileImageUrl : '/user.png'" alt="Avatar"
             class="result-avatar">
@@ -30,26 +25,21 @@
         </div>
       </div>
     </div>
-
     <div class="nav-right">
       <div class="language-switcher">
-        <span class="lang-btn" [class.active]="translate.currentLang === 'tr' || translate.defaultLang === 'tr'"
-          (click)="translate.use('tr')">TR</span>
+        <span class="lang-btn" [class.active]="activeLang === 'tr'"
+          (click)="changeLanguage('tr')">TR</span>
         <span class="divider">/</span>
-        <span class="lang-btn" [class.active]="translate.currentLang === 'en'" (click)="translate.use('en')">EN</span>
+        <span class="lang-btn" [class.active]="activeLang === 'en'" (click)="changeLanguage('en')">EN</span>
       </div>
     </div>
-
   </div>
-
   <div class="overlay" *ngIf="isMenuOpen" (click)="toggleMenu()"></div>
-
   <div class="sidebar" [class.open]="isMenuOpen">
     <div class="sidebar-header">
       <h3>{{ 'SIDEBAR.MENU_TITLE' | translate }}</h3>
       <button class="close-btn" (click)="toggleMenu()">✕</button>
     </div>
-
     <div class="menu-items">
       <ng-container *ngIf="isLoggedIn">
         <a routerLink="/home" (click)="toggleMenu()">{{ 'SIDEBAR.HOME' | translate }}</a>
@@ -66,19 +56,16 @@
           {{ 'SIDEBAR.MY_OFFERS' | translate }}
           <span class="notification-badge" *ngIf="pendingOfferCount > 0">{{ pendingOfferCount }}</span>
         </a>
-
         <a routerLink="/basket" (click)="toggleMenu()" class="menu-link">
           {{ 'SIDEBAR.MY_BASKET' | translate }}
           <span class="notification-badge bagde" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
         </a>
-
         <a routerLink="/my-orders" (click)="toggleMenu()">{{ 'SIDEBAR.MY_ORDERS' | translate }}</a>
         <a routerLink="/seller-orders" (click)="toggleMenu()">{{ 'SIDEBAR.SELLER_ORDERS' | translate }}</a>
         <a routerLink="/my-wallet" (click)="toggleMenu()">{{ 'SIDEBAR.MY_WALLET' | translate }}</a>
         <a routerLink="/support/tickets" (click)="toggleMenu()">{{'SIDEBAR.SUPPORT_TICKETS' | translate}}</a>
       </ng-container>
     </div>
-
     <div class="auth-section">
       <button *ngIf="!isLoggedIn" class="btn-login" routerLink="/auth/login" (click)="toggleMenu()">
         {{ 'SIDEBAR.LOGIN' | translate }}
@@ -89,37 +76,27 @@
     </div>
   </div>
 </ng-container>
-
 <div class="main-content" [class.full-screen]="!showNavbar">
   <router-outlet></router-outlet>
 </div>
-
 <div class="notification-overlay" *ngIf="showModal">
   <div class="notification-box">
-
     <div *ngFor="let note of unreadNotifications; let isFirst = first" [hidden]="!isFirst">
-
       <div class="icon-container">
         <i class="fa fa-exclamation-triangle"></i>
       </div>
-
       <h3>{{ note.title }}</h3>
       <p>{{ note.message }}</p>
       <span class="date">{{ note.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
-
       <button class="btn-understand" (click)="closeNotification(note.id)">
         {{ 'NOTIFICATIONS.UNDERSTAND_BTN' | translate }}
       </button>
-
     </div>
-
   </div>
 </div>
-
-
-<<div class="custom-toast-container" *ngIf="showToast" (click)="goToProductFromToast()" style="cursor: pointer;">
+<div class="custom-toast-container" *ngIf="showToast" (click)="goToProductFromToast()" style="cursor: pointer;">
   <div class="custom-toast">
     <div class="toast-icon"><i class="bi bi-fire"></i></div>
     <div class="toast-content">{{ trendMessage }}</div>
   </div>
-  </div>
+</div>

@@ -1,203 +1,277 @@
-<div class="container mt-5">
-  <h2><i class="fa fa-shopping-cart"></i> {{ 'BASKET.TITLE' | translate }}</h2>
-  <hr>
-
-  <div *ngIf="isLoading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2">{{ 'BASKET.LOADING' | translate }}</p>
+<div class="basket-page">
+  <div *ngIf="isLoading" class="loading-state">
+    <i class="bi bi-arrow-repeat spin"></i>
+    <p>{{ 'BASKET.LOADING' | translate }}</p>
   </div>
 
-  <div *ngIf="!isLoading && (!basket || !basket.items || basket.items.length === 0)"
-    class="alert alert-info text-center">
-    <i class="fa fa-info-circle fa-2x mb-3"></i>
-    <h4>{{ 'BASKET.EMPTY.TITLE' | translate }}</h4>
+  <div *ngIf="!isLoading && (!basket || !basket.items || basket.items.length === 0)" class="empty-state">
+    <i class="bi bi-bag-x"></i>
+    <h2>{{ 'BASKET.EMPTY.TITLE' | translate }}</h2>
     <p>{{ 'BASKET.EMPTY.DESC' | translate }}</p>
-    <a routerLink="/products" class="btn btn-primary mt-2">{{ 'BASKET.EMPTY.BUTTON' | translate }}</a>
+    <a routerLink="/products" class="btn btn--primary">{{ 'BASKET.EMPTY.BUTTON' | translate }}</a>
   </div>
 
-  <div *ngIf="!isLoading && basket && basket.items && basket.items.length > 0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>{{ 'BASKET.TABLE.IMAGE' | translate }}</th>
-            <th>{{ 'BASKET.TABLE.NAME' | translate }}</th>
-            <th>{{ 'BASKET.TABLE.PRICE' | translate }}</th>
-            <th>{{ 'BASKET.TABLE.QUANTITY' | translate }}</th>
-            <th>{{ 'BASKET.TABLE.TOTAL' | translate }}</th>
-            <th>{{ 'BASKET.TABLE.ACTION' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of basket.items">
-            <td>
-              <div style="width: 150px; height: 150px; overflow: hidden; border-radius: 8px; position: relative;">
-                <swiper-container *ngIf="item.images && item.images.length > 0" navigation="true" pagination="true"
-                  css-mode="true" style="width: 100%; height: 100%;">
-                  <swiper-slide *ngFor="let img of item.images">
-                    <img [src]="img" alt="Product" style="width: 100%; height: 100%; object-fit: fill;">
-                  </swiper-slide>
-                </swiper-container>
-                <img *ngIf="!item.images || item.images.length === 0" src="assets/no-image.png"
-                  style="width: 100%; height: 100%; object-fit: cover;">
-              </div>
-            </td>
-
-            <td class="fw-bold">
-              {{ item.productName }}
-              <span *ngIf="item.isOfferItem" class="badge bg-warning text-dark ms-2 d-block mt-1"
-                style="width: fit-content; font-size: 0.7rem;">
-                <i class="fa fa-handshake"></i> {{ 'BASKET.TABLE.OFFER_BADGE' | translate }}
-              </span>
-            </td>
-
-            <td class="fw-bold" [ngClass]="{'text-success text-decoration-underline': item.isOfferItem}">
-              {{ item.unitPrice | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.2-2' }}
-            </td>
-
-            <td>{{ item.quantity }} {{ 'BASKET.TABLE.UNIT' | translate }}</td>
-
-            <td>{{ (item.unitPrice * item.quantity) | currency:('WALLET.CURRENCY_CODE' |
-              translate):'symbol-narrow':'1.2-2' }}</td>
-
-            <td>
-              <button class="btn btn-sm btn-danger" (click)="removeItem(item.productId)">
-                <i class="fa fa-trash"></i> {{ 'BASKET.TABLE.DELETE' | translate }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div *ngIf="!isLoading && basket && basket.items && basket.items.length > 0" class="basket-content">
+    <div class="header-section">
+      <div>
+        <h1><i class="bi bi-bag"></i> {{ 'BASKET.TITLE' | translate }}</h1>
+        <p>{{ basket.items.length }} {{ 'COMMON.ITEMS' | translate }}</p>
+      </div>
+      <button class="btn btn--secondary btn--sm" (click)="clearBasket()">
+        <i class="bi bi-trash3"></i> {{ 'BASKET.CLEAR_BASKET' | translate }}
+      </button>
     </div>
 
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <button class="btn btn-outline-danger" (click)="clearBasket()">
-          <i class="fa fa-times"></i> {{ 'BASKET.CLEAR_BASKET' | translate }}
-        </button>
+    <div class="basket-layout">
+      <div class="basket-items-wrap">
+        <div class="basket-item-card" *ngFor="let item of basket.items">
+          <div class="product-img-wrap">
+            <swiper-container *ngIf="item.images && item.images.length > 0" navigation="true" pagination="true" css-mode="true">
+              <swiper-slide *ngFor="let img of item.images">
+                <img [src]="img" alt="Product">
+              </swiper-slide>
+            </swiper-container>
+            <img *ngIf="!item.images || item.images.length === 0" src="assets/no-image.png" alt="No image">
+          </div>
+          
+          <div class="item-details">
+            <div class="item-header">
+              <span class="product-name">{{ item.productName }}</span>
+              <span *ngIf="item.isOfferItem" class="badge badge--neutral">
+                <i class="bi bi-tag"></i> {{ 'BASKET.TABLE.OFFER_BADGE' | translate }}
+              </span>
+            </div>
+            
+            <div class="item-meta">
+              <span class="price" [class.text-danger]="item.isOfferItem">
+                {{ item.unitPrice | number }} ₺
+              </span>
+              <span class="qty-pill">{{ item.quantity }} {{ 'BASKET.TABLE.UNIT' | translate }}</span>
+            </div>
+          </div>
+          
+          <div class="item-total">
+            <span class="total-price">
+              {{ (item.unitPrice * item.quantity) | number }} ₺
+            </span>
+          </div>
+          
+          <div class="item-actions">
+            <button class="btn btn--secondary btn--sm" (click)="removeItem(item.productId)">
+              <i class="bi bi-trash3 text-danger"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="cart-summary text-end mt-4">
-        <h4>{{ 'BASKET.GRAND_TOTAL' | translate }} <strong>{{ basket.totalBasketPrices }} ₺</strong></h4>
-        <button class="btn btn-success btn-lg mt-2" (click)="openCheckOutModal()">
-          <i class="fa fa-credit-card"></i> {{ 'BASKET.CHECKOUT_BUTTON' | translate }}
+
+      <div class="basket-summary-card">
+        <h3 class="summary-title">{{ 'BASKET.GRAND_TOTAL' | translate }}</h3>
+        <div class="summary-total">{{ basket.totalBasketPrices | number }} ₺</div>
+        <button class="btn btn--primary" (click)="openCheckOutModal()">
+          <i class="bi bi-credit-card"></i> {{ 'BASKET.CHECKOUT_BUTTON' | translate }}
         </button>
       </div>
     </div>
   </div>
 </div>
-<!-- ... SENİN TABLO VE SEPET KODLARIN AYNI KALACAK ... -->
 
 <div class="modal-overlay" *ngIf="showCheckOutModal" (click)="closeCheckOutModal()">
-  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+  <div class="modal-card checkout-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3><i class="fa fa-wallet"></i> {{ 'BASKET.MODAL.TITLE' | translate }}</h3>
-      <button class="close-btn" (click)="closeCheckOutModal()">✕</button>
+      <h3><i class="bi bi-bag-check"></i> {{ 'BASKET.MODAL.TITLE' | translate }}</h3>
+      <button class="btn btn--secondary btn--sm" (click)="closeCheckOutModal()"><i class="bi bi-x-lg"></i></button>
     </div>
 
-    <div class="modal-body custom-scrollbar">
-
-      <!-- ÖDEME YÖNTEMİ SEÇİCİ -->
+    <div class="modal-body">
       <div class="payment-method-selector">
         <div class="method-card"
-          [ngClass]="{'active': paymentMethod === 'wallet', 'disabled': (userBalance - basket.totalBasketPrices) < 0}"
+          [class.active]="paymentMethod === 'wallet'"
+          [class.disabled]="(userBalance - basket.totalBasketPrices) < 0"
           (click)="setPaymentMethod('wallet')">
-          <i class="fa fa-coins mb-2 fa-2x"></i>
-          <span>Cüzdan Bakiyesi</span>
-          <small class="text-danger mt-1" *ngIf="(userBalance - basket.totalBasketPrices) < 0">Bakiye Yetersiz</small>
+          <i class="bi bi-wallet2"></i>
+          <span>{{ 'BASKET.MODAL.WALLET_BALANCE' | translate }}</span>
+          <small *ngIf="(userBalance - basket.totalBasketPrices) < 0" class="text-danger">
+            {{ 'BASKET.MODAL.INSUFFICIENT_BALANCE' | translate }}
+          </small>
         </div>
-
-        <div class="method-card" [ngClass]="{'active': paymentMethod === 'card'}" (click)="setPaymentMethod('card')">
-          <i class="fa fa-credit-card mb-2 fa-2x"></i>
-          <span>Kredi Kartı</span>
+        <div class="method-card" [class.active]="paymentMethod === 'card'" (click)="setPaymentMethod('card')">
+          <i class="bi bi-credit-card"></i>
+          <span>{{ 'BASKET.MODAL.CREDIT_CARD' | translate }}</span>
         </div>
       </div>
 
-      <!-- 1. CÜZDAN ÖZETİ (Sadece Cüzdan Seçiliyse Görünür) -->
-      <div class="wallet-summary-box" *ngIf="paymentMethod === 'wallet'">
-        <div class="summary-row">
+      <div class="wallet-summary" *ngIf="paymentMethod === 'wallet'">
+        <div class="summary-item">
           <span>{{ 'BASKET.MODAL.CURRENT_BALANCE' | translate }}</span>
-          <strong>{{ userBalance }} ₺</strong>
+          <strong>{{ userBalance | number }} ₺</strong>
         </div>
-        <div class="summary-row text-danger mt-2 pb-3 border-bottom">
+        <div class="summary-item highlight">
           <span>{{ 'BASKET.MODAL.AMOUNT_TO_PAY' | translate }}</span>
-          <strong>- {{ basket.totalBasketPrices }} ₺</strong>
+          <strong class="text-danger">- {{ basket.totalBasketPrices | number }} ₺</strong>
         </div>
-        <div class="summary-row mt-3 total-row">
+        <div class="summary-item grand">
           <span>{{ 'BASKET.MODAL.REMAINING_BALANCE' | translate }}</span>
-          <strong class="text-success">{{ userBalance - basket.totalBasketPrices }} ₺</strong>
+          <strong>{{ (userBalance - basket.totalBasketPrices) | number }} ₺</strong>
         </div>
       </div>
 
-      <!-- 2. KREDİ KARTI FORMU (Sadece Kart Seçiliyse Görünür) -->
-      <!-- 2. KREDİ KARTI FORMU (Sadece Kart Seçiliyse Görünür) -->
-      <div class="card-form-box" *ngIf="paymentMethod === 'card'">
-        <h6 class="form-title">Teslimat & Kişisel Bilgiler</h6>
-
+      <div class="card-form" *ngIf="paymentMethod === 'card'" [formGroup]="paymentForm">
+        <p class="section-title">{{ 'BASKET.MODAL.DELIVERY_INFO' | translate }}</p>
         <div class="form-row-2">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerName" placeholder="Ad">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerSurname" placeholder="Soyad">
+          <input type="text" class="form-input" formControlName="buyerName" [placeholder]="'BASKET.MODAL.FIRST_NAME' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+          <input type="text" class="form-input" formControlName="buyerSurname" [placeholder]="'BASKET.MODAL.LAST_NAME' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
         </div>
-
-        <!-- YENİ EKLENEN E-POSTA ALANI -->
-        <div class="form-row-1">
-          <input type="email" class="custom-input" [(ngModel)]="paymentData.buyerEmail" placeholder="E-Posta Adresi">
-        </div>
-
+        <input type="email" class="form-input full-width" formControlName="buyerEmail" [placeholder]="'BASKET.MODAL.EMAIL' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+        
         <div class="form-row-2">
           <div class="phone-input-group">
-            <select class="custom-input country-select" [(ngModel)]="selectedCountryCode">
+            <select class="form-input code-select" [(ngModel)]="selectedCountryCode" [ngModelOptions]="{standalone: true}" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
               <option value="+90">🇹🇷 +90</option>
               <option value="+1">🇺🇸 +1</option>
             </select>
-            <input type="text" class="custom-input phone-input" [(ngModel)]="phoneNumber" placeholder="555 123 45 67"
-              maxlength="11">
+            <input type="text" class="form-input" formControlName="phoneNumber" placeholder="555 123 45 67" maxlength="11" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
           </div>
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.buyerIdentityNumber"
-            placeholder="TC Kimlik No">
+          <input type="text" class="form-input" formControlName="buyerIdentityNumber" [placeholder]="'BASKET.MODAL.IDENTITY_NO' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
         </div>
-
+        
         <div class="form-row-2">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.city" placeholder="Şehir (Örn: Ankara)">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.country" placeholder="Ülke (Örn: Turkey)">
+          <input type="text" class="form-input" formControlName="city" [placeholder]="'BASKET.MODAL.CITY_PH' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+          <input type="text" class="form-input" formControlName="country" [placeholder]="'BASKET.MODAL.COUNTRY_PH' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
         </div>
-
+        
         <div class="form-row-2">
-          <textarea class="custom-input" rows="1" [(ngModel)]="paymentData.addressDescription"
-            placeholder="Açık Adres"></textarea>
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.zipCode" placeholder="Posta Kodu">
+          <textarea class="form-input" rows="1" formControlName="addressDescription" [placeholder]="'BASKET.MODAL.ADDRESS_PH' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"></textarea>
+          <input type="text" class="form-input" formControlName="zipCode" [placeholder]="'BASKET.MODAL.ZIP_CODE' | translate" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
         </div>
 
-        <h6 class="form-title mt-3">Kart Bilgileri</h6>
-        <div class="form-row-1 mb-2">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.cardHolderName"
-            placeholder="Kart Üzerindeki İsim">
+        <app-credit-card 
+          [cardNumber]="paymentForm.get('cardNumber')?.value"
+          [cardHolderName]="paymentForm.get('cardHolderName')?.value"
+          [expireMonth]="paymentForm.get('expireMonth')?.value"
+          [expireYear]="paymentForm.get('expireYear')?.value"
+          [cvc]="paymentForm.get('cvc')?.value"
+          [isActive]="isMockupActive"
+          [isFlipped]="isCvcFocused">
+        </app-credit-card>
+
+        <p class="section-title">{{ 'BASKET.MODAL.CARD_INFO' | translate }}</p>
+        <input type="text" class="form-input full-width" formControlName="cardHolderName" [placeholder]="'BASKET.MODAL.CARDHOLDER_PH' | translate" 
+               (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+        
+        <div class="card-number-wrapper">
+          <input type="text" class="form-input full-width" formControlName="cardNumber" 
+                 (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false"
+                 (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19">
+          <i [ngClass]="cardLogo"></i>
         </div>
-        <div class="form-row-1 mb-2">
-          <input type="text" class="custom-input" [ngModel]="paymentData.cardNumber"
-            (ngModelChange)="formatCardNumber($event)" placeholder="0000 0000 0000 0000" maxlength="19">
+        
+        <div class="expiry-cvc-grid">
+          <select class="form-input" formControlName="expireMonth" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+            <option value="" disabled selected>{{ 'BASKET.MODAL.MONTH' | translate }}</option>
+            <option *ngFor="let m of months" [value]="m">{{ m }}</option>
+          </select>
+          <select class="form-input" formControlName="expireYear" (focus)="isMockupActive = true; isCvcFocused = false" (blur)="isMockupActive = false">
+            <option value="" disabled selected>{{ 'BASKET.MODAL.YEAR' | translate }}</option>
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+          <input type="password" class="form-input cvc-input" formControlName="cvc" 
+                 (focus)="isMockupActive = true; isCvcFocused = true" (blur)="isMockupActive = false; isCvcFocused = false"
+                 placeholder="CVC" maxlength="3">
         </div>
-        <div class="form-row-3">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.expireMonth" placeholder="Ay" maxlength="2">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.expireYear" placeholder="Yıl" maxlength="4">
-          <input type="text" class="custom-input" [(ngModel)]="paymentData.cvc" placeholder="CVC" maxlength="3">
+
+        <div class="installment-box" *ngIf="paymentData.cardNumber.length >= 7">
+          <p class="box-title">{{ 'BASKET.MODAL.INSTALLMENT_OPTIONS' | translate }}</p>
+          <div class="option-row">
+            <input type="radio" id="tekCekim" name="taksit" [value]="1" checked>
+            <label for="tekCekim">{{ 'BASKET.MODAL.SINGLE_PAYMENT' | translate }}</label>
+          </div>
+        </div>
+
+        <div class="agreement-check">
+          <input type="checkbox" id="agreement" [(ngModel)]="isAgreed" [disabled]="!isContractRead || !isInfoRead" [ngModelOptions]="{standalone: true}">
+          <label for="agreement">
+            <a (click)="openAgreement('contract')">{{ 'BASKET.MODAL.CONTRACT_LINK' | translate }}</a>'ni ve
+            <a (click)="openAgreement('info')">{{ 'BASKET.MODAL.INFO_LINK' | translate }}</a>'nu {{ 'BASKET.MODAL.AGREEMENT_READ_CONFIRM' | translate }}
+          </label>
         </div>
       </div>
-
     </div>
 
-    <div class="modal-footer mt-4">
-      <div class="total-price-indicator" *ngIf="paymentMethod === 'card'">
-        <small>Ödenecek Tutar</small>
-        <strong>{{ basket.totalBasketPrices }} ₺</strong>
-      </div>
+    <div class="modal-overlay nested-agreement" *ngIf="activeAgreementModal" (click)="closeAgreement()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ activeAgreementModal === 'contract' ? ('BASKET.AGREEMENTS.CONTRACT_TITLE' | translate) : ('BASKET.AGREEMENTS.INFO_TITLE' | translate) }}</h3>
+          <button (click)="closeAgreement()">&times;</button>
+        </div>
+        <div class="modal-body" (scroll)="onScrollAgreement($event, activeAgreementModal)">
+          <div *ngIf="activeAgreementModal === 'contract'">
+            <h4 class="text-center">{{ 'BASKET.AGREEMENTS.CONTRACT_TITLE' | translate }}</h4>
+            <p><strong>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.PARTIES_TITLE' | translate }}</strong></p>
+            <p [innerHTML]="'BASKET.AGREEMENTS.CONTRACT_CONTENT.PARTIES_DESC' | translate:{appName: ('APP.TITLE' | translate)}"></p>
+            
+            <p><strong>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.SUBJECT_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.SUBJECT_DESC' | translate }}</p>
+            
+            <p><strong>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.SELLER_TITLE' | translate }}</strong></p>
+            <p [innerHTML]="'BASKET.AGREEMENTS.CONTRACT_CONTENT.SELLER_DESC' | translate:{appName: ('APP.TITLE' | translate)}"></p>
+            
+            <p><strong>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.PRODUCT_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.PRODUCT_DESC' | translate }}</p>
+            
+            <div class="agreement-details-box">
+              <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.DETAILS_DESC' | translate }}</p>
+              <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.CLAUSE_5_1' | translate }}</p>
+              <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.CLAUSE_5_2' | translate }}</p>
+            </div>
 
-      <button class="btn btn-secondary" (click)="closeCheckOutModal()">İptal</button>
-      <button class="btn btn-success"
-        [disabled]="(paymentMethod === 'wallet' && (userBalance - basket.totalBasketPrices) < 0) || isSubmitting"
-        (click)="confirmCheckOut()">
-        <i class="fa" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-        {{ isSubmitting ? 'İşleniyor...' : 'Siparişi Onayla' }}
-      </button>
+            <p><strong>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.WITHDRAWAL_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.CONTRACT_CONTENT.WITHDRAWAL_DESC' | translate }}</p>
+            
+            <p class="agreement-end-mark">{{ 'BASKET.AGREEMENTS.END_REACHED' | translate }}</p>
+          </div>
+
+          <div *ngIf="activeAgreementModal === 'info'">
+            <h4 class="text-center">{{ 'BASKET.AGREEMENTS.INFO_TITLE' | translate }}</h4>
+            <p><strong>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.SELLER_TITLE' | translate }}</strong></p>
+            <p [innerHTML]="'BASKET.AGREEMENTS.INFO_CONTENT.SELLER_DESC' | translate:{appName: ('APP.TITLE' | translate)}"></p>
+            
+            <p><strong>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.PRODUCT_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.PRODUCT_DESC' | translate }}</p>
+            
+            <p><strong>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.DELIVERY_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.DELIVERY_DESC' | translate }}</p>
+            
+            <div class="agreement-details-box">
+              <p>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.DETAILS_DESC' | translate }}</p>
+              <p>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.CLAUSE_3_1' | translate }}</p>
+            </div>
+
+            <p><strong>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.COMPLAINT_TITLE' | translate }}</strong></p>
+            <p>{{ 'BASKET.AGREEMENTS.INFO_CONTENT.COMPLAINT_DESC' | translate }}</p>
+            
+            <p class="agreement-end-mark">{{ 'BASKET.AGREEMENTS.INFO_END_REACHED' | translate }}</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn--primary" (click)="closeAgreement()" [disabled]="activeAgreementModal === 'contract' ? !isContractRead : !isInfoRead">
+            {{ (activeAgreementModal === 'contract' ? isContractRead : isInfoRead) ? ('BASKET.AGREEMENTS.CLOSE' | translate) : ('BASKET.AGREEMENTS.READ_PROMPT' | translate) }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer checkout-footer">
+      <div class="payable-info" *ngIf="paymentMethod === 'card'">
+        <small>{{ 'BASKET.MODAL.TOTAL_PAYABLE' | translate }}</small>
+        <strong>{{ basket.totalBasketPrices | number }} ₺</strong>
+      </div>
+      <div class="actions">
+        <button class="btn btn--secondary" (click)="closeCheckOutModal()">{{ 'BASKET.MODAL.CANCEL' | translate }}</button>
+        <button class="btn btn--primary" [disabled]="!isAgreed || (paymentMethod === 'wallet' && (userBalance - basket.totalBasketPrices) < 0) || isSubmitting" (click)="confirmCheckOut()">
+          <i class="bi" [ngClass]="isSubmitting ? 'bi-arrow-repeat spin' : 'bi-check-lg'"></i>
+          {{ isSubmitting ? ('BASKET.MODAL.PROCESSING' | translate) : ('BASKET.MODAL.CONFIRM' | translate) }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

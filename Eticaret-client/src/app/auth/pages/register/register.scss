@@ -1,1 +1,18 @@
-@use '../../styles/auth-shared';
+@use '../login/login.scss' as *;
+
+.row {
+  display: flex;
+  gap: 16px;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.input-wrap.no-icon input {
+  padding-left: 14px !important;
+}

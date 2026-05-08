@@ -1,95 +1,121 @@
+# ETicaretProjesi V2.0 - Real-Time Ultra-Minimalist E-Commerce Platform
+
+![Angular](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![SignalR](https://img.shields.io/badge/SignalR-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+
+Modern web teknolojileri kullanılarak geliştirilmiş, **Clean Architecture** prensiplerini temel alan, gerçek zamanlı (real-time) bildirim, mesajlaşma ve asenkron iş süreçlerini barındıran üst düzey bir e-ticaret platformudur. 
+
+Proje, kullanıcı deneyimini **Ultra-Minimalist Monochrome** tasarım anlayışıyla birleştirerek hem estetik hem de yüksek performanslı bir çözüm sunar.
+
 ---
 
-```markdown
-# ETicaretProjesi - Gerçek Zamanlı ve Modern E-Ticaret Platformu
+## Mimari Yapı
 
-Modern web teknolojileri kullanılarak geliştirilmiş, mikroservis haberleşme prensiplerini barındıran, gerçek zamanlı (real-time) bildirim ve mesajlaşma özelliklerine sahip kapsamlı bir B2C/C2C e-ticaret platformudur. 
+Proje, sürdürülebilirlik ve test edilebilirlik için **Clean Architecture (Onion Architecture)** üzerine inşa edilmiştir:
 
-Proje, kullanıcı deneyimini asenkron arka plan işlemleri ve anlık soket bağlantıları ile en üst düzeye çıkarmayı hedeflemektedir.
+*   **API:** RESTful endpoint'ler, SignalR Hub'ları ve Middleware'ler.
+*   **Application:** İş mantığı (Service layer), DTO mapping (AutoMapper), CQRS benzeri yapı ve Event Consumer'lar.
+*   **Infrastructure:** Dış servis entegrasyonları (Iyzico, SignalR Service, Redis Cache).
+*   **Persistence:** EF Core konfigürasyonları, Repository implementasyonları ve Database Seed verileri.
+*   **Domain (Entities):** Çekirdek modeller ve iş kuralları.
+
+---
 
 ## Öne Çıkan Özellikler
 
-* **Gerçek Zamanlı Fiyat ve Stok Alarmları:** Admin panelinden bir ürünün fiyatı düşürüldüğünde, ürünü favorilerine ekleyen tüm kullanıcılara *MassTransit (RabbitMQ)* üzerinden asenkron olarak ulaşılarak *SignalR* ile anlık Toast bildirimi gönderilir ve Veritabanı Bildirim Merkezine kaydedilir.
-* **Anlık Mesajlaşma (Direct Message):** Alıcılar ve satıcılar arasında `ChatHub` üzerinden gerçek zamanlı mesajlaşma altyapısı.
-* **Gelişmiş Bildirim Merkezi:** Teklif durumları (Kabul/Ret/Karşı Teklif), stok uyarıları ve favori bildirimlerinin tutulduğu, dinamik yönlendirmelere sahip okunmuş/okunmamış bildirim yönetimi.
-* **Canlı Trafik ve Kullanıcı Durumu:** `TrafficHub` ile sistemde o an aktif/online olan kullanıcıların takibi.
-* **Akıllı Sepet ve Teklif Sistemi:** Kullanıcıların ürünlere özel fiyat teklifi verebilmesi ve satıcı ile pazarlık döngüsü.
-* **Çoklu Dil Desteği:** `@ngx-translate` ile dinamik TR/EN dil seçenekleri.
+### Gerçek Zamanlı Bildirim Sistemi (SignalR + RabbitMQ)
+*   **Fiyat Alarmları:** Admin panelinden bir ürünün fiyatı değiştiğinde, `MassTransit` üzerinden `ProductPriceChangedEvent` yayınlanır. Background consumer'lar bu mesajı yakalar ve ürünü favorileyen kullanıcılara `SignalR` üzerinden anlık bildirim gönderir.
+*   **Stok Uyarıları:** Kritik stok seviyelerine ulaşıldığında otomatik sistem bildirimleri.
 
-## Kullanılan Teknolojiler
+### Ödeme ve Güvenlik
+*   **Iyzico Entegrasyonu:** Güvenli ödeme altyapısı ve işlem takibi.
+*   **JWT Authentication:** ASP.NET Core Identity ile güçlendirilmiş, güvenli token tabanlı oturum yönetimi.
+*   **Distributed Locking:** Redis tabanlı `RedLockNet` ile yarış durumlarını (race conditions) önleyen güvenli işlem yönetimi.
 
-Bu proje, ölçeklenebilir ve sürdürülebilir bir mimari kurmak amacıyla modern araçlarla (VS Code ve Visual Studio 2026 ortamlarında) geliştirilmiştir.
+### İletişim ve Trafik
+*   **Direct Message (DM):** Alıcı ve satıcılar arasında `ChatHub` ile anlık mesajlaşma.
+*   **Destek Sistemi:** `SupportHub` üzerinden canlı müşteri desteği.
+*   **Canlı Trafik İzleme:** `TrafficHub` ile online kullanıcı sayısı ve site trafiğinin anlık takibi.
 
-### Frontend (İstemci)
-* **Framework:** Angular 17+ (Standalone Components Mimari)
-* **Reaktif Programlama:** RxJS (Observables, Subjects)
-* **Real-time İletişim:** `@microsoft/signalr`
-* **Dil Yönetimi:** `@ngx-translate/core`
-* **Stil:** SCSS, CSS Variables, Responsive Tasarım
+### Modern Arayüz
+*   **Monochrome UI:** Gözü yormayan, premium hissettiren siyah-beyaz minimalist tasarım.
+*   **İleri Seviye Angular:** Standalone component mimarisi, RxJS tabanlı reaktif veri yönetimi ve `ngx-translate` ile tam i18n desteği.
 
-### Backend (Sunucu)
-* **Platform:** .NET 10 (C# 14)
-* **API Mimari:** RESTful API & ASP.NET Core
-* **Message Broker:** RabbitMQ (MassTransit Entegrasyonu)
-* **Real-time İletişim:** SignalR (NotificationHub, ChatHub, TrafficHub)
-* **ORM:** Entity Framework Core
-* **Veritabanı:** PostgreSQL / SQLite
-* **Kimlik Doğrulama:** JWT (JSON Web Token) & ASP.NET Core Identity
+---
 
-## Mimari Akış Örneği (Fiyat Alarmı Senaryosu)
-Sistemin asenkron yapısını anlamak için fiyat güncelleme akışı:
-1. **Tetikleyici:** Admin ürün fiyatını günceller.
-2. **Yayıncı:** .NET Core, `ProductPriceChangedEvent` nesnesini RabbitMQ'ya publish eder.
-3. **Tüketici:** Arka planda çalışan `ProductPriceChangedConsumer` mesajı yakalar, ürünü favorileyen `UserId`'leri bulur.
-4. **Soket:** Bulunan ID'lere `SignalService` aracılığıyla `ReceivePriceAlert` komutu fırlatılır. Aynı anda DB'ye kayıt atılır.
-5. **İstemci:** Angular'daki `NotificationSignalR` servisi sinyali dinler, DOM'u güncelleyerek anında Toast bildirimi çıkarır.
+## Teknoloji Yığını
 
-## Kurulum Adımları (Local Environment)
+### Backend
+- **Framework:** .NET 10 (C# 14)
+- **Veritabanı:** PostgreSQL (Entity Framework Core)
+- **Önbellekleme:** Redis (Distributed Cache & Distributed Lock)
+- **Mesajlaşma:** RabbitMQ & MassTransit
+- **API Dokümantasyonu:** Scalar (Mars Theme)
+- **Logging:** Serilog (File-based)
 
-Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları sırasıyla uygulayın.
+### Frontend
+- **Framework:** Angular 21 (Latest/Experimental)
+- **State Management:** RxJS (Observables & Subjects)
+- **UI Libraries:** Bootstrap Icons, Swiper.js, Chart.js
+- **Localization:** @ngx-translate
 
-### Ön Koşullar
-* [.NET 10 SDK](https://dotnet.microsoft.com/download)
-* [Node.js (v18+)](https://nodejs.org/)
-* **Docker Desktop** (RabbitMQ ve Redis servislerini hızlıca ayağa kaldırmak için tavsiye edilir)
-* PostgreSQL veya SQLite ortamı
+---
 
-### 1. RabbitMQ'yu Ayağa Kaldırma (Docker ile)
-```bash
-docker run -d --hostname my-rabbit --name e-ticaret-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-```
-*(Yönetim paneline `http://localhost:15672` adresinden guest/guest ile erişebilirsiniz.)*
+## Sistem Akış Diyagramı
 
-### 2. Backend Kurulumu
-1. Terminalde `Backend` (API) dizinine gidin.
-2. `appsettings.json` dosyasını açarak `ConnectionStrings` (PostgreSQL/SQLite) ve `RabbitMQ` ayarlarınızı kendi lokal ortamınıza göre düzenleyin.
-3. Veritabanını oluşturmak için EF Core migrasyonlarını çalıştırın:
-```bash
-dotnet ef database update
-```
-4. Projeyi başlatın:
-```bash
-dotnet run
-```
-*API varsayılan olarak `https://localhost:7185` portunda ayağa kalkacaktır.*
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant API as .NET 10 API
+    participant MQ as RabbitMQ (MassTransit)
+    participant Redis as Redis Cache
+    participant Client as Angular Client
 
-### 3. Frontend Kurulumu
-1. Terminalde `Frontend` dizinine gidin.
-2. Gerekli NPM paketlerini yükleyin:
-```bash
-npm install
-```
-3. Angular projesini geliştirme modunda çalıştırın:
-```bash
-ng serve
-```
-4. Tarayıcınızda `http://localhost:4200` adresine giderek projeyi görüntüleyin.
-
-## Katkıda Bulunma
-
-Bu proje kişisel gelişim ve portfolyo amacıyla geliştirilmektedir. Bulduğunuz hatalar (bug) veya geliştirme önerileri için `Issues` sekmesini kullanabilir veya `Pull Request` gönderebilirsiniz.
-
-
+    Admin->>API: Ürün Fiyatını Güncelle
+    API->>MQ: ProductPriceChangedEvent (Publish)
+    API->>Redis: Cache Temizleme
+    MQ-->>API: Consumer Mesajı Yakalar
+    API-->>Client: SignalR: "Fiyat Düştü!" Bildirimi
+    Client->>Client: Toast Mesajı Göster
 ```
 
 ---
+
+## Kurulum Adımları
+
+### Ön Koşullar
+*   .NET 10 SDK
+*   Node.js (v20+)
+*   Docker (RabbitMQ ve Redis için)
+
+### 1. Servisleri Başlatın (Docker)
+```bash
+docker run -d --name eticaret-redis -p 6379:6379 redis
+docker run -d --name eticaret-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+
+### 2. Backend Kurulumu
+```bash
+cd ETicaretProjesiV2.0/ETicaretProjesiV2.0.API
+dotnet ef database update
+dotnet run
+```
+*API: `https://localhost:7185` | Scalar API Docs: `https://localhost:7185/scalar/v1`*
+
+### 3. Frontend Kurulumu
+```bash
+cd Eticaret-client
+npm install
+npm start
+```
+*Client: `http://localhost:4200`*
+
+---
+
+## Lisans ve Katkıda Bulunma
+Bu proje eğitim ve portfolyo amaçlı geliştirilmiştir. Katkıda bulunmak için lütfen bir `Issue` açın veya `Pull Request` gönderin.
+

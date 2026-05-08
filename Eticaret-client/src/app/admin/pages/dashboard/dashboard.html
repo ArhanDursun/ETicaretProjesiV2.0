@@ -1,10 +1,8 @@
 <div class="dashboard">
-
   <div class="dashboard__header">
     <h1>{{ 'DASHBOARD.TITLE' | translate }}</h1>
     <p>{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
   </div>
-
   <div class="dashboard__stats">
     <div class="stat-card">
       <div class="stat-card__icon" style="background-color: #e3f2fd; color: #1976d2;">🌍</div>
@@ -13,7 +11,6 @@
         <span>{{ 'DASHBOARD.STATS.VOLUME' | translate }}</span>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-card__icon" style="background-color: #e8f5e9; color: #388e3c;">💸</div>
       <div class="stat-card__info">
@@ -22,7 +19,6 @@
         <span>{{ 'DASHBOARD.STATS.COMMISSION' | translate }}</span>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-card__icon" style="background-color: #f3e5f5; color: #7b1fa2;">🏪</div>
       <div class="stat-card__info">
@@ -30,7 +26,6 @@
         <span>{{ 'DASHBOARD.STATS.ACTIVE_SELLERS' | translate }}</span>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-card__icon" style="background-color: #fff3e0; color: #f57c00;">🏷️</div>
       <div class="stat-card__info">
@@ -39,31 +34,26 @@
       </div>
     </div>
   </div>
-
   <div class="dashboard__chart"
-    style="background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-top: 2rem; margin-bottom: 2rem; border: 1px solid #f3f5f9;">
+    style="padding: 1.5rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h3 style="margin: 0; color: #1e293b; font-size: 1.2rem;">{{ 'DASHBOARD.CHART.TITLE' | translate }}</h3>
-
+      <h3 style="margin: 0; color: var(--color-text); font-size: 1rem; font-weight: 700;">{{ 'DASHBOARD.CHART.TITLE' | translate }}</h3>
       <select [(ngModel)]="selectedTimeRange" (change)="onFilterChange()"
-        style="padding: 0.5rem 1rem; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; color: #475569; outline: none; cursor: pointer; background-color: #f8fafc;">
+        style="padding: 6px 14px; border: 1px solid var(--color-border); border-radius: 99px; font-weight: 600; color: var(--color-text-muted); font-size: 0.82rem; outline: none; cursor: pointer; background-color: var(--color-bg-secondary); font-family: inherit;">
         <option value="7days">{{ 'DASHBOARD.CHART.7_DAYS' | translate }}</option>
         <option value="1month">{{ 'DASHBOARD.CHART.1_MONTH' | translate }}</option>
         <option value="all">{{ 'DASHBOARD.CHART.ALL_TIME' | translate }}</option>
       </select>
     </div>
-
     <div style="position: relative; height: 300px; width: 100%;">
       <canvas id="commissionChart"></canvas>
     </div>
   </div>
-
   <div class="dashboard__recent-orders">
     <div class="table-header">
       <h2>{{ 'DASHBOARD.RECENT_ORDERS.TITLE' | translate }}</h2>
       <button class="view-all-btn" (click)="openModal()">{{ 'DASHBOARD.RECENT_ORDERS.VIEW_ALL' | translate }}</button>
     </div>
-
     <div class="table-responsive">
       <table class="data-table">
         <thead>
@@ -82,7 +72,6 @@
               {{ 'DASHBOARD.RECENT_ORDERS.LOADING' | translate }}
             </td>
           </tr>
-
           <tr *ngFor="let order of recentOrders">
             <td><strong>{{ order.id }}</strong></td>
             <td><a [routerLink]="['/admin/user-detail', order.sellerId]"
@@ -94,16 +83,13 @@
             <td
               [style.color]="(order.status === 'İptal Edildi' || order.status === 'Cancelled') ? '#6c757d' : '#388e3c'"
               style="font-weight: bold;">
-
               <ng-container
                 *ngIf="order.status !== 'İptal Edildi' && order.status !== 'Cancelled'; else cancelledCommission">
                 +{{ order.commission | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
               </ng-container>
-
               <ng-template #cancelledCommission>
                 {{ 0 | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
               </ng-template>
-
             </td>
             <td>
               <span class="badge" [ngClass]="{
@@ -123,26 +109,21 @@
       <h3>Genel Satış Raporu</h3>
       <p>Son 1 yıla ait tüm satışların ve komisyonların detaylı dökümünü Excel olarak indirin.</p>
     </div>
-
     <button class="btn-generate" (click)="requestReport()" [disabled]="isGeneratingReport">
       <div class="spinner" *ngIf="isGeneratingReport"></div>
-
       <span *ngIf="!isGeneratingReport">Excel Raporu Oluştur</span>
       <span *ngIf="isGeneratingReport">Rapor Hazırlanıyor...</span>
     </button>
   </div>
-
 </div>
-
-<div class="custom-modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
-  <div class="custom-modal" (click)="$event.stopPropagation()">
-
-    <div class="custom-modal__header">
-      <h2>{{ 'DASHBOARD.RECENT_ORDERS.MODAL_TITLE' | translate }}</h2>
-      <button class="close-btn" (click)="closeModal()">&times;</button>
+<!-- FULL ORDERS MODAL -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ 'DASHBOARD.RECENT_ORDERS.MODAL_TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
     </div>
-
-    <div class="custom-modal__body">
+    <div class="modal-body">
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -158,25 +139,20 @@
           <tbody>
             <tr *ngFor="let order of recentOrders">
               <td><strong>{{ order.id }}</strong></td>
-              <td><a [routerLink]="['/admin/user-detail', order.sellerId]"
-                  style="color: #1976d2; font-weight: 600; text-decoration: none;">
+              <td>
+                <a [routerLink]="['/admin/user-detail', order.sellerId]" class="seller-link">
                   {{ order.seller }}
-                </a></td>
+                </a>
+              </td>
               <td>{{ order.customer }}</td>
               <td>{{ order.amount | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}</td>
-              <td
-                [style.color]="(order.status === 'İptal Edildi' || order.status === 'Cancelled') ? '#6c757d' : '#388e3c'"
-                style="font-weight: bold;">
-
-                <ng-container
-                  *ngIf="order.status !== 'İptal Edildi' && order.status !== 'Cancelled'; else cancelledCommission">
+              <td class="commission-cell" [ngClass]="{'cancelled': order.status === 'İptal Edildi' || order.status === 'Cancelled'}">
+                <ng-container *ngIf="order.status !== 'İptal Edildi' && order.status !== 'Cancelled'; else cancelledCommission">
                   +{{ order.commission | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
                 </ng-container>
-
                 <ng-template #cancelledCommission>
                   {{ 0 | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow':'1.0-0' }}
                 </ng-template>
-
               </td>
               <td>
                 <span class="badge" [ngClass]="{
@@ -191,10 +167,8 @@
         </table>
       </div>
     </div>
-
   </div>
 </div>
-
 <div class="custom-toast-container" [class.toast-show]="showNotification">
   <div class="toast-box">
     <div class="toast-icon">
@@ -203,18 +177,15 @@
           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     </div>
-
     <div class="toast-content">
       <h4 class="toast-title">İşlem Tamamlandı 🚀</h4>
       <p class="toast-message">{{ notificationMessage }}</p>
-
       <div class="toast-action">
         <a [href]="notificationUrl" target="_blank" (click)="closeNotification()" class="btn-download">
           ⬇️ Excel'i İndir
         </a>
       </div>
     </div>
-
     <button class="toast-close" (click)="closeNotification()">
       <svg viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd"

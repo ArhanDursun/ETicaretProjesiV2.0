@@ -1,13 +1,315 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  
+/* ================================================
+   GLOBAL DESIGN TOKENS & RESET
+   E-Ticaret App — Ultra-Minimalist & Monochrome
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Primary — Single accent (Electric Indigo) */
+  --color-primary:        #4f46e5;
+  --color-primary-dark:   #3730a3;
+  --color-primary-light:  #ede9fe;
+  --color-primary-rgb:    79, 70, 229;
+
+  /* Semantic */
+  --color-success:        #10b981;
+  --color-success-light:  #d1fae5;
+  --color-danger:         #ef4444;
+  --color-danger-light:   #fee2e2;
+  --color-warning:        #f59e0b;
+  --color-warning-light:  #fef3c7;
+  --color-info:           #3b82f6;
+  --color-info-light:     #dbeafe;
+
+  /* Neutrals — Pure & Clean */
+  --color-bg:             #ffffff;
+  --color-bg-secondary:   #f9fafb;
+  --color-surface:        #ffffff;
+  --color-surface-raised: #f9fafb;
+  --color-border:         #e5e7eb;
+  --color-border-dark:    #d1d5db;
+
+  /* Text */
+  --color-text:           #111111;
+  --color-text-muted:     #6b7280;
+  --color-text-light:     #9ca3af;
+
+  /* Radius */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* Shadows — Extremely subtle */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:  0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg:  0 10px 15px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(0, 0, 0, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.12s ease;
+  --transition-md:   0.22s ease;
+  --transition-slow: 0.4s ease;
+
+  /* Layout */
+  --navbar-height:    64px;
+  --sidebar-width:    260px;
 }
 
-*, *:before, *:after {
-  box-sizing: inherit;
+/* ==================== RESET & BASE ==================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Scrollbar — Hidden for Minimalist UI */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Selection */
+::selection { background: var(--color-primary-light); color: var(--color-primary-dark); }
+
+/* Autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+  -webkit-text-fill-color: #111111 !important;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.surface-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  &--success { background: var(--color-success-light); color: #065f46; }
+  &--danger  { background: var(--color-danger-light);  color: #991b1b; }
+  &--warning { background: var(--color-warning-light); color: #92400e; }
+  &--info    { background: var(--color-info-light);    color: #1e40af; }
+  &--neutral { background: var(--color-bg-secondary);  color: var(--color-text-muted); border: 1px solid var(--color-border); }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+
+  &--primary {
+    background: var(--color-text);
+    color: #fff;
+    &:hover { background: #333; }
+    &:focus { outline: none; box-shadow: var(--shadow-focus); }
+  }
+  &--secondary {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    &:hover { background: var(--color-border); }
+  }
+  &--danger {
+    background: var(--color-danger-light);
+    color: #991b1b;
+    &:hover { background: #fecaca; }
+  }
+  &--accent {
+    background: var(--color-primary);
+    color: #fff;
+    &:hover { background: var(--color-primary-dark); }
+  }
+  &--sm { padding: 6px 12px; font-size: 0.82rem; }
+  &--lg { padding: 12px 24px; font-size: 1rem; }
+  &--icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-md); }
+}
+
+/* ==================== GLOBAL FORM ELEMENTS ==================== */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+select,
+textarea {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+  outline: none;
+
+  &::placeholder { color: var(--color-text-light); }
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+/* ==================== TABLE UTILITY ==================== */
+.mono-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-light);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background var(--transition-fast);
+    &:hover { background: var(--color-bg-secondary); }
+    &:last-child td { border-bottom: none; }
+  }
+}
+
+/* ==================== MODAL SYSTEM ==================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: modalFadeIn var(--transition-fast);
+
+  @keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+.modal-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideUp var(--transition-md);
+
+  @keyframes modalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  &.modal-lg { max-width: 800px; }
+  &.modal-sm { max-width: 380px; }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 { font-size: 1.2rem; font-weight: 800; margin: 0; letter-spacing: -0.3px; }
+  }
+
+  .modal-body {
+    padding: 24px;
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+
+  .modal-btns, .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .close-btn, .modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    &:hover { color: var(--color-text); }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin { animation: spin 1s linear infinite; display: inline-block; }

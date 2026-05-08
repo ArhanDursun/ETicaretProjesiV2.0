@@ -1,56 +1,85 @@
-<div class="admin-layout">
-
+<div class="admin-layout-container">
+  <!-- SIDEBAR -->
   <aside class="admin-sidebar">
-    <div class="admin-sidebar__brand">
-      <h2>{{ 'ADMIN.BRAND' | translate }} <span>{{ 'ADMIN.PANEL_SUFFIX' | translate }}</span></h2>
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </div>
+      <div class="brand-text">
+        {{ 'ADMIN.BRAND' | translate }}
+        <span>{{ 'ADMIN.PANEL_SUFFIX' | translate }}</span>
+      </div>
     </div>
-    <nav class="admin-sidebar__nav">
-      <ul>
-        <li>
-          <a routerLink="/admin/dashboard" routerLinkActive="active">{{ 'ADMIN.NAV.DASHBOARD' | translate }}</a>
-        </li>
-        <li>
-          <a routerLink="/admin/users" routerLinkActive="active">{{ 'ADMIN.NAV.USERS' | translate }}</a>
-        </li>
-        <li>
-          <a routerLink="/admin/categories" routerLinkActive="active">{{ 'ADMIN.NAV.CATEGORIES' | translate }}</a>
-        </li>
-        <li>
-          <a routerLink="/admin/products" routerLinkActive="active">{{ 'ADMIN.NAV.PRODUCTS' | translate }}</a>
-        </li>
-        <li>
-          <a routerLink="/admin/support-tickets" routerLinkActive="active">
-            {{ 'ADMIN.NAV.SUPPORT_TICKETS' | translate }}
-          </a>
-        </li>
-      </ul>
+
+    <nav>
+      <div class="nav-section-title">MENU</div>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active-link">
+        <i class="bi bi-grid-1x2-fill"></i>
+        {{ 'ADMIN.NAV.DASHBOARD' | translate }}
+      </a>
+
+      <a routerLink="/admin/users" routerLinkActive="active-link">
+        <i class="bi bi-people-fill"></i>
+        {{ 'ADMIN.NAV.USERS' | translate }}
+      </a>
+
+      <a routerLink="/admin/categories" routerLinkActive="active-link">
+        <i class="bi bi-folder-fill"></i>
+        {{ 'ADMIN.NAV.CATEGORIES' | translate }}
+      </a>
+
+      <a routerLink="/admin/products" routerLinkActive="active-link">
+        <i class="bi bi-box-seam-fill"></i>
+        {{ 'ADMIN.NAV.PRODUCTS' | translate }}
+      </a>
+
+      <a routerLink="/admin/support-tickets" routerLinkActive="active-link">
+        <i class="bi bi-headset"></i>
+        {{ 'ADMIN.NAV.SUPPORT_TICKETS' | translate }}
+      </a>
     </nav>
 
-    <div class="admin-sidebar__footer">
-      <div class="admin-lang-switcher">
-        <button (click)="switchLanguage('tr')" [class.active]="currentLang === 'tr'">
+    <div class="sidebar-footer">
+      <div class="admin-lang-switcher" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px;">
+        <button (click)="changeLanguage('tr')" [style.opacity]="currentLang === 'tr' ? '1' : '0.5'"
+          style="background: transparent; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
           🇹🇷 TR
         </button>
-        <button (click)="switchLanguage('en')" [class.active]="currentLang === 'en'">
+        <button (click)="changeLanguage('en')" [style.opacity]="currentLang === 'en' ? '1' : '0.5'"
+          style="background: transparent; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
           🇺🇸 EN
         </button>
       </div>
-      <button class="logout-btn" (click)="logout()">{{ 'ADMIN.LOGOUT' | translate }}</button>
+
+      <button class="btn-logout" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        {{ 'ADMIN.LOGOUT' | translate }}
+      </button>
     </div>
   </aside>
 
-  <main class="admin-main">
-    <header class="admin-header">
-      <div class="admin-header__search">
-        <input type="text" [placeholder]="'ADMIN.SEARCH_PH' | translate">
-      </div>
-      <div class="admin-header__profile">
-        <span>{{ 'ADMIN.PROFILE_NAME' | translate }}</span>
-      </div>
-    </header>
+  <!-- HEADER -->
+  <header class="admin-header">
+    <h1 class="page-title">{{ 'ADMIN.BRAND' | translate }}</h1>
 
-    <div class="admin-content">
-      <router-outlet></router-outlet>
+    <div class="header-right">
+      <div class="admin-header__search" style="position: relative;">
+        <i class="bi bi-search"
+          style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+        <input type="text" [placeholder]="'ADMIN.SEARCH_PH' | translate"
+          style="padding: 8px 16px 8px 35px; border-radius: 8px; border: 1px solid #e2e8f0; outline: none;">
+      </div>
+
+      <div class="admin-badge">
+        <i class="bi bi-person-circle"></i>
+        {{ 'ADMIN.PROFILE_NAME' | translate }}
+      </div>
     </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="admin-content">
+    <router-outlet></router-outlet>
   </main>
 </div>

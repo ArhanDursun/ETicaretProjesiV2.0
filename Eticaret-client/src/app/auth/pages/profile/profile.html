@@ -1,174 +1,184 @@
-<div class="profile-container" *ngIf="!isLoading; else profilYukleniyor">
-    <div class="store-header">
-        <div class="store-identity">
-            <div class="avatar-wrapper">
-                <img [src]="profileData.profileImageUrl ? 'https://localhost:7185' + profileData.profileImageUrl : 'user.png'"
-                    class="avatar-img">
-            </div>
-            <div class="store-info">
-                <h2>{{ profileData.firstName }} {{ profileData.lastName }} <span class="username">@{{
-                        profileData.userName }}</span></h2>
-                <p class="store-bio">{{ profileData.description || ('PROFILE.DEFAULT_BIO' | translate) }}</p>
-            </div>
-        </div>
-
-        <div class="wallet-box" *ngIf="isOwnProfile">
-            <span class="wallet-label">{{ 'PROFILE.WALLET_LABEL' | translate }}</span>
-            <span class="wallet-amount">{{ profileData.balance | currency:('WALLET.CURRENCY_CODE' |
-                translate):'symbol-narrow' }}</span>
-        </div>
+<div class="profile-page" *ngIf="!isLoading; else profilYukleniyor">
+  <div class="profile-header-card">
+    <div class="profile-main-info">
+      <div class="avatar-container">
+        <img [src]="profileData.profileImageUrl ? 'https://localhost:7185' + profileData.profileImageUrl : 'user.png'"
+          class="avatar-img" (error)="onImageError($event)">
+        <div class="avatar-status" [ngClass]="isOwnProfile ? 'online' : ''"></div>
+      </div>
+      <div class="user-info-text">
+        <h1>{{ profileData.firstName }} {{ profileData.lastName }}</h1>
+        <p class="username-handle">@{{ profileData.userName }}</p>
+        <p class="bio-text">{{ profileData.description || ('PROFILE.DEFAULT_BIO' | translate) }}</p>
+      </div>
     </div>
 
-    <div class="profile-actions" *ngIf="isOwnProfile">
-        <button class="btn-main" (click)="showProfileModal = true">{{ 'PROFILE.EDIT_STORE' | translate }}</button>
-        <button class="btn-secondary" (click)="showPasswordModal = true">{{ 'PROFILE.SECURITY_PASS' | translate
-            }}</button>
+    <div class="profile-meta-stats">
+      <div class="stat-item" *ngIf="isOwnProfile">
+        <span class="stat-label">{{ 'PROFILE.WALLET_LABEL' | translate }}</span>
+        <span class="stat-value">{{ profileData.balance | number }} ₺</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">{{ 'PROFILE.PRODUCT_COUNT_LABEL' | translate }}</span>
+        <span class="stat-value">{{ myProducts.length }}</span>
+      </div>
     </div>
 
-    <hr class="divider">
-
-    <div class="showcase-section">
-        <h3 class="section-title">
-            {{ (isOwnProfile ? 'PROFILE.MY_SHOWCASE' : 'PROFILE.SHOWCASE') | translate }}
-            <span *ngIf="myProducts.length > 0">{{ 'PROFILE.PRODUCT_COUNT' | translate:{count: myProducts.length}
-                }}</span>
-        </h3>
-
-        <div class="product-grid" *ngIf="myProducts.length > 0; else emptyShowcase">
-            <div class="product-card" *ngFor="let product of myProducts">
-                <div class="img-container">
-                    <swiper-container *ngIf="product.images && product.images.length > 0" navigation="true"
-                        pagination="true" loop="true" css-mode="true" class="showcase-swiper">
-                        <swiper-slide *ngFor="let img of product.images">
-                            <img [src]="'https://localhost:7185' + img" [alt]="product.name">
-                        </swiper-slide>
-                    </swiper-container>
-
-                    <img *ngIf="!product.images || product.images.length === 0" src="assets/no-image.png"
-                        [alt]="product.name">
-                </div>
-
-                <div class="product-details">
-                    <h4 [routerLink]="['/product/detay', product.id]" style="cursor: pointer;">{{ product.name }}</h4>
-
-                    <div class="profile-price-area" style="margin: 12px 0;">
-                        <ng-container
-                            *ngIf="product.discountPercentage && product.discountPercentage > 0; else noProfileDiscount">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                <span
-                                    style="background-color: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">
-                                    %{{ product.discountPercentage }} İndirim
-                                </span>
-                                <del style="color: #94a3b8; font-size: 0.85em;">
-                                    {{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow' }}
-                                </del>
-                            </div>
-                            <span class="price" style="color: #ef4444; font-weight: bold; font-size: 1.2em;">
-                                {{ product.discountedPrice | currency:('WALLET.CURRENCY_CODE' |
-                                translate):'symbol-narrow' }}
-                            </span>
-                        </ng-container>
-
-                        <ng-template #noProfileDiscount>
-                            <span class="price" style="font-weight: bold; font-size: 1.2em; color: #2c3e50;">
-                                {{ product.price | currency:('WALLET.CURRENCY_CODE' | translate):'symbol-narrow' }}
-                            </span>
-                        </ng-template>
-                    </div>
-
-                    <button *ngIf="isOwnProfile" [routerLink]="['/product/update', product.id]"
-                        style="width: 100%; padding: 8px; border-radius: 6px; background-color: #f59e0b; color: white; border: none; cursor: pointer; margin-top: 5px; font-weight: 500; transition: background 0.2s;">
-                        <i class="fa fa-edit"></i> Ürünü Düzenle
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <ng-template #emptyShowcase>
-            <div class="empty-state">{{ 'PROFILE.EMPTY_SHOWCASE' | translate }}</div>
-        </ng-template>
+    <div class="profile-actions-bar" *ngIf="isOwnProfile">
+      <button class="btn btn--primary" (click)="openProfileModal()">
+        <i class="bi bi-pencil-square"></i> {{ 'PROFILE.EDIT_STORE' | translate }}
+      </button>
+      <button class="btn btn--secondary" (click)="openPasswordModal()">
+        <i class="bi bi-shield-lock"></i> {{ 'PROFILE.SECURITY_PASS' | translate }}
+      </button>
     </div>
-</div> <ng-template #profilYukleniyor>
-    <div class="loading-state">{{ 'PROFILE.LOADING' | translate }}</div>
-</ng-template>
+  </div>
 
+  <div class="showcase-container">
+    <div class="showcase-header">
+      <h2 class="showcase-title">
+        {{ (isOwnProfile ? 'PROFILE.MY_SHOWCASE' : 'PROFILE.SHOWCASE') | translate }}
+      </h2>
+      <div class="showcase-filters">
+        <span class="item-count">{{ myProducts.length }} {{ 'COMMON.ITEMS' | translate }}</span>
+      </div>
+    </div>
 
-<div class="modal-overlay" *ngIf="showProfileModal">
-    <div class="modal-card">
-        <h3>{{ 'PROFILE.MODAL_PROFILE.TITLE' | translate }}</h3>
-
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PROFILE.IMAGE_LABEL' | translate }}</label>
-            <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input">
-            <small *ngIf="isUploadingImage" style="color: #0984e3; font-weight: bold;">{{
-                'PROFILE.MODAL_PROFILE.IMAGE_WAIT' | translate }}</small>
-            <div *ngIf="profileData.profileImageUrl && !isUploadingImage" style="margin-top: 10px;">
-                <small style="color: #27ae60; font-weight: bold;">{{ 'PROFILE.MODAL_PROFILE.IMAGE_SUCCESS' | translate
-                    }}</small>
-            </div>
+    <div class="sahibinden-grid" *ngIf="myProducts.length > 0; else emptyShowcase">
+      <div class="vitrin-item" *ngFor="let product of myProducts">
+        <div class="vitrin-image-wrap" [routerLink]="['/product/detay', product.id]">
+          <img
+            [src]="product.images && product.images.length > 0 ? 'https://localhost:7185' + product.images[0] : 'assets/no-image.png'"
+            class="vitrin-img">
+          <div class="vitrin-price-tag">
+            {{ product.discountedPrice || product.price | number }} ₺
+          </div>
         </div>
-
-        <div class="input-row">
-            <div class="input-group">
-                <label>{{ 'PROFILE.MODAL_PROFILE.FIRST_NAME' | translate }}</label>
-                <input type="text" [(ngModel)]="profileData.firstName">
-            </div>
-            <div class="input-group">
-                <label>{{ 'PROFILE.MODAL_PROFILE.LAST_NAME' | translate }}</label>
-                <input type="text" [(ngModel)]="profileData.lastName">
-            </div>
-        </div>
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PROFILE.PHONE' | translate }}</label>
-            <input type="text" [ngModel]="profileData.phoneNumber" (ngModelChange)="formatPhone($event)"
-                placeholder="+90 555 123 45 67">
-        </div>
-
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PROFILE.BIO_LABEL' | translate }}</label>
-            <textarea [(ngModel)]="profileData.description" rows="3"
-                [placeholder]="'PROFILE.MODAL_PROFILE.BIO_PLACEHOLDER' | translate"></textarea>
-        </div>
-
-        <div class="modal-btns">
-            <button class="btn-cancel" (click)="showProfileModal = false">{{ 'PROFILE.MODAL_PROFILE.CANCEL' | translate
-                }}</button>
-            <button class="btn-save" (click)="updateProfile()" [disabled]="isUpdatingProfile">
-                {{ (isUpdatingProfile ? 'PROFILE.MODAL_PROFILE.SAVING' : 'PROFILE.MODAL_PROFILE.SAVE') | translate }}
+        <div class="vitrin-details">
+          <h3 class="vitrin-name" [routerLink]="['/product/detay', product.id]">{{ product.name }}</h3>
+          <div class="vitrin-footer" *ngIf="isOwnProfile">
+            <button class="vitrin-edit-btn" [routerLink]="['/product/update', product.id]">
+              <i class="bi bi-gear-fill"></i> {{ 'COMMON.EDIT' | translate }}
             </button>
+          </div>
         </div>
+      </div>
     </div>
+
+    <ng-template #emptyShowcase>
+      <div class="empty-state-card">
+        <i class="bi bi-bag-x"></i>
+        <p>{{ 'PROFILE.EMPTY_SHOWCASE' | translate }}</p>
+        <button class="btn btn--primary" routerLink="/product/add" *ngIf="isOwnProfile">
+          {{ 'HOME.ADD_PRODUCT_BTN' | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
 </div>
 
-<div class="modal-overlay" *ngIf="showPasswordModal">
-    <div class="modal-card">
-        <h3>{{ 'PROFILE.MODAL_PASS.TITLE' | translate }}</h3>
+<ng-template #profilYukleniyor>
+  <div class="profile-loading">
+    <div class="spinner"></div>
+    <p>{{ 'PROFILE.LOADING' | translate }}</p>
+  </div>
+</ng-template>
 
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PASS.CURRENT' | translate }}</label>
-            <input type="password" [(ngModel)]="passwordData.currentPassword"
-                [placeholder]="'PROFILE.MODAL_PASS.CURRENT_PH' | translate">
-        </div>
-
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PASS.NEW' | translate }}</label>
-            <input type="password" [(ngModel)]="passwordData.newPassword"
-                [placeholder]="'PROFILE.MODAL_PASS.NEW_PH' | translate">
-        </div>
-
-        <div class="input-group">
-            <label>{{ 'PROFILE.MODAL_PASS.CONFIRM' | translate }}</label>
-            <input type="password" [(ngModel)]="passwordData.confirmedNewPassword"
-                [placeholder]="'PROFILE.MODAL_PASS.CONFIRM_PH' | translate">
-        </div>
-
-        <div class="modal-btns">
-            <button class="btn-cancel" (click)="showPasswordModal = false">{{ 'PROFILE.MODAL_PASS.CANCEL' | translate
-                }}</button>
-            <button class="btn-save btn-danger" style="background-color: #d63031;" (click)="changePassword()"
-                [disabled]="isUpdatingPassword">
-                {{ (isUpdatingPassword ? 'PROFILE.MODAL_PASS.UPDATING' : 'PROFILE.MODAL_PASS.SUBMIT') | translate }}
-            </button>
-        </div>
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" *ngIf="showProfileModal" (click)="closeProfileModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ 'PROFILE.MODAL_PROFILE.TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="closeProfileModal()"><i class="bi bi-x-lg"></i></button>
     </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PROFILE.IMAGE_LABEL' | translate }}</label>
+        <div class="image-upload-wrapper">
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" id="profile-upload" class="hidden-input">
+          <label for="profile-upload" class="upload-trigger">
+            <i class="bi bi-camera"></i> {{ 'PROFILE.MODAL_PROFILE.CHANGE_IMAGE' | translate }}
+          </label>
+        </div>
+        <div *ngIf="isUploadingImage" class="upload-loader">
+          <div class="mini-spinner"></div> <span>{{ 'PROFILE.MODAL_PROFILE.IMAGE_WAIT' | translate }}</span>
+        </div>
+        <div *ngIf="profileData.profileImageUrl && !isUploadingImage" class="upload-success">
+          <i class="bi bi-check-circle-fill"></i> {{ 'PROFILE.MODAL_PROFILE.IMAGE_SUCCESS' | translate }}
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>{{ 'PROFILE.MODAL_PROFILE.FIRST_NAME' | translate }}</label>
+          <input type="text" [(ngModel)]="profileData.firstName" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>{{ 'PROFILE.MODAL_PROFILE.LAST_NAME' | translate }}</label>
+          <input type="text" [(ngModel)]="profileData.lastName" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PROFILE.PHONE' | translate }}</label>
+        <input type="text" [(ngModel)]="profileData.phoneNumber" (input)="formatPhone(profileData.phoneNumber)"
+          class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PROFILE.BIO_LABEL' | translate }}</label>
+        <textarea rows="4" [(ngModel)]="profileData.description" class="form-input"
+          [placeholder]="'PROFILE.MODAL_PROFILE.BIO_PLACEHOLDER' | translate"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn--secondary" (click)="closeProfileModal()">{{ 'PROFILE.MODAL_PROFILE.CANCEL' | translate
+        }}</button>
+      <button class="btn btn--primary" (click)="updateProfile()" [disabled]="isUpdatingProfile">
+        <i class="bi bi-check-lg" *ngIf="!isUpdatingProfile"></i>
+        <i class="bi bi-arrow-repeat spin" *ngIf="isUpdatingProfile"></i>
+        {{ (isUpdatingProfile ? 'PROFILE.MODAL_PROFILE.SAVING' : 'PROFILE.MODAL_PROFILE.SAVE') | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" *ngIf="showPasswordModal" (click)="closePasswordModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ 'PROFILE.MODAL_PASS.TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="closePasswordModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PASS.CURRENT' | translate }}</label>
+        <input type="password" [(ngModel)]="passwordData.currentPassword" class="form-input"
+          [placeholder]="'PROFILE.MODAL_PASS.CURRENT_PH' | translate">
+      </div>
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PASS.NEW' | translate }}</label>
+        <input type="password" [(ngModel)]="passwordData.newPassword" class="form-input"
+          [placeholder]="'PROFILE.MODAL_PASS.NEW_PH' | translate">
+      </div>
+      <div class="form-group">
+        <label>{{ 'PROFILE.MODAL_PASS.CONFIRM' | translate }}</label>
+        <input type="password" [(ngModel)]="passwordData.confirmedNewPassword" class="form-input"
+          [placeholder]="'PROFILE.MODAL_PASS.CONFIRM_PH' | translate">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn--secondary" (click)="closePasswordModal()">{{ 'PROFILE.MODAL_PASS.CANCEL' | translate
+        }}</button>
+      <button class="btn btn--primary" (click)="changePassword()" [disabled]="isUpdatingPassword">
+        <i class="bi bi-check-lg" *ngIf="!isUpdatingPassword"></i>
+        <i class="bi bi-arrow-repeat spin" *ngIf="isUpdatingPassword"></i>
+        {{ (isUpdatingPassword ? 'PROFILE.MODAL_PASS.UPDATING' : 'PROFILE.MODAL_PASS.SUBMIT') | translate }}
+      </button>
+    </div>
+  </div>
 </div>

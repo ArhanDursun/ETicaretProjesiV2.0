@@ -1,115 +1,125 @@
-<div class="container mt-5">
-    <h2 class="mb-4"><i class="fa fa-box"></i> {{ 'ORDERS.TITLE' | translate }}</h2>
-
-    <div *ngIf="isLoading" class="text-center mt-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">{{ 'ORDERS.LOADING' | translate }}</p>
+<div class="orders-container">
+    <div class="orders-header">
+        <h1><i class="bi bi-box-seam"></i> {{ 'ORDERS.TITLE' | translate }}</h1>
     </div>
 
-    <div *ngIf="!isLoading && orders.length === 0" class="alert alert-warning text-center">
-        {{ 'ORDERS.EMPTY' | translate }}
+    <div class="loading-state" *ngIf="isLoading">
+        <i class="bi bi-arrow-repeat spin"></i>
+        <p>{{ 'ORDERS.LOADING' | translate }}</p>
     </div>
 
-    <div class="row" *ngIf="!isLoading && orders.length > 0">
-        <div class="col-12 mb-3" *ngFor="let order of orders">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <span><strong>{{'ORDERS.DATE_LABEL' | translate}}</strong>
-                        {{order.orderDate | date:'dd.MM.yyyy HH:mm'}}</span>
-                    <span class="badge" [ngClass]="getStatusColor(order.status)">
+    <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
+        <i class="bi bi-cart-x"></i>
+        <p>{{ 'ORDERS.EMPTY' | translate }}</p>
+        <button class="btn btn--primary" routerLink="/home">{{ 'BASKET.EMPTY.BUTTON' | translate }}</button>
+    </div>
+
+    <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
+        <div class="order-card" *ngFor="let order of orders">
+            <div class="order-card__header">
+                <div class="header-left">
+                    <span class="order-date">
+                        <i class="bi bi-calendar3"></i> 
+                        {{ 'ORDERS.DATE_LABEL' | translate }} <strong>{{ order.orderDate | date:'dd.MM.yyyy HH:mm' }}</strong>
+                    </span>
+                    <span class="order-no">{{ 'ORDERS.ORDER_NO' | translate }} #{{ order.id.substring(0,8) }}</span>
+                </div>
+                <div class="header-right">
+                    <span class="status-badge" [ngClass]="getStatusColor(order.status)">
                         {{ getStatusText(order.status) | translate }}
                     </span>
                 </div>
+            </div>
 
-                <div class="card-body d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <h5 class="card-title">{{ 'ORDERS.TOTAL_PRICE' | translate }} <strong>{{ order.totalPrice }}
-                                ₺</strong></h5>
-                        <p class="text-muted mb-0">{{ 'ORDERS.ORDER_NO' | translate }} <small>{{ order.id }}</small></p>
+            <div class="order-card__body">
+                <div class="products-preview">
+                    <div class="preview-item" *ngFor="let item of $any(order).items | slice:0:3">
+                        <img [src]="getImageUrl($any(item).productImages)" [alt]="$any(item).productName">
                     </div>
-
-                    <div class="btn-group">
-                        <button class="btn btn-outline-primary btn-sm" (click)="viewOrderDetails(order.id)">
-                            {{ 'ORDERS.VIEW_DETAILS' | translate }}
-                        </button>
-                        <button class="btn btn-outline-danger" [disabled]="isCancelDisabled(order.status)"
-                            (click)="cancelOrder(order.id)" style="min-width: 160px;">
-                            {{ (isCancelDisabled(order.status) ? 'ORDERS.CANNOT_CANCEL' : 'ORDERS.CANCEL_ORDER')
-                            |translate }}
-                        </button>
+                    <div class="more-items" *ngIf="order.items.length > 3">
+                        +{{ order.items.length - 3 }}
                     </div>
                 </div>
+                <div class="order-total">
+                    <span class="label">{{ 'ORDERS.TOTAL_PRICE' | translate }}</span>
+                    <span class="value">{{ order.totalPrice | number }} ₺</span>
+                </div>
+            </div>
+
+            <div class="order-card__footer">
+                <button class="btn btn--secondary btn--sm" (click)="viewOrderDetails(order.id)">
+                    <i class="bi bi-eye"></i> {{ 'ORDERS.VIEW_DETAILS' | translate }}
+                </button>
+                <button class="btn btn--danger btn--sm" 
+                        *ngIf="!isCancelDisabled(order.status)"
+                        (click)="cancelOrder(order.id)">
+                    <i class="bi bi-x-circle"></i> {{ 'ORDERS.CANCEL_ORDER' | translate }}
+                </button>
+                <span class="text-muted small" *ngIf="isCancelDisabled(order.status)">
+                    <i class="bi bi-info-circle"></i> {{ 'ORDERS.CANNOT_CANCEL' | translate }}
+                </span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- DETAILS MODAL -->
 <div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
-    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h3><i class="fa fa-shopping-bag"></i> {{ 'ORDERS.MODAL.TITLE' | translate }}</h3>
-            <button class="close-btn" (click)="closeDetailsModal()">✕</button>
+    <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
+            <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800;"><i class="bi bi-bag"></i> {{ 'ORDERS.MODAL.TITLE' | translate }}</h3>
+            <button class="btn btn--secondary btn--sm" style="padding: 4px 8px;" (click)="closeDetailsModal()"><i class="bi bi-x-lg"></i></button>
         </div>
-
-        <div class="modal-body p-4">
-            <div *ngIf="isDetailsLoading || !selectedOrderDetails" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-3 text-muted">{{ 'ORDERS.MODAL.LOADING' | translate }}</p>
+        
+        <div class="modal-body">
+            <div *ngIf="isDetailsLoading || !selectedOrderDetails" class="loading-state">
+                <i class="bi bi-arrow-repeat" style="font-size: 2rem; display: block; margin-bottom: 10px; animation: spin 1s linear infinite;"></i>
+                <p>{{ 'ORDERS.MODAL.LOADING' | translate }}</p>
             </div>
-
+            
             <div *ngIf="!isDetailsLoading && selectedOrderDetails">
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div class="summary-box" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-bg-secondary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 24px;">
                     <div>
-                        <h5 class="mb-1 text-dark fw-bold">{{ 'ORDERS.MODAL.SUMMARY' | translate }}</h5>
-                        <small class="text-muted">
-                            <i class="fa fa-calendar-alt me-1"></i>
-                            {{selectedOrderDetails.orderDate | date:'dd.MM.yyyy HH:mm' }}
-                        </small>
+                        <h5 style="margin: 0 0 4px 0; font-size: 1rem; font-weight: 700;">{{ 'ORDERS.MODAL.SUMMARY' | translate }}</h5>
+                        <small class="text-muted"><i class="bi bi-calendar3"></i> {{selectedOrderDetails.orderDate | date:'dd.MM.yyyy HH:mm' }}</small>
                     </div>
-                    <div class="text-end">
-                        <span class="badge px-3 py-2 rounded-pill"
-                            [ngClass]="getStatusColor(selectedOrderDetails.status)">
+                    <div>
+                        <span class="badge" [ngClass]="getStatusColor(selectedOrderDetails.status)">
                             {{getStatusText(selectedOrderDetails.status) | translate}}
                         </span>
                     </div>
                 </div>
-
-                <div class="product-list-container mb-4">
-                    <div class="product-item d-flex align-items-center p-3 mb-2 rounded border"
-                        *ngFor="let item of selectedOrderDetails.orderItems">
-                        <div class="product-image-container bg-light rounded overflow-hidden me-3 d-flex justify-content-center align-items-center border"
-                            style="width: 60px; height: 60px;">
-
+                
+                <div class="product-list">
+                    <div class="product-item" *ngFor="let item of selectedOrderDetails.orderItems" style="display: flex; align-items: center; padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: 12px; background: var(--color-surface);">
+                        
+                        <div class="product-image" style="width: 60px; height: 60px; flex-shrink: 0; border-radius: var(--radius-sm); border: 1px solid var(--color-border); overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--color-bg-secondary); margin-right: 16px;">
                             <img *ngIf="item.product?.productImages?.length > 0"
                                 [src]="item.product.productImages[0].imagePath.startsWith('http') ? item.product.productImages[0].imagePath : 'https://localhost:7185' + (item.product.productImages[0].imagePath.startsWith('/') ? '' : '/') + item.product.productImages[0].imagePath"
-                                class="img-fluid product-img" style="width: 100%; height: 100%; object-fit: cover;">
-
-                            <i *ngIf="!item.product?.productImages || item.product?.productImages?.length === 0"
-                                class="fa fa-box-open text-secondary fs-4"></i>
-
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            <i *ngIf="!item.product?.productImages || item.product?.productImages?.length === 0" class="bi bi-box" style="font-size: 1.5rem; color: var(--color-border-dark);"></i>
                         </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1 text-dark fw-semibold text-truncate" style="max-width: 250px;">
+                        
+                        <div class="product-details" style="flex: 1;">
+                            <h6 style="margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 700;">
                                 {{ item.product?.name || ('ORDERS.MODAL.NO_NAME' | translate) }}
                             </h6>
-                            <div class="text-muted" style="font-size: 0.9rem;">
+                            <div class="text-muted" style="font-size: 0.85rem;">
                                 {{ 'ORDERS.MODAL.UNIT_PRICE' | translate }} {{ item.unitPrice }} ₺
-                                <span class="mx-1">•</span>
-                                {{ 'ORDERS.MODAL.QUANTITY' | translate }} {{ item.quanity }} {{ 'ORDERS.MODAL.QTY_UNIT'
-                                | translate }}
+                                <span style="margin: 0 8px;">•</span>
+                                {{ 'ORDERS.MODAL.QUANTITY' | translate }} {{ item.quanity }} {{ 'ORDERS.MODAL.QTY_UNIT' | translate }}
                             </div>
                         </div>
-
-                        <div class="text-end ms-3">
-                            <h5 class="mb-0 text-dark fw-bold">{{ item.unitPrice * item.quanity }} ₺</h5>
+                        
+                        <div class="product-total" style="text-align: right; margin-left: 16px;">
+                            <h5 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--color-text);">{{ item.unitPrice * item.quanity }} ₺</h5>
                         </div>
                     </div>
                 </div>
-
-                <div class="total-section bg-light p-3 rounded d-flex justify-content-between align-items-center">
-                    <span class="fs-5 text-muted fw-semibold">{{ 'ORDERS.MODAL.GRAND_TOTAL' | translate }}</span>
-                    <h3 class="mb-0 fw-bold text-danger">{{ selectedOrderDetails.totalPrices }} ₺</h3>
+                
+                <div class="total-section" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-bg-secondary); padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--color-border); margin-top: 24px;">
+                    <span style="font-size: 1.1rem; font-weight: 600; color: var(--color-text-muted);">{{ 'ORDERS.MODAL.GRAND_TOTAL' | translate }}</span>
+                    <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--color-danger);">{{ selectedOrderDetails.totalPrices }} ₺</h3>
                 </div>
             </div>
         </div>
