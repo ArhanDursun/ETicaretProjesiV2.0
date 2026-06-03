@@ -1,4 +1,8 @@
-# ETicaretProjesi V2.0 - Real-Time Ultra-Minimalist E-Commerce Platform
+<div align="center">
+
+# 🛒 ETicaretProjesi V2.0
+
+### Real-Time · Clean Architecture · Ultra-Minimalist
 
 ![Angular](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
@@ -7,65 +11,61 @@
 ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![SignalR](https://img.shields.io/badge/SignalR-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 
-Modern web teknolojileri kullanılarak geliştirilmiş, **Clean Architecture** prensiplerini temel alan, gerçek zamanlı (real-time) bildirim, mesajlaşma ve asenkron iş süreçlerini barındıran üst düzey bir e-ticaret platformudur. 
-
-Proje, kullanıcı deneyimini **Ultra-Minimalist Monochrome** tasarım anlayışıyla birleştirerek hem estetik hem de yüksek performanslı bir çözüm sunar.
+</div>
 
 ---
 
-## Mimari Yapı
+Modern web teknolojileri üzerine inşa edilmiş, **Clean Architecture** prensiplerini benimseyen; gerçek zamanlı bildirim, anlık mesajlaşma ve asenkron iş süreçlerini bir arada barındıran tam kapsamlı bir e-ticaret platformu.
 
-Proje, sürdürülebilirlik ve test edilebilirlik için **Clean Architecture (Onion Architecture)** üzerine inşa edilmiştir:
-
-*   **API:** RESTful endpoint'ler, SignalR Hub'ları ve Middleware'ler.
-*   **Application:** İş mantığı (Service layer), DTO mapping (AutoMapper), CQRS benzeri yapı ve Event Consumer'lar.
-*   **Infrastructure:** Dış servis entegrasyonları (Iyzico, SignalR Service, Redis Cache).
-*   **Persistence:** EF Core konfigürasyonları, Repository implementasyonları ve Database Seed verileri.
-*   **Domain (Entities):** Çekirdek modeller ve iş kuralları.
+Arayüz, **Ultra-Minimalist Monochrome** tasarım anlayışıyla kurgulanmış — sade, keskin, dikkat dağıtmayan.
 
 ---
 
-## Öne Çıkan Özellikler
+## 📐 Mimari
 
-### Gerçek Zamanlı Bildirim Sistemi (SignalR + RabbitMQ)
-*   **Fiyat Alarmları:** Admin panelinden bir ürünün fiyatı değiştiğinde, `MassTransit` üzerinden `ProductPriceChangedEvent` yayınlanır. Background consumer'lar bu mesajı yakalar ve ürünü favorileyen kullanıcılara `SignalR` üzerinden anlık bildirim gönderir.
-*   **Stok Uyarıları:** Kritik stok seviyelerine ulaşıldığında otomatik sistem bildirimleri.
+**Clean Architecture (Onion Architecture)** üzerine kurulu beş katmanlı yapı:
 
-### Ödeme ve Güvenlik
-*   **Iyzico Entegrasyonu:** Güvenli ödeme altyapısı ve işlem takibi.
-*   **JWT Authentication:** ASP.NET Core Identity ile güçlendirilmiş, güvenli token tabanlı oturum yönetimi.
-*   **Distributed Locking:** Redis tabanlı `RedLockNet` ile yarış durumlarını (race conditions) önleyen güvenli işlem yönetimi.
-
-### İletişim ve Trafik
-*   **Direct Message (DM):** Alıcı ve satıcılar arasında `ChatHub` ile anlık mesajlaşma.
-*   **Destek Sistemi:** `SupportHub` üzerinden canlı müşteri desteği.
-*   **Canlı Trafik İzleme:** `TrafficHub` ile online kullanıcı sayısı ve site trafiğinin anlık takibi.
-
-### Modern Arayüz
-*   **Monochrome UI:** Gözü yormayan, premium hissettiren siyah-beyaz minimalist tasarım.
-*   **İleri Seviye Angular:** Standalone component mimarisi, RxJS tabanlı reaktif veri yönetimi ve `ngx-translate` ile tam i18n desteği.
+| Katman | Sorumluluk |
+|--------|-----------|
+| `API` | RESTful endpoint'ler, SignalR Hub'ları, Middleware pipeline |
+| `Application` | İş mantığı, DTO mapping (AutoMapper), Event Consumer'lar |
+| `Infrastructure` | Dış servis entegrasyonları — Iyzico, Redis, SignalR |
+| `Persistence` | EF Core konfigürasyonları, Repository implementasyonları, Seed verileri |
+| `Domain` | Çekirdek entity'ler ve iş kuralları |
 
 ---
 
-## Teknoloji Yığını
+## ✨ Öne Çıkan Özellikler
 
-### Backend
-- **Framework:** .NET 10 (C# 14)
-- **Veritabanı:** PostgreSQL (Entity Framework Core)
-- **Önbellekleme:** Redis (Distributed Cache & Distributed Lock)
-- **Mesajlaşma:** RabbitMQ & MassTransit
-- **API Dokümantasyonu:** Scalar (Mars Theme)
-- **Logging:** Serilog (File-based)
+**🔔 Gerçek Zamanlı Bildirimler**
+Admin bir ürünün fiyatını güncellediğinde `ProductPriceChangedEvent` RabbitMQ üzerinden yayınlanır; MassTransit consumer bu mesajı yakalar ve ürünü favorileyen tüm kullanıcılara **SignalR** üzerinden anlık bildirim iletir.
 
-### Frontend
-- **Framework:** Angular 21 (Latest/Experimental)
-- **State Management:** RxJS (Observables & Subjects)
-- **UI Libraries:** Bootstrap Icons, Swiper.js, Chart.js
-- **Localization:** @ngx-translate
+**💳 Ödeme & Güvenlik**
+Iyzico entegrasyonu ile güvenli ödeme altyapısı; JWT + ASP.NET Identity ile token tabanlı oturum yönetimi; Redis tabanlı **RedLock** ile race condition'lara karşı dağıtık kilit mekanizması.
+
+**💬 İletişim**
+- `ChatHub` — Alıcı-satıcı arası anlık mesajlaşma
+- `SupportHub` — Canlı müşteri destek sistemi
+- `TrafficHub` — Online kullanıcı sayısı ve site trafiğinin gerçek zamanlı takibi
+
+**🎨 Modern Arayüz**
+Gözü yormayan monochrome UI; Standalone component mimarisi; RxJS tabanlı reaktif veri yönetimi; `ngx-translate` ile tam i18n desteği.
 
 ---
 
-## Sistem Akış Diyagramı
+## 🛠️ Teknoloji Yığını
+
+**Backend**
+- .NET 10 / C# 14 · PostgreSQL + Entity Framework Core
+- Redis (Cache & Distributed Lock) · RabbitMQ + MassTransit
+- Scalar API Docs (Mars Theme) · Serilog
+
+**Frontend**
+- Angular 21 · RxJS · Bootstrap Icons · Swiper.js · Chart.js · @ngx-translate
+
+---
+
+## 🔄 Sistem Akış Diyagramı
 
 ```mermaid
 sequenceDiagram
@@ -85,37 +85,34 @@ sequenceDiagram
 
 ---
 
-## Kurulum Adımları
+## 🚀 Kurulum
 
-### Ön Koşullar
-*   .NET 10 SDK
-*   Node.js (v20+)
-*   Docker (RabbitMQ ve Redis için)
+**Ön koşullar:** .NET 10 SDK · Node.js v20+ · Docker
 
-### 1. Servisleri Başlatın (Docker)
+**1 — Servisleri başlat**
 ```bash
 docker run -d --name eticaret-redis -p 6379:6379 redis
 docker run -d --name eticaret-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
 
-### 2. Backend Kurulumu
+**2 — Backend**
 ```bash
 cd ETicaretProjesiV2.0/ETicaretProjesiV2.0.API
 dotnet ef database update
 dotnet run
 ```
-*API: `https://localhost:7185` | Scalar API Docs: `https://localhost:7185/scalar/v1`*
+> API: `https://localhost:7185` · Scalar Docs: `https://localhost:7185/scalar/v1`
 
-### 3. Frontend Kurulumu
+**3 — Frontend**
 ```bash
 cd Eticaret-client
 npm install
 npm start
 ```
-*Client: `http://localhost:4200`*
+> Client: `http://localhost:4200`
 
 ---
 
-## Lisans ve Katkıda Bulunma
-Bu proje eğitim ve portfolyo amaçlı geliştirilmiştir. Katkıda bulunmak için lütfen bir `Issue` açın veya `Pull Request` gönderin.
+## 📄 Lisans
 
+Bu proje eğitim ve portfolyo amaçlı geliştirilmiştir. Katkıda bulunmak için bir `Issue` açın veya `Pull Request` gönderin.
